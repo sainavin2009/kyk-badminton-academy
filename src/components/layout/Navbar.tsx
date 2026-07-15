@@ -21,12 +21,10 @@ const Navbar = () => {
     { name: 'Contact', href: 'contact' },
   ];
 
-  // Handle scroll effects (shrink & scroll spy)
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 20);
 
-      // Scroll Spy Logic
       const sections = navItems.map(item => document.getElementById(item.href));
       const scrollPosition = window.scrollY + 100;
 
@@ -60,99 +58,102 @@ const Navbar = () => {
   return (
     <nav 
       className={cn(
-        "fixed top-0 w-full z-50 transition-all duration-500",
+        "fixed top-0 w-full z-50 transition-all duration-500 ease-in-out",
         scrolled 
-          ? "bg-white/80 backdrop-blur-lg shadow-lg h-16" 
-          : "bg-transparent h-24"
+          ? "bg-white/90 backdrop-blur-xl shadow-lg h-20" 
+          : "bg-transparent h-28"
       )}
+      aria-label="Main Navigation"
     >
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
-        {/* Logo */}
         <Link 
           to="/" 
           onClick={() => handleNavClick('home')}
-          className="flex items-center gap-2 group"
+          className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC107] rounded-lg p-1"
+          aria-label="KYK Academy Home"
         >
-          <div className={cn(
-            "p-2 rounded-xl transition-all duration-300",
-            scrolled ? "bg-[#0F4C81] text-[#FFC107]" : "bg-[#FFC107] text-[#0F4C81]"
-          )}>
+          <motion.div 
+            whileHover={{ rotate: 15, scale: 1.1 }}
+            className={cn(
+              "p-2.5 rounded-xl transition-all duration-300 shadow-lg",
+              scrolled ? "bg-[#0F4C81] text-[#FFC107]" : "bg-[#FFC107] text-[#0F4C81]"
+            )}
+          >
             <Trophy className="h-6 w-6" />
-          </div>
+          </motion.div>
           <span className={cn(
-            "text-xl font-black tracking-tighter uppercase transition-colors duration-300",
+            "text-xl md:text-2xl font-black tracking-tighter uppercase transition-colors duration-300",
             scrolled ? "text-[#0F4C81]" : "text-white"
           )}>
             KYK Academy
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-2">
           {navItems.map((item) => (
             <button
               key={item.href}
               onClick={() => handleNavClick(item.href)}
               className={cn(
-                "px-5 py-2 text-sm font-bold uppercase tracking-widest transition-all relative group",
+                "px-4 py-2 text-xs font-black uppercase tracking-widest transition-all relative group rounded-lg",
                 scrolled 
                   ? (activeSection === item.href ? "text-[#0F4C81]" : "text-slate-500 hover:text-[#0F4C81]") 
                   : (activeSection === item.href ? "text-[#FFC107]" : "text-white/80 hover:text-white")
               )}
             >
-              {item.name}
+              <span className="relative z-10">{item.name}</span>
               {activeSection === item.href && (
                 <motion.div
                   layoutId="nav-underline"
-                  className="absolute bottom-0 left-5 right-5 h-0.5 bg-[#FFC107] rounded-full"
+                  className="absolute bottom-1 left-4 right-4 h-0.5 bg-[#FFC107] rounded-full"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
             </button>
           ))}
-          <div className="ml-4">
+          <div className="ml-6">
             <Button 
               asChild 
               className={cn(
-                "rounded-full font-bold px-8 transition-all duration-300",
+                "rounded-full font-black px-8 py-6 h-auto transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl",
                 scrolled 
-                  ? "bg-[#0F4C81] text-white hover:bg-[#0F4C81]/90 shadow-md" 
-                  : "bg-[#FFC107] text-[#0F4C81] hover:bg-[#FFC107]/90 shadow-lg shadow-[#FFC107]/20"
+                  ? "bg-[#0F4C81] text-white hover:bg-[#0F4C81]/90" 
+                  : "bg-[#FFC107] text-[#0F4C81] hover:bg-[#FFC107]/90 shadow-[#FFC107]/20"
               )}
             >
-              <Link to="/join">Join Us</Link>
+              <Link to="/join">Join Now</Link>
             </Button>
           </div>
         </div>
 
-        {/* Mobile Toggle */}
         <button 
           className={cn(
-            "md:hidden p-2 rounded-xl transition-colors",
-            scrolled ? "text-[#0F4C81] bg-slate-100" : "text-white bg-white/10"
+            "md:hidden p-3 rounded-2xl transition-all active:scale-90",
+            scrolled ? "text-[#0F4C81] bg-slate-100" : "text-white bg-white/10 backdrop-blur-md"
           )} 
           onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-label="Toggle Menu"
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b shadow-2xl overflow-hidden"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden absolute top-full left-0 w-full bg-white shadow-2xl overflow-hidden border-t"
           >
-            <div className="p-6 space-y-2">
+            <div className="p-8 space-y-3">
               {navItems.map((item) => (
                 <button
                   key={item.href}
                   onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    "w-full text-left p-4 rounded-2xl text-lg font-bold uppercase tracking-wider transition-all",
+                    "w-full text-left p-4 rounded-2xl text-xl font-black uppercase tracking-tight transition-all",
                     activeSection === item.href 
                       ? "bg-[#0F4C81]/5 text-[#0F4C81]" 
                       : "text-slate-600 hover:bg-slate-50"
@@ -161,12 +162,13 @@ const Navbar = () => {
                   {item.name}
                 </button>
               ))}
-              <div className="pt-4">
+              <div className="pt-6">
                 <Button 
                   asChild 
-                  className="w-full h-14 rounded-2xl bg-[#0F4C81] text-white font-bold text-lg"
+                  className="w-full h-16 rounded-2xl bg-[#0F4C81] text-white font-black text-xl uppercase tracking-tight shadow-xl"
+                  onClick={() => setIsOpen(false)}
                 >
-                  <Link to="/join" onClick={() => setIsOpen(false)}>Join Now</Link>
+                  <Link to="/join">Join Academy</Link>
                 </Button>
               </div>
             </div>

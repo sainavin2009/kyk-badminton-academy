@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Zap, Heart, Target, ChevronRight } from 'lucide-react';
+import { Trophy, Zap, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import BadmintonGallery from './BadmintonGallery';
@@ -13,9 +13,9 @@ const activities = [
     id: 'badminton',
     label: 'Badminton',
     icon: Trophy,
-    title: 'Badminton Excellence',
-    subtitle: 'Master the Court',
-    description: 'Our core program focuses on developing world-class technical skills, lightning-fast footwork, and strategic game intelligence.',
+    title: 'Court Mastery',
+    subtitle: 'Elite Performance',
+    description: 'Our core program focuses on developing world-class technical skills, explosive footwork, and strategic intelligence.',
     color: '#0F4C81'
   },
   {
@@ -23,8 +23,8 @@ const activities = [
     label: 'CrossFit',
     icon: Zap,
     title: 'CrossFit Power',
-    subtitle: 'Build the Foundation',
-    description: 'Designed specifically to complement high-performance sports. Functional strength and explosive power sessions.',
+    subtitle: 'Base Foundation',
+    description: 'Designed specifically to complement high-performance racket sports. Build functional strength and elite stamina.',
     color: '#FFC107'
   }
 ];
@@ -35,48 +35,45 @@ const ActivitiesSection = () => {
   const currentActivity = activities.find(a => a.id === activeTab)!;
 
   return (
-    <section id="activities" className="py-24 bg-slate-50 overflow-hidden">
+    <section id="activities" className="py-24 md:py-32 bg-slate-50 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-20">
+          <motion.span 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-4 block"
+          >
+            Training Domains
+          </motion.span>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black text-[#0F4C81] mb-4"
+            className="text-5xl md:text-7xl font-black text-[#0F4C81] leading-tight uppercase tracking-tighter"
           >
-            Train Like a <span className="text-[#FFC107]">Pro</span>
+            Train Like a <span className="text-[#FFC107] drop-shadow-sm">Winner</span>
           </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-slate-500 text-lg max-w-2xl mx-auto"
-          >
-            We offer specialized training environments tailored to your specific goals and athletic needs.
-          </motion.p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex justify-center mb-12">
-          <div className="relative flex bg-white p-1.5 rounded-full shadow-md border border-slate-200">
+        <div className="flex justify-center mb-20">
+          <div className="relative flex bg-white p-2 rounded-full shadow-2xl border border-slate-200">
             {activities.map((activity) => (
               <button
                 key={activity.id}
                 onClick={() => setActiveTab(activity.id)}
-                className={`relative px-8 py-3 rounded-full text-sm font-bold transition-colors z-10 ${
+                className={`relative px-10 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all z-10 flex items-center gap-3 ${
                   activeTab === activity.id ? 'text-[#0F4C81]' : 'text-slate-400 hover:text-slate-600'
                 }`}
+                aria-selected={activeTab === activity.id}
+                role="tab"
               >
-                <div className="flex items-center gap-2">
-                  <activity.icon size={18} />
-                  {activity.label}
-                </div>
+                <activity.icon size={20} strokeWidth={2} />
+                {activity.label}
                 {activeTab === activity.id && (
                   <motion.div
                     layoutId="active-pill"
-                    className="absolute inset-0 bg-[#FFC107] rounded-full -z-10"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    className="absolute inset-0 bg-[#FFC107] rounded-full -z-10 shadow-lg shadow-[#FFC107]/20"
+                    transition={{ type: "spring", bounce: 0.15, duration: 0.6 }}
                   />
                 )}
               </button>
@@ -84,35 +81,36 @@ const ActivitiesSection = () => {
           </div>
         </div>
 
-        {/* Content Area */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="space-y-16"
           >
-            {/* Tab Header Info */}
-            <div className="max-w-3xl mx-auto text-center space-y-4 mb-8">
-              <h3 className="text-sm font-bold tracking-[0.2em] text-[#0F4C81] uppercase">{currentActivity.subtitle}</h3>
-              <h4 className="text-4xl font-black text-[#0F4C81]">{currentActivity.title}</h4>
-              <p className="text-lg text-slate-600">{currentActivity.description}</p>
+            <div className="max-w-3xl mx-auto text-center space-y-6">
+              <h3 className="text-sm font-black tracking-[0.3em] text-[#0F4C81] uppercase opacity-60">
+                {currentActivity.subtitle}
+              </h3>
+              <h4 className="text-4xl md:text-5xl font-black text-[#0F4C81] tracking-tighter uppercase">
+                {currentActivity.title}
+              </h4>
+              <p className="text-xl text-slate-500 font-medium leading-relaxed">
+                {currentActivity.description}
+              </p>
             </div>
 
-            {/* Tab Specific Content */}
-            {activeTab === 'badminton' ? (
-              <BadmintonGallery />
-            ) : (
-              <CrossFitGallery />
-            )}
+            <div className="max-w-7xl mx-auto">
+              {activeTab === 'badminton' ? <BadmintonGallery /> : <CrossFitGallery />}
+            </div>
 
             <div className="flex justify-center pt-8">
-              <Button asChild size="lg" className="rounded-full bg-[#0F4C81] hover:bg-[#0F4C81]/90 px-10 group">
+              <Button asChild size="lg" className="h-20 px-12 rounded-full bg-[#0F4C81] text-white hover:bg-[#0F4C81]/90 text-2xl font-black uppercase tracking-tight shadow-2xl transition-all hover:scale-105 active:scale-95 group">
                 <Link to="/programs">
                   View Full Program
-                  <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="ml-2 w-6 h-6 group-hover:translate-x-2 transition-transform" />
                 </Link>
               </Button>
             </div>
