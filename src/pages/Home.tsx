@@ -4,6 +4,7 @@ import React from 'react';
 import Hero from '@/components/home/Hero';
 import AboutSection from '@/components/home/AboutSection';
 import ActivitiesSection from '@/components/home/ActivitiesSection';
+import ContactSection from '@/components/home/ContactSection';
 
 const Home = () => {
   return (
@@ -24,6 +25,8 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      <ContactSection />
     </div>
   );
 };
