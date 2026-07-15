@@ -9,7 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import MainLayout from "@/layouts/MainLayout";
 
 // Pages
-import Home from "./pages/Home";
+import Index from "./pages/Index";
 import About from "./pages/About";
 import Programs from "./pages/Programs";
 import Gallery from "./pages/Gallery";
@@ -36,14 +36,21 @@ const App = () => (
         <Sonner position="top-center" expand={true} richColors />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+            {/* Landing / Home */}
+            <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+            
+            {/* Standard Pages */}
             <Route path="/about" element={<MainLayout><About /></MainLayout>} />
             <Route path="/programs" element={<MainLayout><Programs /></MainLayout>} />
             <Route path="/gallery" element={<MainLayout><Gallery /></MainLayout>} />
             <Route path="/join" element={<MainLayout><Join /></MainLayout>} />
             <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+            
+            {/* System / Auth */}
             <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            
+            {/* Fallback */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
