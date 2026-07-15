@@ -1,8 +1,9 @@
 "use client";
 
 import React from 'react';
-import GalleryGrid from '../components/gallery/GalleryGrid';
-import { GalleryItem } from '../components/gallery/GalleryCard';
+import GalleryGrid from '@/components/gallery/GalleryGrid';
+import VideoCard from '@/components/video/VideoCard';
+import { GalleryItem } from '@/components/gallery/GalleryCard';
 
 const galleryData: GalleryItem[] = [
   {
@@ -14,7 +15,7 @@ const galleryData: GalleryItem[] = [
   },
   {
     id: 2,
-    type: 'video',
+    type: 'image',
     title: "Smash Technique",
     category: "Mastery",
     thumbnail: "https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=2070",
@@ -32,40 +33,30 @@ const galleryData: GalleryItem[] = [
     title: "Elite Fitness",
     category: "Strength",
     thumbnail: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070",
-  },
+  }
+];
+
+const featuredVideos = [
   {
-    id: 5,
-    type: 'video',
-    title: "Footwork Drills",
-    category: "Agility",
+    title: "Academy Training Philosophy",
+    description: "Discover how we combine traditional techniques with modern sports science to create champions.",
     thumbnail: "https://images.unsplash.com/photo-1531315630201-bb15abeb1653?q=80&w=2070",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    category: "Philosophy"
   },
   {
-    id: 6,
-    type: 'image',
-    title: "Tournament Finals",
-    category: "Events",
+    title: "Mastering the Backhand Smash",
+    description: "Detailed breakdown of the footwork and wrist action required for the perfect backhand smash.",
     thumbnail: "https://images.unsplash.com/photo-1613912111169-58bc44933a0e?q=80&w=2070",
-  },
-  {
-    id: 7,
-    type: 'image',
-    title: "Coaching Session",
-    category: "Mentorship",
-    thumbnail: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070",
-  },
-  {
-    id: 8,
-    type: 'image',
-    title: "Academy Grounds",
-    category: "Facility",
-    thumbnail: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=2070",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    category: "Tutorial"
   }
 ];
 
 const Gallery = () => {
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
       <section className="pt-32 pb-16 bg-[#0F4C81] text-white">
         <div className="container mx-auto px-4 text-center">
           <span className="inline-block px-4 py-1.5 rounded-full bg-[#FFC107]/20 text-[#FFC107] text-xs font-black tracking-widest uppercase mb-6">
@@ -78,8 +69,28 @@ const Gallery = () => {
         </div>
       </section>
 
-      <section className="py-20">
+      {/* Featured Videos Section */}
+      <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-4">
+          <div className="mb-12">
+            <h2 className="text-3xl font-black text-[#0F4C81] tracking-tight">Featured Training Videos</h2>
+            <div className="w-16 h-1.5 bg-[#FFC107] mt-2 rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {featuredVideos.map((video, idx) => (
+              <VideoCard key={idx} {...video} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Image Grid */}
+      <section className="py-24">
+        <div className="container mx-auto px-4">
+          <div className="mb-12">
+            <h2 className="text-3xl font-black text-[#0F4C81] tracking-tight">Photo Archive</h2>
+            <div className="w-16 h-1.5 bg-[#FFC107] mt-2 rounded-full" />
+          </div>
           <GalleryGrid items={galleryData} />
         </div>
       </section>
