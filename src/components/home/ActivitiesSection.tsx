@@ -5,36 +5,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Zap, Heart, Target, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import BadmintonGallery from './BadmintonGallery';
 
 const activities = [
   {
     id: 'badminton',
     label: 'Badminton',
     icon: Trophy,
-    title: 'Elite Badminton Coaching',
-    subtitle: 'Master the Court with Professional Guidance',
-    description: 'Our core program focuses on developing world-class technical skills, lightning-fast footwork, and strategic game intelligence. Whether you are a beginner or an elite athlete, we have a path for you.',
-    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070',
-    benefits: [
-      { icon: Target, text: 'Precision Stroke Techniques' },
-      { icon: Zap, text: 'Explosive Court Movement' },
-      { icon: Heart, text: 'Competitive Match Play' }
-    ],
+    title: 'Badminton Excellence',
+    subtitle: 'Master the Court',
+    description: 'Our core program focuses on developing world-class technical skills, lightning-fast footwork, and strategic game intelligence.',
     color: '#0F4C81'
   },
   {
     id: 'crossfit',
     label: 'CrossFit',
     icon: Zap,
-    title: 'CrossFit for Athletes',
-    subtitle: 'Build the Foundation of a Champion',
-    description: 'Designed specifically to complement high-performance sports. Our CrossFit sessions focus on functional strength, explosive power, and metabolic conditioning to keep you performing at your peak.',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070',
-    benefits: [
-      { icon: Zap, text: 'Functional Power' },
-      { icon: Heart, text: 'Elite Endurance' },
-      { icon: Target, text: 'Core Stability' }
-    ],
+    title: 'CrossFit Power',
+    subtitle: 'Build the Foundation',
+    description: 'Designed specifically to complement high-performance sports. Functional strength and explosive power sessions.',
     color: '#FFC107'
   }
 ];
@@ -95,71 +84,57 @@ const ActivitiesSection = () => {
         </div>
 
         {/* Content Area */}
-        <div className="min-h-[500px] relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="flex flex-col lg:flex-row items-center gap-12"
-            >
-              {/* Text Content */}
-              <div className="lg:w-1/2 space-y-8">
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold tracking-[0.2em] text-[#0F4C81] uppercase">{currentActivity.subtitle}</h3>
-                  <h4 className="text-4xl md:text-5xl font-black text-[#0F4C81] leading-tight">
-                    {currentActivity.title.split(currentActivity.label)[0]}
-                    <span className="text-[#FFC107]">{currentActivity.label}</span>
-                    {currentActivity.title.split(currentActivity.label)[1]}
-                  </h4>
-                  <p className="text-lg text-slate-600 leading-relaxed">
-                    {currentActivity.description}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-12"
+          >
+            {/* Tab Header Info */}
+            <div className="max-w-3xl mx-auto text-center space-y-4 mb-8">
+              <h3 className="text-sm font-bold tracking-[0.2em] text-[#0F4C81] uppercase">{currentActivity.subtitle}</h3>
+              <h4 className="text-4xl font-black text-[#0F4C81]">{currentActivity.title}</h4>
+              <p className="text-lg text-slate-600">{currentActivity.description}</p>
+            </div>
+
+            {/* Tab Specific Content */}
+            {activeTab === 'badminton' ? (
+              <BadmintonGallery />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
+                <div className="space-y-6">
+                  <h5 className="text-3xl font-black text-[#0F4C81]">Explosive Power & Agility</h5>
+                  <p className="text-slate-600 text-lg">
+                    Our CrossFit modules are strictly focused on functional movements that directly translate to better court performance. High intensity, high results.
                   </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {currentActivity.benefits.map((benefit, idx) => (
-                    <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center space-y-2">
-                      <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-[#0F4C81]">
-                        <benefit.icon size={20} />
-                      </div>
-                      <span className="text-xs font-bold text-[#0F4C81] uppercase tracking-tight">{benefit.text}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="pt-4">
-                  <Button asChild size="lg" className="rounded-full bg-[#0F4C81] hover:bg-[#0F4C81]/90 px-8 group">
-                    <Link to="/join">
-                      Learn More
-                      <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                  <ul className="space-y-3">
+                    {['Strength Training', 'High Intensity Cardio', 'Core Stability'].map((item) => (
+                      <li key={item} className="flex items-center gap-3 font-bold text-[#0F4C81]">
+                        <div className="w-6 h-6 rounded-full bg-[#FFC107] flex items-center justify-center">
+                          <Zap size={14} className="text-[#0F4C81]" />
+                        </div>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button asChild size="lg" className="rounded-full bg-[#0F4C81]">
+                    <Link to="/join">Get Started</Link>
                   </Button>
                 </div>
-              </div>
-
-              {/* Image Side */}
-              <div className="lg:w-1/2 w-full">
-                <div className="relative group">
-                  <div className="absolute -inset-4 bg-gradient-to-r from-[#FFC107] to-[#0F4C81] opacity-10 blur-2xl group-hover:opacity-20 transition duration-1000"></div>
-                  <motion.div 
-                    layoutId={`image-${activeTab}`}
-                    className="relative aspect-video lg:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl"
-                  >
-                    <img 
-                      src={currentActivity.image} 
-                      alt={currentActivity.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F4C81]/40 to-transparent" />
-                  </motion.div>
+                <div className="rounded-3xl overflow-hidden shadow-2xl">
+                  <img 
+                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070" 
+                    alt="CrossFit training" 
+                    className="w-full h-full object-cover aspect-video"
+                  />
                 </div>
               </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   );
