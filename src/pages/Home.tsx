@@ -2,19 +2,22 @@
 
 import React from 'react';
 import Hero from '@/components/home/Hero';
+import AboutSection from '@/components/home/AboutSection';
 
 const Home = () => {
   return (
     <div className="min-h-screen bg-white">
       <Hero />
+      <AboutSection />
       
-      {/* Other sections will go here */}
-      <section className="py-24 bg-slate-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-5xl font-bold text-[#0F4C81] mb-6">Why Choose KYK Academy?</h2>
-            <p className="text-lg text-slate-600">
-              We provide state-of-the-art facilities and professional coaching to help you master the game of badminton. From beginners to advanced competitive players, we have a program tailored for you.
+      {/* Testimonials/Other sections will go here */}
+      <section className="py-24 bg-[#0F4C81]">
+        <div className="container mx-auto px-4 text-center text-white">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 italic">"Excellence is not a skill, it's an attitude."</h2>
+            <div className="w-20 h-1 bg-[#FFC107] mx-auto mb-8" />
+            <p className="text-xl text-white/70">
+              Join the academy where winners are made. Our specialized training programs are designed to push you to your limits and beyond.
             </p>
           </div>
         </div>
