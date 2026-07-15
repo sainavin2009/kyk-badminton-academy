@@ -6,49 +6,103 @@ import AboutSection from '@/components/home/AboutSection';
 import ActivitiesSection from '@/components/home/ActivitiesSection';
 import ContactSection from '@/components/home/ContactSection';
 import { motion } from 'framer-motion';
+import { Award, Target, Zap, ShieldCheck } from 'lucide-react';
+
+const stats = [
+  { label: "Elite Coaches", value: "12+", icon: Target },
+  { label: "Pro Courts", value: "08", icon: Award },
+  { label: "Active Members", value: "250+", icon: Zap },
+  { label: "Awards Won", value: "100+", icon: ShieldCheck }
+];
 
 const Index = () => {
   useEffect(() => {
-    document.title = "KYK Badminton Academy | Landing Page";
+    document.title = "KYK Badminton Academy | World Class Training Center";
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* 1. Hero */}
+    <div className="min-h-screen bg-white selection:bg-[#FFC107] selection:text-[#0F4C81]">
+      {/* 1. Hero Experience */}
       <Hero />
 
-      {/* 2. About Us */}
+      {/* 2. Philosophy & About */}
       <AboutSection />
 
-      {/* 3. Activities */}
-      <ActivitiesSection />
-
-      {/* Trust & Performance Mid-Section (Optional polish for premium feel) */}
-      <section className="py-20 bg-[#0F4C81]">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-            {[
-              { label: "Elite Coaches", value: "12+" },
-              { label: "Courts", value: "08" },
-              { label: "Active Members", value: "250+" },
-              { label: "Medals Won", value: "100+" }
-            ].map((stat, idx) => (
+      {/* 3. Performance Metrics Mid-Section */}
+      <section className="py-24 bg-[#0F4C81] relative overflow-hidden">
+        {/* Background Accents */}
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-[#FFC107]/5 -skew-x-12 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-1/3 h-full bg-white/5 skew-x-12 -translate-x-1/2" />
+        
+        <div className="container mx-auto px-12 relative z-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24">
+            {stats.map((stat, idx) => (
               <motion.div 
                 key={idx}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-center space-y-2"
+                transition={{ delay: idx * 0.1 }}
+                className="group flex flex-col items-center lg:items-start space-y-4"
               >
-                <div className="text-4xl md:text-6xl font-black text-[#FFC107] tracking-tighter">{stat.value}</div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-white/40">{stat.label}</div>
+                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[#FFC107] group-hover:bg-[#FFC107] group-hover:text-[#0F4C81] transition-all duration-500">
+                  <stat.icon size={32} />
+                </div>
+                <div className="text-center lg:text-left">
+                  <div className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none mb-2">
+                    {stat.value}
+                  </div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107]/60">
+                    {stat.label}
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4. Contact */}
+      {/* 4. Training Domains & Gallery */}
+      <ActivitiesSection />
+
+      {/* 5. Client Testimonial / Trust Section (Premium touch) */}
+      <section className="py-32 bg-white">
+        <div className="container mx-auto px-8 lg:px-12">
+          <div className="flex flex-col lg:flex-row items-center gap-20">
+            <div className="lg:w-1/3">
+              <h3 className="text-4xl md:text-5xl font-black text-[#0F4C81] leading-[0.9] tracking-tighter uppercase mb-8">
+                What Our <br />
+                <span className="text-[#FFC107]">Athletes Say</span>
+              </h3>
+              <div className="w-20 h-2 bg-[#FFC107] rounded-full" />
+            </div>
+            <div className="lg:w-2/3">
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="bg-slate-50 p-12 md:p-20 rounded-[4rem] relative shadow-inner"
+              >
+                <div className="absolute top-10 left-10 text-[#FFC107]/20 font-serif text-[12rem] leading-none">“</div>
+                <p className="text-2xl md:text-3xl font-bold text-[#0F4C81] italic leading-relaxed relative z-10 mb-10">
+                  The intensity at KYK is unlike any other academy. They don't just teach you the smash; they teach you how to dominate the court mentally. Within 6 months, my national ranking jumped significantly.
+                </p>
+                <div className="flex items-center gap-5">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-200 overflow-hidden">
+                    <img src="https://i.pravatar.cc/100?img=12" alt="Athlete" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-black text-[#0F4C81] uppercase tracking-tight">Rohan Varma</div>
+                    <div className="text-[10px] font-black text-[#FFC107] uppercase tracking-[0.2em]">National Junior Squad</div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Contact & Enrollment */}
       <ContactSection />
     </div>
   );

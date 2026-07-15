@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Exact Client Requested Colors */
+    /* Brand Palette */
     --academy-blue: 209 79% 28%; /* #0F4C81 */
     --academy-gold: 45 100% 51%; /* #FFC107 */
     
@@ -36,7 +36,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 209 79% 28%;
 
-    --radius: 1.5rem;
+    --radius: 2rem;
   }
 
   html {
@@ -64,5 +64,8 @@
   }
   .glass-card {
     @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  .academy-gradient {
+    @apply bg-gradient-to-br from-[#0F4C81] to-[#0A2A47];
   }
 }
