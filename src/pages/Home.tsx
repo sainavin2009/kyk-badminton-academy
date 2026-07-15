@@ -1,44 +1,22 @@
 "use client";
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import Hero from '@/components/home/Hero';
 
 const Home = () => {
   return (
-    <div className="space-y-20 pb-20">
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070')] bg-cover bg-center" />
-        <div className="container relative z-10 px-4 text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tighter"
-          >
-            Nurturing <span className="text-green-500">Champions</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto"
-          >
-            Experience world-class badminton coaching at KYK Academy. Elevate your game with our expert-led programs.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Button size="lg" className="rounded-full bg-green-600 hover:bg-green-700 h-14 px-8 text-lg">
-              <Link to="/join">Join the Academy</Link>
-            </Button>
-            <Button variant="outline" size="lg" className="rounded-full h-14 px-8 text-lg border-white text-white hover:bg-white/10">
-              <Link to="/programs">Explore Programs</Link>
-            </Button>
-          </motion.div>
+    <div className="min-h-screen bg-white">
+      <Hero />
+      
+      {/* Other sections will go here */}
+      <section className="py-24 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-5xl font-bold text-[#0F4C81] mb-6">Why Choose KYK Academy?</h2>
+            <p className="text-lg text-slate-600">
+              We provide state-of-the-art facilities and professional coaching to help you master the game of badminton. From beginners to advanced competitive players, we have a program tailored for you.
+            </p>
+          </div>
         </div>
       </section>
     </div>
