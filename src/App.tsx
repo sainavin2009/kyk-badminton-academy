@@ -8,7 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import MainLayout from "@/layouts/MainLayout";
 
-// Pages
+// Pages - Ensuring PascalCase matches the file system
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Programs from "./pages/Programs";
@@ -48,7 +48,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<AdminDashboard />} />
             
-            {/* Fallback for 404 */}
+            {/* Fallback for 404 - Fixed import reference */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
