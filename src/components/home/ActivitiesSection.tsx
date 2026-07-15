@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React,useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Zap, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,12 +31,11 @@ const activities = [
 
 const ActivitiesSection = () => {
   const [activeTab, setActiveTab] = useState(activities[0].id);
-
   const currentActivity = activities.find(a => a.id === activeTab)!;
 
   return (
     <section id="activities" className="py-24 md:py-32 bg-slate-50 overflow-hidden">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6">
         <div className="text-center mb-20">
           <motion.span 
             initial={{ opacity: 0 }}
@@ -51,10 +50,11 @@ const ActivitiesSection = () => {
             viewport={{ once: true }}
             className="text-5xl md:text-7xl font-black text-[#0F4C81] leading-tight uppercase tracking-tighter"
           >
-            Train Like a <span className="text-[#FFC107] drop-shadow-sm">Winner</span>
+            Train Like a <span className="text-[#FFC107]">Winner</span>
           </motion.h2>
         </div>
 
+        {/* Tab Switcher */}
         <div className="flex justify-center mb-20">
           <div className="relative flex bg-white p-2 rounded-full shadow-2xl border border-slate-200">
             {activities.map((activity) => (
@@ -64,8 +64,6 @@ const ActivitiesSection = () => {
                 className={`relative px-10 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all z-10 flex items-center gap-3 ${
                   activeTab === activity.id ? 'text-[#0F4C81]' : 'text-slate-400 hover:text-slate-600'
                 }`}
-                aria-selected={activeTab === activity.id}
-                role="tab"
               >
                 <activity.icon size={20} strokeWidth={2} />
                 {activity.label}
@@ -87,13 +85,10 @@ const ActivitiesSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.5 }}
             className="space-y-16"
           >
             <div className="max-w-3xl mx-auto text-center space-y-6">
-              <h3 className="text-sm font-black tracking-[0.3em] text-[#0F4C81] uppercase opacity-60">
-                {currentActivity.subtitle}
-              </h3>
               <h4 className="text-4xl md:text-5xl font-black text-[#0F4C81] tracking-tighter uppercase">
                 {currentActivity.title}
               </h4>
@@ -107,10 +102,10 @@ const ActivitiesSection = () => {
             </div>
 
             <div className="flex justify-center pt-8">
-              <Button asChild size="lg" className="h-20 px-12 rounded-full bg-[#0F4C81] text-white hover:bg-[#0F4C81]/90 text-2xl font-black uppercase tracking-tight shadow-2xl transition-all hover:scale-105 active:scale-95 group">
+              <Button asChild size="lg" className="h-16 px-12 rounded-full bg-[#0F4C81] text-white hover:bg-[#0F4C81]/90 text-xl font-black uppercase tracking-widest shadow-2xl transition-all hover:scale-105 group">
                 <Link to="/programs">
-                  View Full Program
-                  <ChevronRight className="ml-2 w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                  Explore Programs
+                  <ChevronRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
             </div>

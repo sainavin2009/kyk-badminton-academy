@@ -13,30 +13,30 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Academy Colors - Refined for depth */
-    --academy-blue: 209 79% 25%; /* #0B3E68 */
+    /* Exact Client Requested Colors */
+    --academy-blue: 209 79% 28%; /* #0F4C81 */
     --academy-gold: 45 100% 51%; /* #FFC107 */
     
     --primary: var(--academy-blue);
     --primary-foreground: 210 40% 98%;
 
     --secondary: var(--academy-gold);
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary-foreground: 209 79% 20%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
     --accent: 45 100% 51% / 0.1;
-    --accent-foreground: 209 79% 25%;
+    --accent-foreground: 209 79% 28%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 209 79% 25%;
+    --ring: 209 79% 28%;
 
-    --radius: 1.25rem;
+    --radius: 1.5rem;
   }
 
   html {
