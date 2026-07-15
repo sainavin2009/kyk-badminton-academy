@@ -3,14 +3,16 @@
 import React from 'react';
 import Hero from '@/components/home/Hero';
 import AboutSection from '@/components/home/AboutSection';
+import ActivitiesSection from '@/components/home/ActivitiesSection';
 
 const Home = () => {
   return (
     <div className="min-h-screen bg-white">
       <Hero />
       <AboutSection />
+      <ActivitiesSection />
       
-      {/* Testimonials/Other sections will go here */}
+      {/* Motivational Quote Section */}
       <section className="py-24 bg-[#0F4C81]">
         <div className="container mx-auto px-4 text-center text-white">
           <div className="max-w-4xl mx-auto">
