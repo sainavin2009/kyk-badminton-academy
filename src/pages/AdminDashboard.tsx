@@ -7,6 +7,7 @@ import AdminSidebar, { AdminTab } from '@/components/admin/AdminSidebar';
 import DashboardOverview from '@/components/admin/sections/DashboardOverview';
 import GalleryManager from '@/components/admin/sections/GalleryManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
+import AboutManager from '@/components/admin/sections/AboutManager';
 import { Bell, Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -31,7 +32,7 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'overview': return <DashboardOverview />;
-      case 'about': return <ContentSettings title="About Us" type="about" />;
+      case 'about': return <AboutManager />;
       case 'badminton': return <GalleryManager title="Badminton" type="badminton" />;
       case 'crossfit': return <GalleryManager title="CrossFit" type="crossfit" />;
       case 'contact': return <ContentSettings title="Contact" type="contact" />;
