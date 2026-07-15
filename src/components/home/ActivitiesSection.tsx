@@ -6,6 +6,7 @@ import { Trophy, Zap, Heart, Target, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import BadmintonGallery from './BadmintonGallery';
+import CrossFitGallery from './CrossFitGallery';
 
 const activities = [
   {
@@ -104,35 +105,17 @@ const ActivitiesSection = () => {
             {activeTab === 'badminton' ? (
               <BadmintonGallery />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
-                <div className="space-y-6">
-                  <h5 className="text-3xl font-black text-[#0F4C81]">Explosive Power & Agility</h5>
-                  <p className="text-slate-600 text-lg">
-                    Our CrossFit modules are strictly focused on functional movements that directly translate to better court performance. High intensity, high results.
-                  </p>
-                  <ul className="space-y-3">
-                    {['Strength Training', 'High Intensity Cardio', 'Core Stability'].map((item) => (
-                      <li key={item} className="flex items-center gap-3 font-bold text-[#0F4C81]">
-                        <div className="w-6 h-6 rounded-full bg-[#FFC107] flex items-center justify-center">
-                          <Zap size={14} className="text-[#0F4C81]" />
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button asChild size="lg" className="rounded-full bg-[#0F4C81]">
-                    <Link to="/join">Get Started</Link>
-                  </Button>
-                </div>
-                <div className="rounded-3xl overflow-hidden shadow-2xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070" 
-                    alt="CrossFit training" 
-                    className="w-full h-full object-cover aspect-video"
-                  />
-                </div>
-              </div>
+              <CrossFitGallery />
             )}
+
+            <div className="flex justify-center pt-8">
+              <Button asChild size="lg" className="rounded-full bg-[#0F4C81] hover:bg-[#0F4C81]/90 px-10 group">
+                <Link to="/programs">
+                  View Full Program
+                  <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
