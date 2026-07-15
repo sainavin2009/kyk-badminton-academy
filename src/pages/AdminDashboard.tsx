@@ -37,7 +37,7 @@ const AdminDashboard = () => {
       case 'badminton': return <GalleryManager title="Badminton" type="badminton" />;
       case 'crossfit': return <GalleryManager title="CrossFit" type="crossfit" />;
       case 'contact': return <ContactManager />;
-      case 'settings': return <ContentSettings title="Settings" type="settings" />;
+      case 'settings': return <ContentSettings />;
       default: return <DashboardOverview />;
     }
   };
