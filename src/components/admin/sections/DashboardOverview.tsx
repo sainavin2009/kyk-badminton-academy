@@ -10,6 +10,7 @@ import {
   ArrowDownRight
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 const stats = [
   { label: 'Total Athletes', value: '542', icon: Users, change: '+12%', trend: 'up' },
@@ -70,5 +71,4 @@ const DashboardOverview = () => {
   );
 };
 
-import { cn } from '@/lib/utils';
 export default DashboardOverview;
