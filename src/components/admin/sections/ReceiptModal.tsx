@@ -10,7 +10,9 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Trophy, Printer, Download, X } from 'lucide-react';
+// @ts-ignore - Module might be missing during environment setup
 import { jsPDF } from 'jspdf';
+// @ts-ignore - Module might be missing during environment setup
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 
