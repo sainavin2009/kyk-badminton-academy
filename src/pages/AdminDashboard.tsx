@@ -8,6 +8,7 @@ import DashboardOverview from '@/components/admin/sections/DashboardOverview';
 import GalleryManager from '@/components/admin/sections/GalleryManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
 import AboutManager from '@/components/admin/sections/AboutManager';
+import ContactManager from '@/components/admin/sections/ContactManager';
 import { Bell, Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
       case 'about': return <AboutManager />;
       case 'badminton': return <GalleryManager title="Badminton" type="badminton" />;
       case 'crossfit': return <GalleryManager title="CrossFit" type="crossfit" />;
-      case 'contact': return <ContentSettings title="Contact" type="contact" />;
+      case 'contact': return <ContactManager />;
       case 'settings': return <ContentSettings title="Settings" type="settings" />;
       default: return <DashboardOverview />;
     }
