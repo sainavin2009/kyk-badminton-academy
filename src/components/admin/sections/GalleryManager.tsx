@@ -1,86 +1,171 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
+import { motion, Reorder } from 'framer-motion';
 import { 
   Plus, 
   Search, 
   Filter, 
-  MoreVertical, 
-  Trash2, 
-  Eye, 
-  Image as ImageIcon
+  Image as ImageIcon, 
+  Play, 
+  ArrowUpDown,
+  CheckCircle2
 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel
+} from "@/components/ui/dropdown-menu";
+import GalleryItemCard from './GalleryItemCard';
+import { toast } from 'sonner';
 
 interface GalleryManagerProps {
   title: string;
   type: 'badminton' | 'crossfit';
 }
 
+const INITIAL_ITEMS = [
+  { id: '1', title: 'Power Smash', description: 'Elite technique demonstration', type: 'video' as const, url: '#', thumbnail: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=800' },
+  { id: '2', title: 'Court Footwork', description: 'Speed drills for beginners', type: 'image' as const, url: 'https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=800' },
+  { id: '3', title: 'Tournament Day', description: 'Final match highlights', type: 'image' as const, url: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=800' },
+  { id: '4', title: 'Junior Training', description: 'Building the foundation', type: 'video' as const, url: '#', thumbnail: 'https://images.unsplash.com/photo-1613912111169-58bc44933a0e?q=80&w=800' },
+  { id: '5', title: 'Elite Smash', description: 'Max power demonstration', type: 'image' as const, url: 'https://images.unsplash.com/photo-1531315630201-bb15abeb1653?q=80&w=800' },
+  { id: '6', title: 'Warmup Routine', description: 'Preventing injuries', type: 'image' as const, url: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800' },
+];
+
 const GalleryManager = ({ title, type }: GalleryManagerProps) => {
-  // Placeholder data
-  const items = Array.from({ length: 6 }).map((_, i) => ({
-    id: i + 1,
-    title: `${title} Action Shot ${i + 1}`,
-    date: 'Oct 12, 2023',
-    size: '1.2 MB'
-  }));
+  const [items, setItems] = useState(INITIAL_ITEMS);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'all' | 'image' | 'video'>('all');
+  const [isReordering, setIsReordering] = useState(false);
+
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
+                          item.description.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter = filter === 'all' || item.type === filter;
+    return matchesSearch && matchesFilter;
+  });
+
+  const handleDelete = (id: string) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+    toast.success('Media asset deleted successfully');
+  };
+
+  const handleEdit = (item: any) => {
+    toast.info(`Editing: ${item.title} (Modal integration ready)`);
+  };
+
+  const handleReorder = (newItems: any[]) => {
+    setItems(newItems);
+    if (!isReordering) {
+      setIsReordering(true);
+      setTimeout(() => setIsReordering(false), 2000);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">{title} Gallery</h2>
-          <p className="text-slate-500 font-medium">Manage and upload media for the {title} section.</p>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">{title} Gallery</h2>
+            {isReordering && (
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-600 text-[10px] font-black uppercase animate-bounce">
+                <CheckCircle2 size={12} /> Saving Order
+              </span>
+            )}
+          </div>
+          <p className="text-slate-500 font-medium">Drag assets to reorder, or use controls to manage media.</p>
         </div>
-        <Button className="h-14 px-8 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/20 group">
+        <Button className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/20 group">
           <Plus className="mr-2 group-hover:rotate-90 transition-transform" />
-          Upload New Media
+          Add Media Assets
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <div className="relative flex-grow">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
           <Input 
-            className="pl-12 h-14 rounded-2xl border-none bg-white shadow-sm font-medium" 
-            placeholder="Search media assets..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-14 h-16 rounded-2xl border-none bg-white shadow-sm font-bold text-slate-600 focus-visible:ring-2 focus-visible:ring-[#FFC107]" 
+            placeholder="Search by title or description..." 
           />
         </div>
-        <Button variant="outline" className="h-14 px-6 rounded-2xl bg-white border-none shadow-sm text-slate-500 font-bold">
-          <Filter className="mr-2" size={18} />
-          Filters
-        </Button>
+        
+        <div className="flex gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-16 px-6 rounded-2xl bg-white border-none shadow-sm text-slate-500 font-black uppercase tracking-widest hover:text-[#0F4C81]">
+                <Filter className="mr-2" size={18} />
+                Type: {filter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="rounded-2xl p-2 w-48">
+              <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">Filter Media</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setFilter('all')} className="rounded-xl h-10 font-bold">Show All</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter('image')} className="rounded-xl h-10 font-bold flex items-center gap-2">
+                <ImageIcon size={14} /> Images Only
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter('video')} className="rounded-xl h-10 font-bold flex items-center gap-2">
+                <Play size={14} /> Videos Only
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button variant="outline" className="h-16 px-6 rounded-2xl bg-white border-none shadow-sm text-slate-500 font-black uppercase tracking-widest hover:text-[#0F4C81]">
+            <ArrowUpDown className="mr-2" size={18} />
+            Bulk Actions
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((item) => (
-          <Card key={item.id} className="overflow-hidden rounded-[2.5rem] border-none shadow-sm group hover:shadow-2xl transition-all duration-500">
-            <div className="aspect-square bg-slate-100 relative overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center opacity-20 group-hover:scale-110 transition-transform duration-700">
-                <ImageIcon size={64} />
-              </div>
-              <div className="absolute top-4 right-4 flex gap-2 translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                <button className="p-3 bg-white/90 backdrop-blur rounded-xl text-[#0F4C81] hover:bg-[#FFC107] transition-colors shadow-lg">
-                  <Eye size={18} />
-                </button>
-                <button className="p-3 bg-white/90 backdrop-blur rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-colors shadow-lg">
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-            <div className="p-6 space-y-1">
-              <h4 className="font-bold text-[#0F4C81] truncate">{item.title}</h4>
-              <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                <span>{item.date}</span>
-                <span>{item.size}</span>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+      {filteredItems.length > 0 ? (
+        <Reorder.Group 
+          axis="y" 
+          values={items} 
+          onReorder={handleReorder}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+        >
+          {filteredItems.map((item) => (
+            <Reorder.Item 
+              key={item.id} 
+              value={item}
+              className="list-none"
+            >
+              <GalleryItemCard 
+                item={item} 
+                onDelete={handleDelete} 
+                onEdit={handleEdit} 
+              />
+            </Reorder.Item>
+          ))}
+        </Reorder.Group>
+      ) : (
+        <div className="py-32 text-center space-y-6 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto text-slate-300 shadow-sm">
+            <Search size={32} />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tight">No assets found</h3>
+            <p className="text-slate-400 font-medium">Try adjusting your search or filters to find what you're looking for.</p>
+          </div>
+          <Button 
+            variant="ghost" 
+            onClick={() => { setSearch(''); setFilter('all'); }}
+            className="text-[#0F4C81] font-black uppercase tracking-widest underline decoration-2 underline-offset-4"
+          >
+            Clear All Filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
