@@ -35,7 +35,7 @@ const ActivitiesSection = () => {
   const currentActivity = activities.find(a => a.id === activeTab)!;
 
   return (
-    <section className="py-24 bg-slate-50 overflow-hidden">
+    <section id="activities" className="py-24 bg-slate-50 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <motion.h2 

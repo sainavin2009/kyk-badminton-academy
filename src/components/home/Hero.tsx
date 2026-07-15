@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#0F4C81]">
+    <section id="home" className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#0F4C81]">
       {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60"
