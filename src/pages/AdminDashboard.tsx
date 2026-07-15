@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar, { AdminTab } from '@/components/admin/AdminSidebar';
 import DashboardOverview from '@/components/admin/sections/DashboardOverview';
 import StudentManager from '@/components/admin/sections/StudentManager';
+import FeeManager from '@/components/admin/sections/FeeManager';
 import GalleryManager from '@/components/admin/sections/GalleryManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
 import AboutManager from '@/components/admin/sections/AboutManager';
@@ -32,7 +33,7 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case 'dashboard': return <DashboardOverview />;
       case 'students': return <StudentManager />;
-      case 'fees': return <PlaceholderSection title="Fees" />;
+      case 'fees': return <FeeManager />;
       case 'inventory': return <PlaceholderSection title="Inventory" />;
       case 'sales': return <PlaceholderSection title="Sales" />;
       case 'gallery': return <GalleryManager title="Academy" type="badminton" />;
