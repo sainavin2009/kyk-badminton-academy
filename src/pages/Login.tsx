@@ -1,8 +1,6 @@
 "use client";
 
-// @ts-expect-error - temporary bypass for workspace type resolution
 import { Auth } from '@supabase/auth-ui-react';
-// @ts-expect-error - temporary bypass for workspace type resolution
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
