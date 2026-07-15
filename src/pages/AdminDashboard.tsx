@@ -10,7 +10,7 @@ import GalleryManager from '@/components/admin/sections/GalleryManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
 import AboutManager from '@/components/admin/sections/AboutManager';
 import ContactManager from '@/components/admin/sections/ContactManager';
-import { Bell, Search, User, Menu } from 'lucide-react';
+import { Bell, Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const PlaceholderSection = ({ title }: { title: string }) => (
@@ -49,7 +49,6 @@ const AdminDashboard = () => {
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <main className="flex-grow ml-72">
-        {/* Top Header */}
         <header className="h-28 bg-white border-b border-slate-100 flex items-center justify-between px-12 sticky top-0 z-40 backdrop-blur-md bg-white/80">
           <div className="flex items-center gap-8">
             <div className="relative w-96 group">
@@ -59,9 +58,7 @@ const AdminDashboard = () => {
                 placeholder="Global admin search..." 
               />
             </div>
-            
             <div className="h-10 w-[1px] bg-slate-100 hidden md:block" />
-            
             <div className="hidden md:flex flex-col">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Section</span>
               <span className="text-sm font-black text-[#0F4C81] uppercase tracking-tighter">{activeTab}</span>
@@ -73,7 +70,6 @@ const AdminDashboard = () => {
               <Bell size={20} />
               <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full" />
             </button>
-            
             <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="flex flex-col text-right">
                 <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">Admin User</span>
@@ -86,7 +82,6 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        {/* Content Area */}
         <div className="p-12 max-w-7xl mx-auto pb-32">
           {renderContent()}
         </div>

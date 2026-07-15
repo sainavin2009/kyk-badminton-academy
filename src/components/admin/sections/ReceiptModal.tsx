@@ -32,20 +32,24 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
   const handleDownloadPDF = async () => {
     if (!receiptRef.current) return;
     
-    const canvas = await html2canvas(receiptRef.current, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-    });
-    
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`Receipt_${payment.receipt_no}.pdf`);
+    try {
+      const canvas = await html2canvas(receiptRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Receipt_${payment.receipt_no}.pdf`);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+    }
   };
 
   return (
@@ -59,9 +63,7 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
         </div>
 
         <div className="p-12 bg-white" ref={receiptRef}>
-          {/* Receipt Content */}
           <div className="border-4 border-[#0F4C81] p-10 space-y-10 relative overflow-hidden">
-            {/* Watermark Logo */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none rotate-12">
               <Trophy size={400} />
             </div>

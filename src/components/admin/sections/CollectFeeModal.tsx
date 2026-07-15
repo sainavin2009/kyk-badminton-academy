@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Check, DollarSign, Calendar, CreditCard } from 'lucide-react';
+import { Check, DollarSign } from 'lucide-react';
 
 const feeSchema = z.object({
   student_id: z.string().min(1, "Student selection is required"),
