@@ -8,15 +8,16 @@ import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#0F4C81]">
       {/* Background Image with Overlay */}
       <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60"
         style={{ 
           backgroundImage: `url('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070')`,
         }}
+        aria-hidden="true"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C81]/90 via-[#0F4C81]/80 to-[#0F4C81]/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0F4C81]/80 via-[#0F4C81]/60 to-[#0F4C81]/95" />
       </div>
 
       {/* Content */}
@@ -28,9 +29,9 @@ const Hero = () => {
           className="mb-8 flex justify-center"
         >
           <div className="relative group">
-            <div className="absolute -inset-1 bg-[#FFC107] rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative p-6 bg-[#0F4C81] border-2 border-[#FFC107] rounded-full">
-              <Trophy className="w-16 h-16 md:w-24 md:h-24 text-[#FFC107]" strokeWidth={1.5} />
+            <div className="absolute -inset-1 bg-[#FFC107] rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+            <div className="relative p-6 bg-[#0F4C81]/80 backdrop-blur-md border-2 border-[#FFC107] rounded-full">
+              <Trophy className="w-12 h-12 md:w-20 md:h-20 text-[#FFC107]" strokeWidth={1.5} />
             </div>
           </div>
         </motion.div>
@@ -39,13 +40,13 @@ const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="space-y-6"
+          className="space-y-8"
         >
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-none">
-            KYK <span className="text-[#FFC107]">Badminton</span> Academy
+          <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-white tracking-tighter uppercase leading-[0.9] text-balance">
+            KYK <span className="text-[#FFC107]">Badminton</span> <br className="hidden md:block" /> Academy
           </h1>
           
-          <p className="text-lg md:text-2xl text-white/80 max-w-3xl mx-auto font-medium tracking-wide">
+          <p className="text-lg md:text-2xl text-white/90 max-w-2xl mx-auto font-medium tracking-wide italic">
             "Train Hard. Play Smart. Achieve Greatness."
           </p>
 
@@ -85,8 +86,8 @@ const Hero = () => {
         transition={{ delay: 1, duration: 1 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
-        <span className="text-white/40 text-xs font-bold uppercase tracking-[0.2em]">Explore</span>
-        <div className="w-[2px] h-12 bg-gradient-to-b from-[#FFC107] to-transparent rounded-full" />
+        <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em]">Explore</span>
+        <div className="w-[1px] h-12 bg-gradient-to-b from-[#FFC107] to-transparent rounded-full" />
       </motion.div>
     </section>
   );
