@@ -1,8 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Users, Shield, GraduationCap, Dumbbell, Award, ChevronRight } from 'lucide-react';
+import { Target, Users, Shield, GraduationCap, Award, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -15,17 +15,17 @@ const highlights = [
   {
     icon: Users,
     title: "Elite Mentorship",
-    description: "Learn from coaches who have stood on national podiums and coached olympic aspirants."
+    description: "Learn from coaches who have stood on national podiums."
   },
   {
     icon: Shield,
     title: "Iron Discipline",
-    description: "We don't just build athletes; we forge character, resilience, and mental toughness."
+    description: "We don't just build athletes; we forge character and mental toughness."
   },
   {
     icon: GraduationCap,
     title: "Scientific Growth",
-    description: "Data-driven performance tracking ensuring consistent technical evolution."
+    description: "Data-driven performance tracking ensuring consistent evolution."
   }
 ];
 
@@ -59,10 +59,10 @@ const AboutSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                transition={{ duration: 0.8, delay: 0.1 }}
                 className="text-xl text-slate-500 leading-relaxed max-w-xl font-medium"
               >
-                At KYK Academy, we believe badminton is a game of millimeters and milliseconds. Our training philosophy combines biomechanical precision with strategic warfare.
+                At KYK Academy, we believe badminton is a game of millimeters. Our training philosophy combines biomechanical precision with strategic warfare.
               </motion.p>
             </div>
 
@@ -70,13 +70,13 @@ const AboutSection = () => {
               {highlights.map((item, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.05 }}
                   className="group flex flex-col gap-4"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#FFC107] group-hover:scale-110 transition-all duration-500 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#FFC107] group-hover:scale-110 transition-all duration-300 shadow-sm">
                     <item.icon size={28} strokeWidth={1.5} />
                   </div>
                   <div className="space-y-1">
@@ -88,7 +88,7 @@ const AboutSection = () => {
             </div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="pt-4"
@@ -104,27 +104,27 @@ const AboutSection = () => {
 
           {/* Image Side */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.8 }}
             className="lg:w-1/2 relative w-full"
           >
-            <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(15,76,129,0.3)] border-[12px] border-white">
+            <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white">
               <img 
                 src="https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=1200" 
                 alt="Elite Training Session"
-                className="w-full h-full object-cover aspect-[4/5] hover:scale-110 transition-transform duration-[3000ms]"
+                loading="lazy"
+                className="w-full h-full object-cover aspect-[4/5] hover:scale-105 transition-transform duration-[2000ms]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F4C81]/40 via-transparent to-transparent" />
             </div>
 
             {/* Stats Badge */}
             <motion.div 
-              initial={{ x: 50, opacity: 0 }}
+              initial={{ x: 30, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.5, duration: 0.8 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
               className="absolute -bottom-10 -left-10 z-20 bg-white p-10 rounded-[3rem] shadow-2xl flex flex-col gap-6 min-w-[280px]"
             >
               <div className="flex items-center gap-5">
@@ -146,10 +146,6 @@ const AboutSection = () => {
                 </div>
               </div>
             </motion.div>
-
-            {/* Decorative Elements */}
-            <div className="absolute -top-12 -right-12 w-64 h-64 bg-[#FFC107]/10 rounded-full blur-[100px] -z-10" />
-            <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#0F4C81]/10 rounded-full blur-[120px] -z-10" />
           </motion.div>
         </div>
       </div>
@@ -157,4 +153,4 @@ const AboutSection = () => {
   );
 };
 
-export default AboutSection;
+export default memo(AboutSection);

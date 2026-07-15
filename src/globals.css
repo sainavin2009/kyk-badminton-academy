@@ -43,6 +43,8 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Optimize for smooth scrolling */
+    overscroll-behavior-y: none;
   }
 
   * {
@@ -51,6 +53,8 @@
   
   body {
     @apply bg-background text-foreground antialiased font-sans overflow-x-hidden;
+    /* Ensure hardware acceleration for animations */
+    transform: translate3d(0,0,0);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -67,5 +71,15 @@
   }
   .academy-gradient {
     @apply bg-gradient-to-br from-[#0F4C81] to-[#0A2A47];
+  }
+  
+  /* Performance Utilities */
+  .will-change-transform {
+    will-change: transform;
+  }
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
   }
 }

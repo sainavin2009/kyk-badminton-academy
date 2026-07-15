@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Trophy, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ const Navbar = () => {
   const isHome = location.pathname === '/';
 
   const navItems = [
-    { name: 'Home', path: isHome ? '#home' : '/' },
+    { name: 'Home', path: '/' },
     { name: 'Programs', path: '/programs' },
     { name: 'About', path: '/about' },
     { name: 'Gallery', path: '/gallery' },
@@ -23,71 +23,66 @@ const Navbar = () => {
   ];
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 80);
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    
+    // Using passive scroll listener for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
-    if (isHome && path.startsWith('#')) {
-      e.preventDefault();
-      const el = document.querySelector(path);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-      setIsOpen(false);
-    }
+  const isActive = (path: string) => {
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
   };
 
   return (
     <nav 
       className={cn(
-        "fixed top-0 w-full z-50 transition-all duration-700 ease-in-out",
+        "fixed top-0 w-full z-50 transition-all duration-500 ease-in-out",
         scrolled 
-          ? "bg-white/90 backdrop-blur-2xl shadow-xl h-20" 
-          : "bg-transparent h-28"
+          ? "bg-[#0F4C81] shadow-[0_4px_30px_rgba(0,0,0,0.3)] h-20" 
+          : "bg-[#0F4C81]/90 backdrop-blur-md h-24"
       )}
     >
-      <div className="container mx-auto px-8 h-full flex items-center justify-between">
+      <div className="container mx-auto px-6 h-full flex items-center justify-between">
         {/* Brand */}
         <Link to="/" className="flex items-center gap-4 group">
-          <div className={cn(
-            "p-3 rounded-2xl transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-lg",
-            scrolled ? "bg-[#0F4C81] text-[#FFC107]" : "bg-[#FFC107] text-[#0F4C81]"
-          )}>
+          <div className="p-3 bg-[#FFC107] text-[#0F4C81] rounded-2xl transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-lg">
             <Trophy className="h-6 w-6" strokeWidth={2.5} />
           </div>
           <div className="flex flex-col">
-            <span className={cn(
-              "text-xl font-black tracking-tighter uppercase leading-none transition-colors",
-              scrolled ? "text-[#0F4C81]" : "text-white"
-            )}>
+            <span className="text-2xl font-black tracking-tighter uppercase leading-none text-white">
               KYK Academy
             </span>
-            <span className={cn(
-              "text-[8px] font-black uppercase tracking-[0.3em] transition-colors",
-              scrolled ? "text-slate-400" : "text-[#FFC107]"
-            )}>
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#FFC107]">
               Est. 2014
             </span>
           </div>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-10">
           <div className="flex items-center gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
-                onClick={(e) => item.path.startsWith('#') && handleNavClick(e as any, item.path)}
                 className={cn(
-                  "relative px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all group",
-                  scrolled ? "text-[#0F4C81]/70 hover:text-[#0F4C81]" : "text-white/70 hover:text-white"
+                  "relative px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all group",
+                  isActive(item.path) ? "text-[#FFC107]" : "text-white/80 hover:text-white"
                 )}
               >
                 {item.name}
                 <span className={cn(
-                  "absolute bottom-0 left-4 right-4 h-0.5 bg-[#FFC107] scale-x-0 group-hover:scale-x-100 transition-transform origin-left",
-                  location.pathname === item.path && "scale-x-100"
+                  "absolute bottom-0 left-4 right-4 h-0.5 bg-[#FFC107] transition-transform duration-300 origin-left",
+                  isActive(item.path) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                 )} />
               </Link>
             ))}
@@ -95,10 +90,7 @@ const Navbar = () => {
           
           <Button 
             asChild 
-            className={cn(
-              "rounded-full font-black px-8 h-12 shadow-xl hover:scale-105 active:scale-95 transition-all",
-              scrolled ? "bg-[#0F4C81] text-white" : "bg-[#FFC107] text-[#0F4C81]"
-            )}
+            className="rounded-full bg-[#FFC107] text-[#0F4C81] font-black px-8 h-12 shadow-xl hover:scale-105 hover:bg-white active:scale-95 transition-all"
           >
             <Link to="/join" className="flex items-center gap-2">
               Join Elite Squad
@@ -109,11 +101,9 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <button 
-          className={cn(
-            "lg:hidden p-4 rounded-2xl transition-all active:scale-90",
-            scrolled ? "text-[#0F4C81] bg-slate-100" : "text-white bg-white/10"
-          )} 
+          className="lg:hidden p-4 rounded-2xl text-white bg-white/10 active:scale-90 transition-all"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle Menu"
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -123,9 +113,10 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="lg:hidden fixed inset-0 top-0 left-0 w-full h-screen bg-[#0F4C81] z-50 p-8 flex flex-col"
           >
             <div className="flex justify-between items-center mb-16">
@@ -140,18 +131,21 @@ const Navbar = () => {
               </button>
             </div>
 
-            <div className="flex flex-col gap-8 mb-auto">
+            <div className="flex flex-col gap-6 mb-auto">
               {navItems.map((item, i) => (
                 <motion.div
                   key={item.name}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
+                  transition={{ delay: i * 0.05 }}
                 >
                   <Link
                     to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className="text-5xl font-black uppercase tracking-tighter text-white/50 hover:text-[#FFC107] transition-colors"
+                    className={cn(
+                      "text-5xl font-black uppercase tracking-tighter transition-colors",
+                      isActive(item.path) ? "text-[#FFC107]" : "text-white/40 hover:text-white"
+                    )}
                   >
                     {item.name}
                   </Link>
@@ -169,4 +163,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default memo(Navbar);
