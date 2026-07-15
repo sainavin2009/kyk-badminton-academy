@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar, { AdminTab } from '@/components/admin/AdminSidebar';
 import DashboardOverview from '@/components/admin/sections/DashboardOverview';
+import StudentManager from '@/components/admin/sections/StudentManager';
 import GalleryManager from '@/components/admin/sections/GalleryManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
 import AboutManager from '@/components/admin/sections/AboutManager';
@@ -30,7 +31,7 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <DashboardOverview />;
-      case 'students': return <PlaceholderSection title="Students" />;
+      case 'students': return <StudentManager />;
       case 'fees': return <PlaceholderSection title="Fees" />;
       case 'inventory': return <PlaceholderSection title="Inventory" />;
       case 'sales': return <PlaceholderSection title="Sales" />;
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
               <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full" />
             </button>
             
-            <div className="flex items-center gap-4 pl-6border-l border-slate-100">
+            <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="flex flex-col text-right">
                 <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">Admin User</span>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Super Administrator</span>
