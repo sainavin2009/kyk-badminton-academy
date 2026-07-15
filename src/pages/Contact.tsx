@@ -1,12 +1,47 @@
 "use client";
 
 import React from 'react';
+import ContactSection from '@/components/home/ContactSection';
+import { motion } from 'framer-motion';
 
 const Contact = () => {
   return (
-    <div className="container mx-auto px-4 py-20 text-center">
-      <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
-      <p className="text-muted-foreground">Get in touch with our team.</p>
+    <div className="min-h-screen bg-white">
+      {/* Page Header */}
+      <section className="pt-40 pb-20 bg-[#0F4C81] text-white">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 uppercase">Get In Touch</h1>
+            <p className="text-xl text-white/70 max-w-2xl mx-auto font-medium">
+              We're always ready to help you take the first step towards excellence.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Main Contact Section */}
+      <ContactSection />
+      
+      {/* FAQ Link / Extra Support */}
+      <section className="pb-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="p-12 rounded-[3rem] bg-slate-50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-2 text-center md:text-left">
+              <h3 className="text-2xl font-black text-[#0F4C81]">Have more questions?</h3>
+              <p className="text-slate-500 font-medium">Check out our frequently asked questions or give us a call.</p>
+            </div>
+            <div className="flex gap-4">
+              <button className="px-8 py-4 rounded-full bg-[#0F4C81] text-white font-bold hover:bg-[#0F4C81]/90 transition-all">
+                View FAQs
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
