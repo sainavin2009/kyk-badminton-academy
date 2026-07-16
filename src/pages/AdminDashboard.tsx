@@ -17,19 +17,12 @@ import ReportsManager from '@/components/admin/sections/ReportsManager';
 import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
 import AdminManager from '@/components/admin/sections/AdminManager';
-import { Bell, Search, User, ShieldAlert } from 'lucide-react';
+import { Bell, Search, User, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const AdminDashboard = () => {
   const { profile, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
-
-  // Verify role data presence
-  useEffect(() => {
-    if (!loading && profile) {
-      console.log(`[AdminDashboard] Rendering for role: ${profile.role}`);
-    }
-  }, [profile, loading]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -51,7 +44,13 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-[#0F4C81]" size={48} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -63,8 +62,8 @@ const AdminDashboard = () => {
             <div className="relative w-96 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#0F4C81] transition-colors" size={18} />
               <Input 
-                className="pl-12 h-14 bg-slate-50 border-none rounded-2xl font-bold group-focus-within:bg-white group-focus-within:shadow-xl group-focus-within:shadow-slate-200/40 transition-all text-sm" 
-                placeholder="Global admin search..." 
+                className="pl-12 h-14 bg-slate-50 border-none rounded-2xl font-bold group-focus-within:bg-white transition-all text-sm" 
+                placeholder="Global search..." 
               />
             </div>
             <div className="h-10 w-[1px] bg-slate-100 hidden md:block" />
@@ -75,16 +74,20 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative p-4 rounded-2xl bg-slate-50 text-slate-400 hover:text-[#0F4C81] hover:bg-[#FFC107]/10 transition-all">
+            <button className="relative p-4 rounded-2xl bg-slate-50 text-slate-400 hover:text-[#0F4C81] transition-all">
               <Bell size={20} />
-              <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full" />
+              <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 bg-red-50 border-2 border-white rounded-full" />
             </button>
             <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="flex flex-col text-right">
-                <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">{profile?.full_name || profile?.email || 'Authenticated User'}</span>
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">{profile?.role || 'Pending Role...'}</span>
+                <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">
+                  {profile?.full_name || profile?.email || 'Administrator'}
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">
+                  {profile?.role || 'Identifying Role...'}
+                </span>
               </div>
-              <div className="w-14 h-14 rounded-2xl bg-[#0F4C81] flex items-center justify-center text-[#FFC107] shadow-xl shadow-[#0F4C81]/20 overflow-hidden">
+              <div className="w-14 h-14 rounded-2xl bg-[#0F4C81] flex items-center justify-center text-[#FFC107] shadow-xl overflow-hidden">
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (

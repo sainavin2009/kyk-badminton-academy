@@ -31,24 +31,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    console.log(`[AuthAudit] Fetching profile for UID: ${userId}`);
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    console.group(`[AuthAudit] Profile Sync - ${new Date().toLocaleTimeString()}`);
+    console.log("Current Auth User ID:", userId);
     
-    if (error) {
-      console.error("[AuthAudit] Profile fetch error:", error.message);
-      // If profile row doesn't exist, we might need to create it or handle it
-      setProfile(null);
-    } else {
-      console.log("[AuthAudit] Profile loaded successfully:", {
-        id: data.id,
-        role: data.role,
-        full_name: data.full_name
-      });
-      setProfile(data);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error("Profile Fetch Error:", error.message);
+        console.log("Attempting to auto-create missing profile...");
+        
+        // Auto-recovery: If profile missing, create it
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData.user) {
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .upsert({ 
+              id: userId, 
+              email: userData.user.email,
+              role: 'Staff', // Default, should be updated via SQL for Super Admin
+              status: 'Active'
+            })
+            .select()
+            .single();
+            
+          if (!createError) {
+            console.log("Auto-created missing profile:", newProfile);
+            setProfile(newProfile);
+          }
+        }
+      } else {
+        console.log("Profile Data Received:", {
+          db_id: data.id,
+          db_email: data.email,
+          db_role: data.role,
+          db_status: data.status
+        });
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error("Unexpected Auth Error:", err);
+    } finally {
+      console.groupEnd();
     }
   };
 
@@ -62,7 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await fetchProfile(session.user.id);
         }
       } catch (error) {
-        console.error("[AuthAudit] Initialization error:", error);
+        console.error("Auth Init Error:", error);
       } finally {
         setLoading(false);
       }
@@ -71,7 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(`[AuthAudit] Auth state changed: ${event}`);
+      console.log(`[AuthAudit] Event: ${event}`);
       setSession(session);
       setUser(session?.user ?? null);
       
