@@ -10,6 +10,7 @@ import GalleryManager from '@/components/admin/sections/GalleryManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
 import AboutManager from '@/components/admin/sections/AboutManager';
 import ContactManager from '@/components/admin/sections/ContactManager';
+import InventoryManager from '@/components/admin/sections/InventoryManager';
 import { Bell, Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -34,7 +35,7 @@ const AdminDashboard = () => {
       case 'dashboard': return <DashboardOverview />;
       case 'students': return <StudentManager />;
       case 'fees': return <FeeManager />;
-      case 'inventory': return <PlaceholderSection title="Inventory" />;
+      case 'inventory': return <InventoryManager />;
       case 'sales': return <PlaceholderSection title="Sales" />;
       case 'gallery': return <GalleryManager title="Academy" type="badminton" />;
       case 'content': return <AboutManager />;
