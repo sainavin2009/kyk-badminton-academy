@@ -15,38 +15,21 @@ import {
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 
-const incomeData = [
-  { name: 'Mon', income: 4000, expenses: 2400 },
-  { name: 'Tue', income: 3000, expenses: 1398 },
-  { name: 'Wed', income: 2000, expenses: 9800 },
-  { name: 'Thu', income: 2780, expenses: 3908 },
-  { name: 'Fri', income: 1890, expenses: 4800 },
-  { name: 'Sat', income: 2390, expenses: 3800 },
-  { name: 'Sun', income: 3490, expenses: 4300 },
-];
+interface IncomeExpenseChartProps {
+  data: any[];
+}
 
-const categoryData = [
-  { name: 'Badminton', value: 400 },
-  { name: 'CrossFit', value: 300 },
-  { name: 'Merch', value: 200 },
-  { name: 'Cafe', value: 100 },
-];
-
-export const IncomeExpenseChart = () => (
+export const IncomeExpenseChart = ({ data }: IncomeExpenseChartProps) => (
   <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white h-[400px]">
     <div className="flex justify-between items-center mb-8">
       <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Revenue vs Expenses</h3>
     </div>
     <ResponsiveContainer width="100%" height="85%">
-      <AreaChart data={incomeData}>
+      <AreaChart data={data}>
         <defs>
           <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#0F4C81" stopOpacity={0.1}/>
             <stop offset="95%" stopColor="#0F4C81" stopOpacity={0}/>
-          </linearGradient>
-          <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#FFC107" stopOpacity={0.1}/>
-            <stop offset="95%" stopColor="#FFC107" stopOpacity={0}/>
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -72,19 +55,23 @@ export const IncomeExpenseChart = () => (
           }} 
         />
         <Area type="monotone" dataKey="income" stroke="#0F4C81" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={3} />
-        <Area type="monotone" dataKey="expenses" stroke="#FFC107" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={3} />
+        <Area type="monotone" dataKey="expenses" stroke="#FFC107" strokeWidth={3} fill="none" />
       </AreaChart>
     </ResponsiveContainer>
   </Card>
 );
 
-export const SalesBarChart = () => (
+interface SalesBarChartProps {
+  data: any[];
+}
+
+export const SalesBarChart = ({ data }: SalesBarChartProps) => (
   <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white h-[400px]">
     <div className="flex justify-between items-center mb-8">
-      <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Enrollment by Sport</h3>
+      <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Enrollment Distribution</h3>
     </div>
     <ResponsiveContainer width="100%" height="85%">
-      <BarChart data={categoryData}>
+      <BarChart data={data}>
         <XAxis 
           dataKey="name" 
           axisLine={false} 
@@ -104,7 +91,7 @@ export const SalesBarChart = () => (
           }} 
         />
         <Bar dataKey="value" radius={[10, 10, 10, 10]} barSize={40}>
-          {categoryData.map((entry, index) => (
+          {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#0F4C81' : '#FFC107'} />
           ))}
         </Bar>

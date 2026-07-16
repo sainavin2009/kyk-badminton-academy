@@ -22,7 +22,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfDay, endOfDay } from 'date-fns';
+import { format, startOfDay, endOfDay, subMonths, startOfMonth, eachMonthOfInterval } from 'date-fns';
 
 const DashboardOverview = () => {
   const { profile } = useAuth();
@@ -37,6 +37,8 @@ const DashboardOverview = () => {
     inventoryValue: 0,
     salesToday: 0
   });
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [programData, setProgramData] = useState<any[]>([]);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [recentPayments, setRecentPayments] = useState<any[]>([]);
 
@@ -45,6 +47,7 @@ const DashboardOverview = () => {
       setLoading(true);
       const today = startOfDay(new Date()).toISOString();
       const now = endOfDay(new Date()).toISOString();
+      const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5)).toISOString();
 
       const [
         studentsRes, 
@@ -54,7 +57,7 @@ const DashboardOverview = () => {
         inventoryRes,
         logsRes
       ] = await Promise.all([
-        supabase.from('students').select('id, fee_status'),
+        supabase.from('students').select('id, fee_status, program'),
         supabase.from('fee_payments').select('amount, created_at, students(full_name, student_id)'),
         supabase.from('sales').select('total_amount, created_at, students(full_name)'),
         supabase.from('expenses').select('amount, date'),
@@ -68,7 +71,7 @@ const DashboardOverview = () => {
       const expenses = expensesRes.data || [];
       const inventory = inventoryRes.data || [];
 
-      // Aggregations
+      // Primary Aggregations
       const totalStudents = students.length;
       const activeStudents = students.filter(s => s.fee_status === 'Paid').length;
       
@@ -80,10 +83,39 @@ const DashboardOverview = () => {
         .filter(s => s.created_at >= today && s.created_at <= now)
         .reduce((sum, s) => sum + Number(s.total_amount), 0);
 
-      // Fix for Error 1 & 2: Use any casting for the union type reduction
       const monthlyIncome = [...fees, ...sales].reduce((sum, item: any) => sum + Number(item.amount || item.total_amount || 0), 0);
       const monthlyExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
       const inventoryValue = inventory.reduce((sum, i) => sum + (Number(i.purchase_price) * Number(i.quantity)), 0);
+
+      // Program Distribution for Bar Chart
+      const progMap: Record<string, number> = {};
+      students.forEach(s => {
+        const p = s.program || 'Other';
+        progMap[p] = (progMap[p] || 0) + 1;
+      });
+      const progChartData = Object.entries(progMap).map(([name, value]) => ({ name, value }));
+
+      // Monthly Trends for Area Chart
+      const months = eachMonthOfInterval({
+        start: new Date(sixMonthsAgo),
+        end: new Date()
+      });
+
+      const trendData = months.map(m => {
+        const mStr = format(m, 'MMM');
+        const mStart = startOfMonth(m).toISOString();
+        const mEnd = endOfDay(m).toISOString();
+
+        const mIncome = [...fees, ...sales]
+          .filter((item: any) => item.created_at >= mStart && item.created_at <= mEnd)
+          .reduce((sum, item: any) => sum + Number(item.amount || item.total_amount || 0), 0);
+
+        const mExp = expenses
+          .filter(e => e.date >= mStart && e.date <= mEnd)
+          .reduce((sum, e) => sum + Number(e.amount), 0);
+
+        return { name: mStr, income: mIncome, expenses: mExp };
+      });
 
       setStats({
         totalStudents,
@@ -96,14 +128,14 @@ const DashboardOverview = () => {
         salesToday: sales.filter(s => s.created_at >= today && s.created_at <= now).length
       });
 
-      // Fix for Error 3: Cast students to any to access name property safely
+      setChartData(trendData);
+      setProgramData(progChartData);
       setRecentPayments(fees.slice(0, 3).map(f => ({
         name: (f.students as any)?.full_name || 'System',
         amount: `$${f.amount}`,
         date: format(new Date(f.created_at), 'p'),
         method: 'Payment'
       })));
-
       setRecentLogs(logsRes.data || []);
     } catch (error) {
       console.error("Dashboard Sync Error:", error);
@@ -127,7 +159,6 @@ const DashboardOverview = () => {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Academy Overview</h2>
@@ -143,52 +174,17 @@ const DashboardOverview = () => {
         </div>
       </div>
 
-      {/* Primary Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard 
-          label="Total Students" 
-          value={stats.totalStudents} 
-          icon={Users} 
-          trend="Live" 
-        />
-        <DashboardCard 
-          label="Active Accounts" 
-          value={stats.activeStudents} 
-          icon={UserPlus} 
-          trendType="up" 
-        />
-        <DashboardCard 
-          label="Unpaid Dues" 
-          value={stats.pendingFees} 
-          icon={AlertTriangle} 
-          color="bg-amber-50 text-amber-600"
-        />
-        <DashboardCard 
-          label="Today's Collection" 
-          value={`$${stats.todayCollection.toLocaleString()}`} 
-          icon={DollarSign} 
-          color="bg-green-50 text-green-600"
-        />
+        <DashboardCard label="Total Students" value={stats.totalStudents} icon={Users} trend="Live" />
+        <DashboardCard label="Active Accounts" value={stats.activeStudents} icon={UserPlus} trendType="up" />
+        <DashboardCard label="Unpaid Dues" value={stats.pendingFees} icon={AlertTriangle} color="bg-amber-50 text-amber-600" />
+        <DashboardCard label="Today's Collection" value={`$${stats.todayCollection.toLocaleString()}`} icon={DollarSign} color="bg-green-50 text-green-600" />
       </div>
 
-      {/* Secondary Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard 
-          label="Monthly Income" 
-          value={`$${stats.monthlyIncome.toLocaleString()}`} 
-          icon={TrendingUp} 
-        />
-        <DashboardCard 
-          label="Total Expenses" 
-          value={`$${stats.monthlyExpenses.toLocaleString()}`} 
-          icon={Briefcase} 
-          color="bg-red-50 text-red-600"
-        />
-        <DashboardCard 
-          label="Inventory Value" 
-          value={`$${stats.inventoryValue.toLocaleString()}`} 
-          icon={Package} 
-        />
+        <DashboardCard label="Monthly Income" value={`$${stats.monthlyIncome.toLocaleString()}`} icon={TrendingUp} />
+        <DashboardCard label="Total Expenses" value={`$${stats.monthlyExpenses.toLocaleString()}`} icon={Briefcase} color="bg-red-50 text-red-600" />
+        <DashboardCard label="Inventory Value" value={`$${stats.inventoryValue.toLocaleString()}`} icon={Package} />
         {profile?.role === 'Super Admin' ? (
            <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-[#0F4C81] text-white flex items-center gap-4 group">
               <div className="p-3 bg-white/10 rounded-xl group-hover:bg-[#FFC107] group-hover:text-[#0F4C81] transition-all">
@@ -200,21 +196,15 @@ const DashboardOverview = () => {
               </div>
            </Card>
         ) : (
-          <DashboardCard 
-            label="Sales Transactions" 
-            value={stats.salesToday} 
-            icon={ShoppingCart} 
-          />
+          <DashboardCard label="Sales Transactions" value={stats.salesToday} icon={ShoppingCart} />
         )}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <IncomeExpenseChart />
-        <SalesBarChart />
+        <IncomeExpenseChart data={chartData} />
+        <SalesBarChart data={programData} />
       </div>
 
-      {/* Audit & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
           <div className="flex justify-between items-center">
@@ -239,7 +229,6 @@ const DashboardOverview = () => {
                 </div>
               </div>
             ))}
-            {recentPayments.length === 0 && <p className="text-center py-8 text-[10px] font-bold text-slate-300 uppercase italic">No transactions found today.</p>}
           </div>
         </Card>
 
@@ -259,7 +248,6 @@ const DashboardOverview = () => {
                        <ShieldCheck size={14} className="text-green-500" />
                     </div>
                  ))}
-                 {recentLogs.length === 0 && <p className="text-center py-8 text-[10px] font-bold text-slate-300 uppercase">System silent.</p>}
               </div>
            </Card>
         )}
