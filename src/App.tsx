@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import MainLayout from "@/layouts/MainLayout";
 
 // Pages
@@ -28,15 +29,11 @@ const queryClient = new QueryClient({
   },
 });
 
-// Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   
-  if (loading) return null; // Or a loading spinner
-  
-  if (!session) {
-    return <Navigate to="/admin/login" />;
-  }
+  if (loading) return null;
+  if (!session) return <Navigate to="/admin/login" />;
   
   return <>{children}</>;
 };
@@ -44,31 +41,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-center" expand={true} richColors />
-        <BrowserRouter>
-          <Routes>
-            {/* Public Site Routes */}
-            <Route path="/" element={<MainLayout><Index /></MainLayout>} />
-            <Route path="/about" element={<MainLayout><About /></MainLayout>} />
-            <Route path="/programs" element={<MainLayout><Programs /></MainLayout>} />
-            <Route path="/gallery" element={<MainLayout><Gallery /></MainLayout>} />
-            <Route path="/join" element={<MainLayout><Join /></MainLayout>} />
-            <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            
-            {/* Redirect old login to new admin login */}
-            <Route path="/login" element={<Navigate to="/admin/login" />} />
-            
-            {/* Fallback for 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <SettingsProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner position="top-center" expand={true} richColors />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+              <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+              <Route path="/programs" element={<MainLayout><Programs /></MainLayout>} />
+              <Route path="/gallery" element={<MainLayout><Gallery /></MainLayout>} />
+              <Route path="/join" element={<MainLayout><Join /></MainLayout>} />
+              <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/login" element={<Navigate to="/admin/login" />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </SettingsProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

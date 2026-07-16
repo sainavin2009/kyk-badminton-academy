@@ -5,11 +5,13 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useSettings } from '@/contexts/SettingsContext';
 
 const Hero = () => {
+  const { settings } = useSettings();
+
   return (
     <section id="home" className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0F4C81]">
-      {/* Background Layer with Performance Optimization */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat will-change-transform"
         style={{ 
@@ -20,7 +22,6 @@ const Hero = () => {
       </div>
 
       <div className="container relative z-10 px-6 mx-auto flex flex-col items-center text-center">
-        {/* Animated Badge - Only once */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -36,15 +37,14 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* Content Section */}
         <div className="space-y-8 max-w-6xl">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-8xl lg:text-[10rem] font-black text-white tracking-tighter uppercase leading-[0.8] will-change-[transform,opacity]"
+            className="text-6xl md:text-8xl lg:text-[8rem] font-black text-white tracking-tighter uppercase leading-[0.85] will-change-[transform,opacity]"
           >
-            KYK <span className="text-[#FFC107]">Academy</span>
+            {settings?.hero_heading || 'KYK Academy'}
           </motion.h1>
           
           <motion.p 
@@ -53,7 +53,7 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-3xl text-white/70 font-bold tracking-tight italic max-w-3xl mx-auto"
           >
-            Engineering Excellence. Forging the <span className="text-white">Champions of Tomorrow.</span>
+            {settings?.hero_subheading || 'Engineering Excellence. Forging the Champions of Tomorrow.'}
           </motion.p>
 
           <motion.div 
@@ -85,23 +85,6 @@ const Hero = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div 
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 cursor-pointer group"
-        onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-      >
-        <span className="text-white/30 text-[10px] font-black uppercase tracking-[0.4em] group-hover:text-white transition-colors">Discover</span>
-        <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-1.5">
-          <motion.div 
-            animate={{ y: [0, 16, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-1.5 h-1.5 bg-[#FFC107] rounded-full" 
-          />
-        </div>
-      </motion.div>
     </section>
   );
 };

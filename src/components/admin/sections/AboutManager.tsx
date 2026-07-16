@@ -5,14 +5,15 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useSettings } from '@/contexts/SettingsContext';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Save, 
   X, 
   Upload, 
   Eye, 
   AlertCircle, 
-  CheckCircle2,
-  Image as ImageIcon
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -21,17 +22,21 @@ const TITLE_LIMIT = 60;
 const CONTENT_LIMIT = 1000;
 
 const AboutManager = () => {
-  // Form State
-  const [title, setTitle] = useState("Shaping the Next Elite");
-  const [content, setContent] = useState("Founded with a passion for excellence, KYK Badminton Academy is more than a gym—it's a high-performance sanctuary for aspiring professionals.");
-  const [image, setImage] = useState("https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=1200");
-  
-  // UI State
+  const { settings, refresh } = useSettings();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState("");
   const [isDirty, setIsDirty] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-
-  // Validation
   const [errors, setErrors] = useState<{title?: string; content?: string}>({});
+
+  useEffect(() => {
+    if (settings) {
+      setTitle(settings.about_heading);
+      setContent(settings.about_content);
+      setImage(settings.about_image);
+    }
+  }, [settings]);
 
   useEffect(() => {
     const newErrors: {title?: string; content?: string} = {};
@@ -40,34 +45,39 @@ const AboutManager = () => {
     setErrors(newErrors);
   }, [title, content]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (Object.keys(errors).length > 0) {
       toast.error("Please fix the errors before saving");
       return;
     }
     
-    toast.success("About Us content updated successfully!");
-    setIsDirty(false);
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .update({
+          about_heading: title,
+          about_content: content,
+          about_image: image
+        })
+        .eq('id', 1);
+
+      if (error) throw error;
+      toast.success("About Us content updated successfully!");
+      setIsDirty(false);
+      await refresh();
+    } catch (err: any) {
+      toast.error("Failed to update: " + err.message);
+    }
   };
 
   const handleCancel = () => {
-    // Reset to defaults or fetch from API
-    setTitle("Shaping the Next Elite");
-    setContent("Founded with a passion for excellence, KYK Badminton Academy is more than a gym—it's a high-performance sanctuary for aspiring professionals.");
+    if (settings) {
+      setTitle(settings.about_heading);
+      setContent(settings.about_content);
+      setImage(settings.about_image);
+    }
     setIsDirty(false);
     toast.info("Changes discarded");
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-        setIsDirty(true);
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   return (
@@ -91,13 +101,11 @@ const AboutManager = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Editor Side */}
         <div className={cn(
           "space-y-6 transition-all duration-500",
           previewMode ? "lg:col-span-6" : "lg:col-span-8"
         )}>
           <Card className="p-8 md:p-10 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
-            {/* Title Input */}
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Academy Heading</label>
@@ -116,14 +124,9 @@ const AboutManager = () => {
                   errors.title && "ring-2 ring-red-500/20"
                 )}
               />
-              {errors.title && (
-                <p className="flex items-center gap-1.5 text-xs font-bold text-red-500 mt-2">
-                  <AlertCircle size={14} /> {errors.title}
-                </p>
-              )}
+              {errors.title && <p className="flex items-center gap-1.5 text-xs font-bold text-red-500 mt-2"><AlertCircle size={14} /> {errors.title}</p>}
             </div>
 
-            {/* Content Input */}
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Mission Statement</label>
@@ -142,107 +145,33 @@ const AboutManager = () => {
                   errors.content && "ring-2 ring-red-500/20"
                 )}
               />
-              {errors.content && (
-                <p className="flex items-center gap-1.5 text-xs font-bold text-red-500 mt-2">
-                  <AlertCircle size={14} /> {errors.content}
-                </p>
-              )}
+              {errors.content && <p className="flex items-center gap-1.5 text-xs font-bold text-red-500 mt-2"><AlertCircle size={14} /> {errors.content}</p>}
             </div>
 
-            {/* Image Upload */}
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Cover Image</label>
-              <div className="relative group">
-                <div className="aspect-video w-full rounded-[2.5rem] bg-slate-100 overflow-hidden relative">
-                  <img src={image} alt="Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button variant="outline" className="rounded-full bg-white text-black border-none" asChild>
-                      <label className="cursor-pointer">
-                        <Upload className="mr-2" size={18} />
-                        Change Photo
-                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                      </label>
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Cover Image URL</label>
+              <Input 
+                value={image}
+                onChange={(e) => { setImage(e.target.value); setIsDirty(true); }}
+                className="h-12 rounded-xl bg-slate-50 border-none font-bold"
+              />
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100">
               <Button 
                 disabled={!isDirty || Object.keys(errors).length > 0}
                 onClick={handleSave}
-                className="h-16 px-10 flex-grow rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/20 disabled:opacity-50"
+                className="h-16 px-10 flex-grow rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/20"
               >
                 <Save className="mr-2" size={20} />
                 Save Changes
               </Button>
-              <Button 
-                variant="ghost" 
-                onClick={handleCancel}
-                disabled={!isDirty}
-                className="h-16 px-10 rounded-2xl text-slate-400 font-bold hover:bg-slate-50 hover:text-red-500"
-              >
+              <Button variant="ghost" onClick={handleCancel} disabled={!isDirty} className="h-16 px-10 rounded-2xl text-slate-400 font-bold hover:bg-slate-50">
                 <X className="mr-2" size={20} />
                 Cancel
               </Button>
             </div>
           </Card>
-        </div>
-
-        {/* Preview Side */}
-        <div className={cn(
-          "transition-all duration-500 space-y-6",
-          previewMode ? "lg:col-span-6 block" : "lg:col-span-4 hidden lg:block"
-        )}>
-          <div className="sticky top-40 space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0F4C81]">Live Preview</span>
-              {isDirty ? (
-                <span className="flex items-center gap-1 text-[10px] font-black text-amber-500 uppercase">
-                  <AlertCircle size={12} /> Unsaved Changes
-                </span>
-              ) : (
-                <span className="flex items-center gap-1 text-[10px] font-black text-green-500 uppercase">
-                  <CheckCircle2 size={12} /> Up to date
-                </span>
-              )}
-            </div>
-            
-            <Card className="overflow-hidden rounded-[3.5rem] border-none shadow-2xl bg-white relative">
-              <div className="p-8 space-y-8">
-                <div className="space-y-4">
-                  <span className="inline-block px-3 py-1 rounded-full bg-[#FFC107]/10 text-[#0F4C81] text-[10px] font-black tracking-widest uppercase border border-[#FFC107]/20">
-                    Academy Excellence
-                  </span>
-                  <h3 className="text-3xl font-black text-[#0F4C81] leading-[0.9] tracking-tighter uppercase break-words">
-                    {title.split(' ').slice(0, -2).join(' ')} <br />
-                    <span className="text-[#FFC107]">{title.split(' ').slice(-2).join(' ')}</span>
-                  </h3>
-                  <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                    {content}
-                  </p>
-                </div>
-                
-                <div className="aspect-[4/3] rounded-[2.5rem] overflow-hidden">
-                  <img src={image} className="w-full h-full object-cover" alt="Preview" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 rounded-[2rem] bg-[#0F4C81]/5 border-none">
-              <div className="flex gap-4 items-center">
-                <div className="p-3 bg-white rounded-xl shadow-sm text-[#0F4C81]">
-                  <CheckCircle2 size={24} />
-                </div>
-                <div>
-                  <h4 className="text-xs font-black uppercase text-[#0F4C81]">Mobile Responsive</h4>
-                  <p className="text-[10px] text-slate-500 font-medium">This layout adjusts perfectly for smartphones.</p>
-                </div>
-              </div>
-            </Card>
-          </div>
         </div>
       </div>
     </div>
