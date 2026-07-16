@@ -14,6 +14,7 @@ import ContentSettings from '@/components/admin/sections/ContentSettings';
 import InventoryManager from '@/components/admin/sections/InventoryManager';
 import SaleManager from '@/components/admin/sections/SaleManager';
 import ReportsManager from '@/components/admin/sections/ReportsManager';
+import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import { Bell, Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -31,6 +32,7 @@ const AdminDashboard = () => {
       case 'sales': return <SaleManager />;
       case 'gallery': return <GalleryManager />;
       case 'events': return <EventManager />;
+      case 'expenses': return <ExpenseManager />;
       case 'content': return <AboutManager />;
       case 'reports': return <ReportsManager />;
       case 'settings': return <ContentSettings />;
