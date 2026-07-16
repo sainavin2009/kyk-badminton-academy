@@ -18,10 +18,12 @@ import {
   X, 
   Image as ImageIcon, 
   Play, 
-  Check
+  Check,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MediaModalProps {
   isOpen: boolean;
@@ -31,62 +33,91 @@ interface MediaModalProps {
   type: 'image' | 'video';
 }
 
+const CATEGORIES = ['Badminton', 'CrossFit', 'Events', 'Academy'];
+
 const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) => {
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [caption, setCaption] = useState('');
+  const [category, setCategory] = useState('Badminton');
   const [url, setUrl] = useState('');
-  const [thumbnail, setThumbnail] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (item) {
       setTitle(item.title || '');
-      setDescription(item.description || '');
+      setCaption(item.caption || '');
+      setCategory(item.category || 'Badminton');
       setUrl(item.url || '');
-      setThumbnail(item.thumbnail || '');
-      setPreview(item.type === 'video' ? item.thumbnail : item.url);
+      setPreview(item.url);
     } else {
       setTitle('');
-      setDescription('');
+      setCaption('');
+      setCategory('Badminton');
       setUrl('');
-      setThumbnail('');
       setPreview(null);
     }
   }, [item, isOpen]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setPreview(result);
-        setUrl(result);
-        if (type === 'video' && !thumbnail) {
-          setThumbnail(result);
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      setProgress(10);
+
+      // Create a local preview
+      const localPreview = URL.createObjectURL(file);
+      setPreview(localPreview);
+
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${type}s/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('gallery')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      // Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('gallery')
+        .getPublicUrl(filePath);
+
+      setUrl(publicUrl);
+      setProgress(100);
+      toast.success('File uploaded successfully');
+    } catch (error: any) {
+      toast.error('Upload failed: ' + error.message);
+      setPreview(null);
+    } finally {
+      setUploading(false);
     }
   };
 
   const handleSave = () => {
     if (!title || !url) {
-      toast.error('Please fill in the required fields');
+      toast.error('Please fill in the title and upload a file');
       return;
     }
 
     onSave({
-      id: item?.id || Math.random().toString(36).substr(2, 9),
+      id: item?.id,
       title,
-      description,
+      caption,
+      category,
       type,
       url,
-      thumbnail: type === 'video' ? (thumbnail || url) : undefined,
     });
     
-    toast.success(item ? 'Asset updated successfully' : 'Asset added successfully');
     onClose();
   };
 
@@ -99,47 +130,72 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
               {item ? 'Edit Media' : `Upload ${type === 'image' ? 'Photo' : 'Video'}`}
             </DialogTitle>
             <DialogDescription className="text-white/60 font-medium italic">
-              {item ? 'Modify your existing gallery asset.' : `Add a new ${type} to your professional gallery.`}
+              {item ? 'Modify gallery asset metadata.' : `Add a new ${type} to the professional gallery.`}
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        <div className="p-8 space-y-6 bg-white">
+        <div className="p-8 space-y-6 bg-white max-h-[60vh] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Media Title *</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Title *</Label>
                 <Input 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Morning Sprints"
+                  placeholder="e.g. Smash in Slow Motion"
                   className="h-14 rounded-2xl bg-slate-50 border-none font-bold focus-visible:ring-2 focus-visible:ring-[#FFC107]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Category</Label>
+                <select 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full h-14 rounded-2xl bg-slate-50 border-none px-5 font-bold text-[#0F4C81] focus:ring-2 focus:ring-[#FFC107] outline-none"
+                >
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Caption / Story</Label>
                 <Textarea 
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Tell the story behind this shot..."
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  placeholder="Tell the story behind this asset..."
                   className="min-h-[120px] rounded-2xl bg-slate-50 border-none font-medium p-4 resize-none focus-visible:ring-2 focus-visible:ring-[#FFC107]"
                 />
               </div>
             </div>
 
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Preview & Upload</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">File Preview</Label>
               <div 
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => !uploading && fileInputRef.current?.click()}
                 className={cn(
                   "relative aspect-square rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-[#FFC107] hover:bg-slate-100 transition-all overflow-hidden group",
-                  preview && "border-none"
+                  preview && "border-none",
+                  uploading && "cursor-wait opacity-70"
                 )}
               >
-                {preview ? (
+                {uploading ? (
+                  <div className="text-center space-y-4">
+                    <Loader2 className="animate-spin mx-auto text-[#0F4C81]" size={32} />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#0F4C81]">Uploading {progress}%</p>
+                  </div>
+                ) : preview ? (
                   <>
-                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                    {type === 'image' ? (
+                      <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-black flex items-center justify-center">
+                        <Play className="text-white" size={48} />
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <p className="text-white font-black uppercase text-xs tracking-widest">Change File</p>
                     </div>
@@ -147,9 +203,9 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
                 ) : (
                   <div className="text-center p-6 space-y-2">
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mx-auto text-[#0F4C81]">
-                      {type === 'image' ? <ImageIcon size={24} /> : <Play size={24} />}
+                      <Upload size={24} />
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Click to Upload</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Drop file here or click</p>
                   </div>
                 )}
                 <input 
@@ -160,18 +216,6 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
                   onChange={handleFileChange}
                 />
               </div>
-              
-              {type === 'video' && (
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Video URL (Optional)</Label>
-                  <Input 
-                    value={url}
-                    onChange={(e) => { setUrl(e.target.value); if(!preview) setPreview(e.target.value); }}
-                    placeholder="Youtube/Vimeo link"
-                    className="h-10 rounded-xl bg-slate-50 border-none font-medium text-xs focus-visible:ring-2 focus-visible:ring-[#FFC107]"
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -186,9 +230,10 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
           </Button>
           <Button 
             onClick={handleSave}
-            className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all"
+            disabled={uploading || !url}
+            className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all disabled:opacity-50"
           >
-            <Check className="mr-2" size={20} />
+            {uploading ? <Loader2 className="animate-spin mr-2" size={20} /> : <Check className="mr-2" size={20} />}
             {item ? 'Update Asset' : 'Add to Gallery'}
           </Button>
         </DialogFooter>

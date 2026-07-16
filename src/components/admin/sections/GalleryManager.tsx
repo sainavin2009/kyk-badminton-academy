@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, Reorder } from 'framer-motion';
 import { 
   Plus, 
@@ -10,7 +10,8 @@ import {
   Play, 
   ArrowUpDown,
   CheckCircle2,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,23 +26,13 @@ import {
 import GalleryItemCard from './GalleryItemCard';
 import MediaModal from './MediaModal';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
-interface GalleryManagerProps {
-  title: string;
-  type: 'badminton' | 'crossfit';
-}
-
-const INITIAL_ITEMS = [
-  { id: '1', title: 'Elite Deadlift', description: 'Form check for heavy lifting', type: 'video' as const, url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800', thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800' },
-  { id: '2', title: 'WOD Session', description: 'Group intensity at its peak', type: 'image' as const, url: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800' },
-  { id: '3', title: 'Ring Muscle Ups', description: 'Advanced gymnastics work', type: 'image' as const, url: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800' },
-  { id: '4', title: 'Kettlebell Flow', description: 'Functional strength routines', type: 'video' as const, url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800', thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800' },
-];
-
-const GalleryManager = ({ title, type }: GalleryManagerProps) => {
-  const [items, setItems] = useState(INITIAL_ITEMS);
+const GalleryManager = () => {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'image' | 'video'>('all');
+  const [filter, setFilter] = useState('All');
   const [isReordering, setIsReordering] = useState(false);
 
   // Modal State
@@ -49,16 +40,47 @@ const GalleryManager = ({ title, type }: GalleryManagerProps) => {
   const [modalMode, setModalMode] = useState<'image' | 'video'>('image');
   const [editingItem, setEditingItem] = useState<any>(null);
 
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('gallery_items')
+        .select('*')
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      setItems(data || []);
+    } catch (error: any) {
+      toast.error('Failed to load gallery: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
   const filteredItems = items.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
-                          item.description.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === 'all' || item.type === filter;
+    const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter = filter === 'All' || item.category === filter;
     return matchesSearch && matchesFilter;
   });
 
-  const handleDelete = (id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
-    toast.success('Media asset deleted successfully');
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('gallery_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      setItems(prev => prev.filter(item => item.id !== id));
+      toast.success('Media asset removed');
+    } catch (error: any) {
+      toast.error('Delete failed: ' + error.message);
+    }
   };
 
   const handleEdit = (item: any) => {
@@ -73,53 +95,93 @@ const GalleryManager = ({ title, type }: GalleryManagerProps) => {
     setIsModalOpen(true);
   };
 
-  const handleSaveItem = (savedItem: any) => {
-    if (editingItem) {
-      setItems(prev => prev.map(item => item.id === savedItem.id ? savedItem : item));
-    } else {
-      setItems(prev => [savedItem, ...prev]);
+  const handleSaveItem = async (savedItem: any) => {
+    try {
+      if (savedItem.id) {
+        // Update
+        const { data, error } = await supabase
+          .from('gallery_items')
+          .update(savedItem)
+          .eq('id', savedItem.id)
+          .select();
+        
+        if (error) throw error;
+        setItems(prev => prev.map(item => item.id === savedItem.id ? data[0] : item));
+        toast.success('Asset metadata updated');
+      } else {
+        // Create
+        const { data, error } = await supabase
+          .from('gallery_items')
+          .insert([{ ...savedItem, order_index: items.length }])
+          .select();
+        
+        if (error) throw error;
+        setItems(prev => [...prev, data[0]]);
+        toast.success('New asset added to gallery');
+      }
+    } catch (error: any) {
+      toast.error('Operation failed: ' + error.message);
     }
   };
 
-  const handleReorder = (newItems: any[]) => {
+  const handleReorder = async (newItems: any[]) => {
     setItems(newItems);
-    if (!isReordering) {
-      setIsReordering(true);
+    setIsReordering(true);
+    
+    try {
+      // Batch update order_index
+      const updates = newItems.map((item, index) => ({
+        id: item.id,
+        order_index: index,
+        url: item.url,
+        type: item.type,
+        title: item.title,
+        category: item.category
+      }));
+
+      const { error } = await supabase
+        .from('gallery_items')
+        .upsert(updates);
+
+      if (error) throw error;
+      
       setTimeout(() => setIsReordering(false), 1500);
+    } catch (error: any) {
+      console.error('Reorder update failed:', error);
     }
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">{title} Gallery</h2>
+            <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Visual Assets Manager</h2>
             {isReordering && (
               <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-600 text-[10px] font-black uppercase animate-bounce">
-                <CheckCircle2 size={12} /> Order Saved
+                <CheckCircle2 size={12} /> Order Updated
               </span>
             )}
           </div>
-          <p className="text-slate-500 font-medium">Manage your {title.toLowerCase()} media assets. Drag to reorder.</p>
+          <p className="text-slate-500 font-medium">Upload photos and videos. Drag tiles to reorder public appearance.</p>
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/20 group">
               <Plus className="mr-2 group-hover:rotate-90 transition-transform" />
-              Add Media
+              Upload Media
               <ChevronDown className="ml-2 w-4 h-4 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="rounded-2xl p-2 w-56">
             <DropdownMenuItem onClick={() => handleAdd('image')} className="rounded-xl h-12 font-bold flex items-center gap-3 cursor-pointer">
               <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><ImageIcon size={16} /></div>
-              Upload Photo
+              Photo Asset
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleAdd('video')} className="rounded-xl h-12 font-bold flex items-center gap-3 cursor-pointer">
               <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Play size={16} /></div>
-              Upload Video
+              Video Asset
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -131,40 +193,34 @@ const GalleryManager = ({ title, type }: GalleryManagerProps) => {
           <Input 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-14 h-16 rounded-2xl border-none bg-white shadow-sm font-bold text-slate-600 focus-visible:ring-2 focus-visible:ring-[#FFC107] transition-all" 
-            placeholder="Search by title or description..." 
+            className="pl-14 h-16 rounded-2xl border-none bg-white shadow-sm font-bold text-slate-600 focus-visible:ring-2 focus-visible:ring-[#FFC107]" 
+            placeholder="Search by asset title..." 
           />
         </div>
         
-        <div className="flex gap-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-16 px-6 rounded-2xl bg-white border-none shadow-sm text-slate-500 font-black uppercase tracking-widest hover:text-[#0F4C81] transition-all">
-                <Filter className="mr-2" size={18} />
-                Type: {filter}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="rounded-2xl p-2 w-48">
-              <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">Filter Content</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setFilter('all')} className="rounded-xl h-10 font-bold cursor-pointer">Show All</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter('image')} className="rounded-xl h-10 font-bold flex items-center gap-2 cursor-pointer">
-                <ImageIcon size={14} /> Images
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter('video')} className="rounded-xl h-10 font-bold flex items-center gap-2 cursor-pointer">
-                <Play size={14} /> Videos
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button variant="outline" className="h-16 px-6 rounded-2xl bg-white border-none shadow-sm text-slate-500 font-black uppercase tracking-widest hover:text-[#0F4C81] transition-all">
-            <ArrowUpDown className="mr-2" size={18} />
-            Bulk Actions
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="h-16 px-6 rounded-2xl bg-white border-none shadow-sm text-slate-500 font-black uppercase tracking-widest hover:text-[#0F4C81]">
+              <Filter className="mr-2" size={18} />
+              Category: {filter}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="rounded-2xl p-2 w-48">
+            <DropdownMenuItem onClick={() => setFilter('All')} className="rounded-xl h-10 font-bold">All Categories</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setFilter('Badminton')} className="rounded-xl h-10 font-bold">Badminton</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setFilter('CrossFit')} className="rounded-xl h-10 font-bold">CrossFit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setFilter('Events')} className="rounded-xl h-10 font-bold">Events</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setFilter('Academy')} className="rounded-xl h-10 font-bold">Academy</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {filteredItems.length > 0 ? (
+      {loading ? (
+        <div className="py-40 flex flex-col items-center justify-center gap-4 text-slate-300">
+          <Loader2 className="animate-spin" size={48} />
+          <p className="font-black uppercase text-[10px] tracking-widest">Loading Media Vault...</p>
+        </div>
+      ) : filteredItems.length > 0 ? (
         <Reorder.Group 
           axis="y" 
           values={items} 
@@ -186,25 +242,12 @@ const GalleryManager = ({ title, type }: GalleryManagerProps) => {
           ))}
         </Reorder.Group>
       ) : (
-        <div className="py-32 text-center space-y-6 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto text-slate-300 shadow-sm">
-            <Search size={32} />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tight">No assets match your search</h3>
-            <p className="text-slate-400 font-medium">Try different keywords or check your filters.</p>
-          </div>
-          <Button 
-            variant="ghost" 
-            onClick={() => { setSearch(''); setFilter('all'); }}
-            className="text-[#0F4C81] font-black uppercase tracking-widest underline decoration-2 underline-offset-4 hover:bg-transparent"
-          >
-            Clear All Filters
-          </Button>
+        <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+          <h3 className="text-2xl font-black text-[#0F4C81] uppercase">Gallery is Empty</h3>
+          <p className="text-slate-400 font-medium mt-2">Start uploading professional assets to showcase.</p>
         </div>
       )}
 
-      {/* Unified Media Modal */}
       <MediaModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

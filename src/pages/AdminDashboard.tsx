@@ -38,7 +38,7 @@ const AdminDashboard = () => {
       case 'fees': return <FeeManager />;
       case 'inventory': return <InventoryManager />;
       case 'sales': return <SaleManager />;
-      case 'gallery': return <GalleryManager title="Academy" type="badminton" />;
+      case 'gallery': return <GalleryManager />;
       case 'content': return <AboutManager />;
       case 'reports': return <PlaceholderSection title="Reports" />;
       case 'settings': return <ContentSettings />;
