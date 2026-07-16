@@ -6,7 +6,7 @@ import StudentTable from './StudentTable';
 import StudentForm from './StudentForm';
 import StudentProfile from './StudentProfile';
 import { Button } from '@/components/ui/button';
-import { UserPlus, RefreshCw, AlertCircle } from 'lucide-react';
+import { UserPlus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 const StudentManager = () => {
@@ -71,7 +71,6 @@ const StudentManager = () => {
   const handleSave = async (formData: any) => {
     try {
       if (selectedStudent) {
-        // Update
         const { data, error } = await supabase
           .from('students')
           .update(formData)
@@ -82,7 +81,6 @@ const StudentManager = () => {
         toast.success('Student profile updated');
         setStudents(prev => prev.map(s => s.id === selectedStudent.id ? data[0] : s));
       } else {
-        // Create
         const { data, error } = await supabase
           .from('students')
           .insert([formData])
@@ -138,7 +136,6 @@ const StudentManager = () => {
         />
       )}
 
-      {/* Form Modal */}
       <StudentForm 
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
@@ -146,7 +143,6 @@ const StudentManager = () => {
         student={selectedStudent}
       />
 
-      {/* Profile Modal */}
       <StudentProfile 
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
