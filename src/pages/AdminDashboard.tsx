@@ -12,20 +12,9 @@ import AboutManager from '@/components/admin/sections/AboutManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
 import InventoryManager from '@/components/admin/sections/InventoryManager';
 import SaleManager from '@/components/admin/sections/SaleManager';
+import ReportsManager from '@/components/admin/sections/ReportsManager';
 import { Bell, Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-
-const PlaceholderSection = ({ title }: { title: string }) => (
-  <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in slide-in-from-bottom-4">
-    <div className="w-24 h-24 bg-slate-100 rounded-[2rem] flex items-center justify-center text-slate-300">
-      <Search size={48} />
-    </div>
-    <div className="space-y-2">
-      <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">{title} Section</h2>
-      <p className="text-slate-500 font-medium max-w-md">The management system for {title.toLowerCase()} is being initialized with your database.</p>
-    </div>
-  </div>
-);
 
 const AdminDashboard = () => {
   const { session } = useAuth();
@@ -41,7 +30,7 @@ const AdminDashboard = () => {
       case 'gallery': return <GalleryManager />;
       case 'events': return <EventManager />;
       case 'content': return <AboutManager />;
-      case 'reports': return <PlaceholderSection title="Reports" />;
+      case 'reports': return <ReportsManager />;
       case 'settings': return <ContentSettings />;
       default: return <DashboardOverview />;
     }
