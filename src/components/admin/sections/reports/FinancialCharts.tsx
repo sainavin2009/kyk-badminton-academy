@@ -3,7 +3,7 @@
 import React from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, BarChart, Bar
+  PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 
@@ -17,9 +17,8 @@ const FinancialCharts = ({ trendData, categoryData }: FinancialChartsProps) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* Revenue vs Expenses Trend */}
       <Card className="p-8 rounded-[3rem] border-none shadow-sm bg-white h-[450px] space-y-6">
-        <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Financial Performance Trend</h3>
+        <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Financial Trend</h3>
         <ResponsiveContainer width="100%" height="90%">
           <AreaChart data={trendData}>
             <defs>
@@ -40,9 +39,8 @@ const FinancialCharts = ({ trendData, categoryData }: FinancialChartsProps) => {
         </ResponsiveContainer>
       </Card>
 
-      {/* Revenue by Source */}
       <Card className="p-8 rounded-[3rem] border-none shadow-sm bg-white h-[450px] space-y-6">
-        <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Revenue Distribution</h3>
+        <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Revenue Source</h3>
         <ResponsiveContainer width="100%" height="90%">
           <PieChart>
             <Pie

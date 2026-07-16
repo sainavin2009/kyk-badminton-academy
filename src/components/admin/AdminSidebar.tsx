@@ -13,7 +13,8 @@ import {
   Settings, 
   LogOut,
   Trophy,
-  Calendar
+  Calendar,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 export type AdminTab = 
   | 'dashboard' 
   | 'students' 
+  | 'attendance'
   | 'fees' 
   | 'inventory' 
   | 'sales' 
@@ -43,6 +45,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'students', label: 'Students', icon: Users },
+    { id: 'attendance', label: 'Attendance', icon: UserCheck },
     { id: 'fees', label: 'Fees', icon: CreditCard },
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'sales', label: 'Sales', icon: BarChart3 },
