@@ -5,8 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 import StudentTable from './StudentTable';
 import StudentForm from './StudentForm';
 import StudentProfile from './StudentProfile';
+import MilestoneForm from './MilestoneForm';
 import { Button } from '@/components/ui/button';
-import { UserPlus, RefreshCw } from 'lucide-react';
+import { UserPlus, RefreshCw, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
 
 const StudentManager = () => {
@@ -14,6 +15,7 @@ const StudentManager = () => {
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMilestoneOpen, setIsMilestoneOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
   const fetchStudents = async () => {
@@ -96,6 +98,20 @@ const StudentManager = () => {
     }
   };
 
+  const handleSaveMilestone = async (formData: any) => {
+    try {
+      const { error } = await supabase
+        .from('student_milestones')
+        .insert([formData]);
+
+      if (error) throw error;
+      toast.success('Performance milestone recorded');
+      setIsMilestoneOpen(false);
+    } catch (err: any) {
+      toast.error('Failed to log achievement: ' + err.message);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -111,6 +127,13 @@ const StudentManager = () => {
             className="h-16 w-16 rounded-2xl text-slate-400 hover:text-[#0F4C81] hover:bg-white shadow-sm"
           >
             <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
+          </Button>
+          <Button 
+            onClick={() => setIsMilestoneOpen(true)}
+            className="h-16 px-8 rounded-2xl bg-white border-2 border-[#0F4C81] text-[#0F4C81] hover:bg-[#FFC107] hover:border-transparent font-black uppercase tracking-widest transition-all shadow-sm group"
+          >
+            <Trophy className="mr-3 group-hover:scale-110 transition-transform" size={20} />
+            Log Achievement
           </Button>
           <Button 
             onClick={handleAdd}
@@ -147,6 +170,13 @@ const StudentManager = () => {
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
         student={selectedStudent}
+      />
+
+      <MilestoneForm 
+        isOpen={isMilestoneOpen}
+        onClose={() => setIsMilestoneOpen(false)}
+        onSave={handleSaveMilestone}
+        students={students}
       />
     </div>
   );
