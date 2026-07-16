@@ -8,10 +8,9 @@ import {
   Filter, 
   Image as ImageIcon, 
   Play, 
-  ArrowUpDown,
-  CheckCircle2,
   ChevronDown,
-  Loader2
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,12 +18,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import GalleryItemCard from './GalleryItemCard';
-import MediaModal from './MediaModal';
+import MediaModal from '../modals/MediaModal';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -129,7 +126,6 @@ const GalleryManager = () => {
     setIsReordering(true);
     
     try {
-      // Batch update order_index
       const updates = newItems.map((item, index) => ({
         id: item.id,
         order_index: index,

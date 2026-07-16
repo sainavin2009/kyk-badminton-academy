@@ -2,11 +2,24 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ChevronRight, Phone, MessageSquare } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Phone, MessageSquare, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { toast } from 'sonner';
+
+const registrationSchema = z.object({
+  name: z.string().min(2, "Full name is required"),
+  age: z.string().min(1, "Age is required"),
+  phone: z.string().min(10, "Valid phone number is required"),
+  program: z.string().min(1, "Please select a program"),
+});
+
+type RegistrationValues = z.infer<typeof registrationSchema>;
 
 const benefits = [
   "Free initial skill assessment session",
@@ -18,6 +31,21 @@ const benefits = [
 ];
 
 const Join = () => {
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<RegistrationValues>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      program: 'Junior Foundation'
+    }
+  });
+
+  const onSubmit = async (data: RegistrationValues) => {
+    // In a real app, this would send data to Supabase
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    console.log("Registration submitted:", data);
+    toast.success("Registration successful! Our team will contact you shortly.");
+    reset();
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -100,35 +128,62 @@ const Join = () => {
                     <p className="text-sm text-slate-400 font-medium">Fill in the details to schedule your first trial.</p>
                   </div>
 
-                  <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                  <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student Full Name</Label>
-                        <Input className="h-14 rounded-xl bg-slate-50 border-none font-bold" placeholder="John Doe" />
+                        <Input 
+                          {...register('name')}
+                          className="h-14 rounded-xl bg-slate-50 border-none font-bold" 
+                          placeholder="John Doe" 
+                        />
+                        {errors.name && <p className="text-red-500 text-[10px] font-bold">{errors.name.message}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Age</Label>
-                        <Input className="h-14 rounded-xl bg-slate-50 border-none font-bold" placeholder="e.g. 12" />
+                        <Input 
+                          {...register('age')}
+                          className="h-14 rounded-xl bg-slate-50 border-none font-bold" 
+                          placeholder="e.g. 12" 
+                        />
+                        {errors.age && <p className="text-red-500 text-[10px] font-bold">{errors.age.message}</p>}
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Parent/Guardian Phone</Label>
-                      <Input className="h-14 rounded-xl bg-slate-50 border-none font-bold" placeholder="+1 (234) 567-890" />
+                      <Input 
+                        {...register('phone')}
+                        className="h-14 rounded-xl bg-slate-50 border-none font-bold" 
+                        placeholder="+1 (234) 567-890" 
+                      />
+                      {errors.phone && <p className="text-red-500 text-[10px] font-bold">{errors.phone.message}</p>}
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Program</Label>
-                      <select className="w-full h-14 rounded-xl bg-slate-50 border-none px-4 font-bold text-slate-900 focus:ring-2 focus:ring-[#FFC107] outline-none appearance-none">
-                        <option>Junior Foundation</option>
-                        <option>Elite Competitive</option>
-                        <option>Adult Performance</option>
+                      <select 
+                        {...register('program')}
+                        className="w-full h-14 rounded-xl bg-slate-50 border-none px-4 font-bold text-slate-900 focus:ring-2 focus:ring-[#FFC107] outline-none appearance-none"
+                      >
+                        <option value="Junior Foundation">Junior Foundation</option>
+                        <option value="Elite Competitive">Elite Competitive</option>
+                        <option value="Adult Performance">Adult Performance</option>
                       </select>
                     </div>
 
-                    <Button className="w-full h-16 rounded-2xl bg-[#0F4C81] text-white font-black uppercase tracking-widest text-lg shadow-xl shadow-[#0F4C81]/20 group hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all">
-                      Submit Registration
-                      <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    <Button 
+                      disabled={isSubmitting}
+                      className="w-full h-16 rounded-2xl bg-[#0F4C81] text-white font-black uppercase tracking-widest text-lg shadow-xl shadow-[#0F4C81]/20 group hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all"
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="animate-spin h-5 w-5" />
+                      ) : (
+                        <>
+                          Submit Registration
+                          <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
                     </Button>
                   </form>
 
