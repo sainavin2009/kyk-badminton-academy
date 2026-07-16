@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Trophy, Instagram, Facebook, Twitter, Youtube, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
+import { Trophy, Instagram, Facebook, Twitter, Youtube, MapPin, Phone, Mail, ArrowRight, Lock, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { session } = useAuth();
   
   const footerLinks = {
     explore: [
@@ -140,6 +142,16 @@ const Footer = () => {
             <Link to="#" className="hover:text-[#FFC107] transition-colors">Privacy Policy</Link>
             <span className="w-1 h-1 bg-white/10 rounded-full" />
             <Link to="#" className="hover:text-[#FFC107] transition-colors">Terms of Service</Link>
+            <span className="w-1 h-1 bg-white/10 rounded-full" />
+            
+            {/* Admin/Dashboard subtle link */}
+            <Link 
+              to={session ? "/admin" : "/admin/login"}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/40 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all font-black"
+            >
+              {session ? <LayoutDashboard size={12} /> : <Lock size={12} />}
+              {session ? "Dashboard" : "Admin"}
+            </Link>
           </div>
         </div>
       </div>
