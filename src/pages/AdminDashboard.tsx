@@ -17,7 +17,7 @@ import ReportsManager from '@/components/admin/sections/ReportsManager';
 import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
 import AdministrationManager from '@/components/admin/sections/AdministrationManager';
-import { Bell, Search, User, Loader2, Check } from 'lucide-react';
+import { Bell, Search, User, Loader2, Check, ShieldAlert } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
   DropdownMenu, 
@@ -29,13 +29,35 @@ import {
 import { useNotifications } from '@/hooks/use-notifications';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { canAccessTab, getFirstAvailableTab } from '@/utils/permissions';
 
 const AdminDashboard = () => {
   const { profile, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
 
+  useEffect(() => {
+    if (profile && !canAccessTab(profile.role, activeTab)) {
+      setActiveTab(getFirstAvailableTab(profile.role));
+    }
+  }, [profile, activeTab]);
+
   const renderContent = () => {
+    if (!profile) return null;
+    if (!canAccessTab(profile.role, activeTab)) {
+      return (
+        <div className="flex flex-col items-center justify-center py-40 text-center space-y-6">
+          <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center">
+            <ShieldAlert size={40} />
+          </div>
+          <h2 className="text-3xl font-black text-[#0F4C81] uppercase tracking-tighter">Access Forbidden</h2>
+          <p className="text-slate-500 font-medium max-w-md italic">
+            Your clearance level ({profile.role}) does not allow entry to the "{activeTab}" intelligence node.
+          </p>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'dashboard': return <DashboardOverview />;
       case 'students': return <StudentManager />;
@@ -116,7 +138,8 @@ const AdminDashboard = () => {
                         <div className="flex justify-between w-full">
                           <span className={cn(
                             "text-[10px] font-black uppercase tracking-widest",
-                            n.type === 'Warning' ? "text-amber-500" : "text-[#0F4C81]"
+                            n.type === 'Warning' ? "text-amber-500" : 
+                            n.type === 'Success' ? "text-green-600" : "text-[#0F4C81]"
                           )}>{n.title}</span>
                           <span className="text-[8px] font-bold text-slate-400">{format(new Date(n.created_at), 'HH:mm')}</span>
                         </div>
