@@ -13,7 +13,8 @@ import {
   DollarSign,
   Briefcase,
   ShieldCheck,
-  FileClock
+  FileClock,
+  Loader2
 } from 'lucide-react';
 import DashboardCard from '../DashboardCard';
 import { IncomeExpenseChart, SalesBarChart } from '../charts/DashboardCharts';
@@ -21,40 +22,123 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
 
 const DashboardOverview = () => {
   const { profile } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    activeStudents: 0,
+    pendingFees: 0,
+    todayCollection: 0,
+    monthlyIncome: 0,
+    monthlyExpenses: 0,
+    inventoryValue: 0,
+    salesToday: 0
+  });
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
+  const [recentPayments, setRecentPayments] = useState<any[]>([]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const today = startOfDay(new Date()).toISOString();
+      const now = endOfDay(new Date()).toISOString();
+
+      const [
+        studentsRes, 
+        feesRes, 
+        salesRes, 
+        expensesRes, 
+        inventoryRes,
+        logsRes
+      ] = await Promise.all([
+        supabase.from('students').select('id, fee_status'),
+        supabase.from('fee_payments').select('amount, created_at, students(full_name, student_id)'),
+        supabase.from('sales').select('total_amount, created_at, students(full_name)'),
+        supabase.from('expenses').select('amount, date'),
+        supabase.from('inventory').select('purchase_price, quantity'),
+        supabase.from('admin_activity_logs').select('action, created_at').order('created_at', { ascending: false }).limit(4)
+      ]);
+
+      const students = studentsRes.data || [];
+      const fees = feesRes.data || [];
+      const sales = salesRes.data || [];
+      const expenses = expensesRes.data || [];
+      const inventory = inventoryRes.data || [];
+
+      // Aggregations
+      const totalStudents = students.length;
+      const activeStudents = students.filter(s => s.fee_status === 'Paid').length;
+      
+      const todayFees = fees
+        .filter(f => f.created_at >= today && f.created_at <= now)
+        .reduce((sum, f) => sum + Number(f.amount), 0);
+      
+      const todaySales = sales
+        .filter(s => s.created_at >= today && s.created_at <= now)
+        .reduce((sum, s) => sum + Number(s.total_amount), 0);
+
+      // Fix for Error 1 & 2: Use any casting for the union type reduction
+      const monthlyIncome = [...fees, ...sales].reduce((sum, item: any) => sum + Number(item.amount || item.total_amount || 0), 0);
+      const monthlyExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+      const inventoryValue = inventory.reduce((sum, i) => sum + (Number(i.purchase_price) * Number(i.quantity)), 0);
+
+      setStats({
+        totalStudents,
+        activeStudents,
+        pendingFees: students.filter(s => s.fee_status !== 'Paid').length,
+        todayCollection: todayFees + todaySales,
+        monthlyIncome,
+        monthlyExpenses,
+        inventoryValue,
+        salesToday: sales.filter(s => s.created_at >= today && s.created_at <= now).length
+      });
+
+      // Fix for Error 3: Cast students to any to access name property safely
+      setRecentPayments(fees.slice(0, 3).map(f => ({
+        name: (f.students as any)?.full_name || 'System',
+        amount: `$${f.amount}`,
+        date: format(new Date(f.created_at), 'p'),
+        method: 'Payment'
+      })));
+
+      setRecentLogs(logsRes.data || []);
+    } catch (error) {
+      console.error("Dashboard Sync Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (profile?.role === 'Super Admin') {
-      const fetchLogs = async () => {
-        const { data } = await supabase
-          .from('admin_logs')
-          .select('action, created_at')
-          .order('created_at', { ascending: false })
-          .limit(3);
-        setRecentLogs(data || []);
-      };
-      fetchLogs();
-    }
-  }, [profile]);
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-40 flex flex-col items-center justify-center gap-4 text-slate-300">
+        <Loader2 className="animate-spin" size={48} />
+        <p className="font-black uppercase text-[10px] tracking-widest">Aggregating Global Metrics...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header with quick actions */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Academy Overview</h2>
           <p className="text-slate-500 font-medium">Snapshot of your business performance today.</p>
         </div>
         <div className="flex gap-3">
-          <Button className="h-14 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-bold transition-all px-6">
-            <Plus className="mr-2" size={18} /> Add Payment
+          <Button onClick={fetchDashboardData} variant="ghost" className="h-14 w-14 rounded-2xl bg-white shadow-sm text-[#0F4C81]">
+            <Clock size={20} />
           </Button>
-          <Button variant="outline" className="h-14 rounded-2xl border-2 border-slate-100 font-bold px-6 hover:bg-slate-50 transition-all">
-            <UserPlus className="mr-2" size={18} /> New Student
+          <Button className="h-14 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-bold transition-all px-8">
+            <Plus className="mr-2" size={18} /> Add Payment
           </Button>
         </div>
       </div>
@@ -63,32 +147,26 @@ const DashboardOverview = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardCard 
           label="Total Students" 
-          value="542" 
+          value={stats.totalStudents} 
           icon={Users} 
-          trend="+12%" 
-          trendType="up" 
+          trend="Live" 
         />
         <DashboardCard 
-          label="Active Students" 
-          value="486" 
+          label="Active Accounts" 
+          value={stats.activeStudents} 
           icon={UserPlus} 
-          trend="+5%" 
           trendType="up" 
         />
         <DashboardCard 
-          label="Pending Fees" 
-          value="$12,450" 
+          label="Unpaid Dues" 
+          value={stats.pendingFees} 
           icon={AlertTriangle} 
-          trend="-2%" 
-          trendType="down"
           color="bg-amber-50 text-amber-600"
         />
         <DashboardCard 
           label="Today's Collection" 
-          value="$2,840" 
+          value={`$${stats.todayCollection.toLocaleString()}`} 
           icon={DollarSign} 
-          trend="+24%" 
-          trendType="up"
           color="bg-green-50 text-green-600"
         />
       </div>
@@ -97,27 +175,25 @@ const DashboardOverview = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardCard 
           label="Monthly Income" 
-          value="$45,200" 
+          value={`$${stats.monthlyIncome.toLocaleString()}`} 
           icon={TrendingUp} 
-          trend="+18%" 
-          trendType="up" 
         />
         <DashboardCard 
-          label="Monthly Expenses" 
-          value="$18,400" 
+          label="Total Expenses" 
+          value={`$${stats.monthlyExpenses.toLocaleString()}`} 
           icon={Briefcase} 
-          trend="+4%" 
-          trendType="down"
+          color="bg-red-50 text-red-600"
         />
         <DashboardCard 
           label="Inventory Value" 
-          value="$8,920" 
+          value={`$${stats.inventoryValue.toLocaleString()}`} 
           icon={Package} 
-          trend="Stable" 
         />
         {profile?.role === 'Super Admin' ? (
-           <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-[#0F4C81] text-white flex items-center gap-4">
-              <div className="p-3 bg-white/10 rounded-xl"><ShieldCheck size={20} className="text-[#FFC107]" /></div>
+           <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-[#0F4C81] text-white flex items-center gap-4 group">
+              <div className="p-3 bg-white/10 rounded-xl group-hover:bg-[#FFC107] group-hover:text-[#0F4C81] transition-all">
+                <ShieldCheck size={20} className="text-[#FFC107] group-hover:text-inherit" />
+              </div>
               <div>
                  <p className="text-[8px] font-black uppercase text-[#FFC107] tracking-widest">Security Status</p>
                  <p className="text-sm font-black uppercase">Infrastructure Secure</p>
@@ -125,36 +201,29 @@ const DashboardOverview = () => {
            </Card>
         ) : (
           <DashboardCard 
-            label="Sold Today" 
-            value="14 Units" 
+            label="Sales Transactions" 
+            value={stats.salesToday} 
             icon={ShoppingCart} 
-            trend="+8%" 
-            trendType="up" 
           />
         )}
       </div>
 
-      {/* Charts Section */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <IncomeExpenseChart />
         <SalesBarChart />
       </div>
 
-      {/* Widgets Section */}
+      {/* Audit & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Payments */}
         <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Recent Payments</h3>
-            <Button variant="link" className="text-[10px] font-black uppercase text-[#FFC107]">View All</Button>
+            <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Recent Activity</h3>
+            <Button variant="link" className="text-[10px] font-black uppercase text-[#FFC107]">View Ledger</Button>
           </div>
           <div className="space-y-4">
-            {[
-              { name: 'Alex Johnson', amount: '$150', date: '2 mins ago', method: 'UPI' },
-              { name: 'Sarah Miller', amount: '$200', date: '15 mins ago', method: 'Cash' },
-              { name: 'David Chen', amount: '$150', date: '1 hour ago', method: 'Card' }
-            ].map((payment, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+            {recentPayments.map((payment, i) => (
+              <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold text-xs">
                     <DollarSign size={16} />
@@ -170,10 +239,11 @@ const DashboardOverview = () => {
                 </div>
               </div>
             ))}
+            {recentPayments.length === 0 && <p className="text-center py-8 text-[10px] font-bold text-slate-300 uppercase italic">No transactions found today.</p>}
           </div>
         </Card>
 
-        {profile?.role === 'Super Admin' ? (
+        {profile?.role === 'Super Admin' && (
            <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
               <div className="flex justify-between items-center">
                  <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Security Audit</h3>
@@ -181,48 +251,17 @@ const DashboardOverview = () => {
               </div>
               <div className="space-y-4">
                  {recentLogs.map((log, i) => (
-                    <div key={i} className="p-4 rounded-2xl bg-slate-50 flex justify-between items-center">
+                    <div key={i} className="p-4 rounded-2xl bg-slate-50 flex justify-between items-center border border-slate-100/50">
                        <div>
-                          <p className="text-xs font-black text-[#0F4C81] uppercase">{log.action.replace('_', ' ')}</p>
+                          <p className="text-xs font-black text-[#0F4C81] uppercase">{log.action.replace(/_/g, ' ')}</p>
                           <p className="text-[9px] font-bold text-slate-400">{format(new Date(log.created_at), 'PPP p')}</p>
                        </div>
                        <ShieldCheck size={14} className="text-green-500" />
                     </div>
                  ))}
-                 {recentLogs.length === 0 && <p className="text-center py-8 text-[10px] font-bold text-slate-300 uppercase">No recent security events.</p>}
+                 {recentLogs.length === 0 && <p className="text-center py-8 text-[10px] font-bold text-slate-300 uppercase">System silent.</p>}
               </div>
            </Card>
-        ) : (
-          <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Latest Registrations</h3>
-              <Button variant="link" className="text-[10px] font-black uppercase text-[#FFC107]">View All</Button>
-            </div>
-            <div className="space-y-4">
-              {[
-                { name: 'Rohan Sharma', program: 'Badminton Elite', status: 'Pending' },
-                { name: 'Emma Wilson', program: 'CrossFit Adult', status: 'Active' },
-                { name: 'Lucas Scott', program: 'Junior Academy', status: 'Active' }
-              ].map((reg, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
-                      {reg.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-[#0F4C81]">{reg.name}</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">{reg.program}</p>
-                    </div>
-                  </div>
-                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-md ${
-                    reg.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
-                  }`}>
-                    {reg.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
         )}
       </div>
     </div>

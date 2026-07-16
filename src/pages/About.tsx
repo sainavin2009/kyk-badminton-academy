@@ -1,8 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Target, Shield, Users, Heart, Star } from 'lucide-react';
+import { Trophy, Target, Shield, Users, Heart, Star, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const values = [
   { icon: Target, title: "Precision", desc: "Focusing on the smallest technical details that make the biggest difference on court." },
@@ -12,6 +13,24 @@ const values = [
 ];
 
 const About = () => {
+  const [coaches, setCoaches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCoaches = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, role, avatar_url')
+        .eq('role', 'Coach')
+        .eq('status', 'Active')
+        .limit(3);
+      
+      setCoaches(data || []);
+      setLoading(false);
+    };
+    fetchCoaches();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -41,14 +60,14 @@ const About = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-20 items-center">
             <div className="lg:w-1/2 relative">
-              <div className="rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white">
+              <div className="rounded-[4rem] overflow-hidden shadow-2xl border-8 border-white">
                 <img 
                   src="https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=1200" 
                   alt="Academy History" 
                   className="w-full h-full object-cover aspect-[4/5]"
                 />
               </div>
-              <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-[#FFC107] rounded-[2.5rem] p-10 flex flex-col justify-center shadow-2xl">
+              <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-[#FFC107] rounded-[3rem] p-10 flex flex-col justify-center shadow-2xl">
                 <Trophy size={48} className="text-[#0F4C81] mb-4" />
                 <div className="text-4xl font-black text-[#0F4C81] leading-none mb-1">10+</div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-[#0F4C81]/60">Years of Legacy</div>
@@ -91,7 +110,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Founders Section */}
+      {/* Leadership Section */}
       <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-4 text-center space-y-16">
           <div className="space-y-4">
@@ -100,23 +119,31 @@ const About = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((_, i) => (
-              <motion.div 
-                key={i}
-                whileHover={{ y: -10 }}
-                className="group bg-white p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all border border-slate-100"
-              >
-                <div className="aspect-square rounded-2xl overflow-hidden mb-6 bg-slate-100 relative">
-                  <img src={`https://i.pravatar.cc/400?img=${i + 10}`} alt="Coach" className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" />
-                  <div className="absolute inset-0 bg-[#0F4C81]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h4 className="text-xl font-black text-[#0F4C81] uppercase tracking-tight">Karthik Y. Kumar</h4>
-                <p className="text-[#FFC107] text-[10px] font-black uppercase tracking-widest mb-4">Founder & Head Coach</p>
-                <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                  3-time State Champion with over 15 years of coaching elite junior squads.
-                </p>
-              </motion.div>
-            ))}
+            {loading ? (
+              <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin text-[#0F4C81]" /></div>
+            ) : coaches.length > 0 ? (
+              coaches.map((coach, i) => (
+                <motion.div 
+                  key={i}
+                  whileHover={{ y: -10 }}
+                  className="group bg-white p-8 rounded-[3rem] shadow-sm hover:shadow-xl transition-all border border-slate-100"
+                >
+                  <div className="aspect-square rounded-[2.5rem] overflow-hidden mb-6 bg-slate-100 relative">
+                    <img src={coach.avatar_url || `https://i.pravatar.cc/400?img=${i + 15}`} alt={coach.full_name} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" />
+                    <div className="absolute inset-0 bg-[#0F4C81]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <h4 className="text-xl font-black text-[#0F4C81] uppercase tracking-tight">{coach.full_name}</h4>
+                  <p className="text-[#FFC107] text-[10px] font-black uppercase tracking-widest mb-4">{coach.role}</p>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed italic">
+                    Certified Elite Coach with a focus on professional circuit readiness.
+                  </p>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center">
+                 <p className="font-black uppercase text-slate-300 text-xs tracking-widest">Faculty records being synchronized...</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
