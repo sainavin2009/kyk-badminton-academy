@@ -17,12 +17,23 @@ import ReportsManager from '@/components/admin/sections/ReportsManager';
 import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
 import AdministrationManager from '@/components/admin/sections/AdministrationManager';
-import { Bell, Search, User, Loader2 } from 'lucide-react';
+import { Bell, Search, User, Loader2, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
+import { useNotifications } from '@/hooks/use-notifications';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const AdminDashboard = () => {
   const { profile, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
 
   const renderContent = () => {
     switch (activeTab) {
@@ -74,10 +85,54 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative p-4 rounded-2xl bg-slate-50 text-slate-400 hover:text-[#0F4C81] transition-all">
-              <Bell size={20} />
-              <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 bg-red-50 border-2 border-white rounded-full" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="relative p-4 rounded-2xl bg-slate-50 text-slate-400 hover:text-[#0F4C81] transition-all">
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-3 right-3 w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-white rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80 rounded-[2rem] p-4 border-none shadow-2xl mt-4 bg-white">
+                <div className="flex items-center justify-between mb-4 px-2">
+                  <h4 className="font-black text-[#0F4C81] uppercase text-xs tracking-widest">Notifications</h4>
+                  <button onClick={markAllRead} className="text-[9px] font-black uppercase text-[#FFC107] hover:underline">Mark all read</button>
+                </div>
+                <DropdownMenuSeparator className="bg-slate-50" />
+                <div className="max-h-80 overflow-y-auto custom-scrollbar space-y-2 py-2">
+                  {notifications.length > 0 ? (
+                    notifications.map((n) => (
+                      <DropdownMenuItem 
+                        key={n.id} 
+                        onClick={() => markAsRead(n.id)}
+                        className={cn(
+                          "flex flex-col items-start gap-1 p-4 rounded-2xl cursor-pointer transition-colors",
+                          n.is_read ? "opacity-50" : "bg-slate-50"
+                        )}
+                      >
+                        <div className="flex justify-between w-full">
+                          <span className={cn(
+                            "text-[10px] font-black uppercase tracking-widest",
+                            n.type === 'Warning' ? "text-amber-500" : "text-[#0F4C81]"
+                          )}>{n.title}</span>
+                          <span className="text-[8px] font-bold text-slate-400">{format(new Date(n.created_at), 'HH:mm')}</span>
+                        </div>
+                        <p className="text-xs font-medium text-slate-600 leading-tight">{n.message}</p>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="py-12 text-center">
+                      <Check className="mx-auto text-slate-200 mb-2" size={32} />
+                      <p className="text-[10px] font-black uppercase text-slate-300">All caught up!</p>
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="flex flex-col text-right">
                 <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">
@@ -87,7 +142,7 @@ const AdminDashboard = () => {
                   {profile?.role || 'Identifying Role...'}
                 </span>
               </div>
-              <div className="w-14 h-14 rounded-2xl bg-[#0F4C81] flex items-center justify-center text-[#FFC107] shadow-xl overflow-hidden">
+              <div className="w-14 h-14 rounded-2xl bg-[#0F4C81] flex items-center justify-center text-[#FFC107] shadow-xl overflow-hidden border-2 border-white">
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
