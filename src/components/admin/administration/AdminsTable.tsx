@@ -27,8 +27,11 @@ import {
   UserCheck, 
   Eye,
   Shield,
-  Clock,
-  UserPlus
+  ShieldAlert,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -54,14 +57,7 @@ const AdminsTable = ({
   currentUser
 }: AdminsTableProps) => {
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case 'Super Admin': return 'bg-red-50 text-red-600';
-      case 'Admin': return 'bg-blue-50 text-blue-600';
-      case 'Coach': return 'bg-green-50 text-green-600';
-      default: return 'bg-slate-50 text-slate-500';
-    }
-  };
+  const superAdminCount = admins.filter(a => a.role === 'Super Admin' && a.status === 'Active').length;
 
   return (
     <div className="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-50">
@@ -79,7 +75,7 @@ const AdminsTable = ({
         <TableBody>
           {admins.map((admin) => {
             const isSelf = admin.id === currentUser?.id;
-            const isOnlySuperAdmin = admin.role === 'Super Admin' && admins.filter(a => a.role === 'Super Admin').length === 1;
+            const isLastSuperAdmin = admin.role === 'Super Admin' && superAdminCount === 1;
 
             return (
               <TableRow key={admin.id} className="group hover:bg-slate-50 transition-colors">
@@ -92,7 +88,10 @@ const AdminsTable = ({
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="font-black text-[#0F4C81] text-base leading-none mb-1">{admin.full_name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-[#0F4C81] text-base leading-none">{admin.full_name}</span>
+                        {isSelf && <span className="text-[8px] font-black uppercase bg-[#FFC107] text-[#0F4C81] px-1.5 py-0.5 rounded">You</span>}
+                      </div>
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{admin.email}</span>
                     </div>
                   </div>
@@ -100,7 +99,7 @@ const AdminsTable = ({
                 <TableCell>
                   <Badge className={cn(
                     "rounded-full px-3 py-1 font-black uppercase text-[9px] tracking-widest border-none shadow-none",
-                    getRoleBadgeColor(admin.role)
+                    admin.role === 'Super Admin' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
                   )}>
                     <Shield size={10} className="mr-1.5" />
                     {admin.role}
@@ -142,15 +141,12 @@ const AdminsTable = ({
                       <DropdownMenuItem onClick={() => onEdit(admin)} className="rounded-xl h-10 font-bold flex items-center gap-2">
                         <Edit3 size={16} className="text-amber-500" /> Edit Permissions
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onResetPassword(admin)} className="rounded-xl h-10 font-bold flex items-center gap-2">
-                        <Key size={16} className="text-purple-500" /> Reset Password
-                      </DropdownMenuItem>
                       
                       <div className="h-[1px] bg-slate-100 my-1" />
                       
                       <DropdownMenuItem 
-                        onClick={() => !isSelf && onToggleStatus(admin)}
-                        disabled={isSelf}
+                        onClick={() => !isLastSuperAdmin && onToggleStatus(admin)}
+                        disabled={isLastSuperAdmin || isSelf}
                         className={cn(
                           "rounded-xl h-10 font-bold flex items-center gap-2",
                           admin.status === 'Active' ? 'text-orange-500' : 'text-green-600'
@@ -161,11 +157,15 @@ const AdminsTable = ({
                       </DropdownMenuItem>
 
                       <DropdownMenuItem 
-                        onClick={() => !isOnlySuperAdmin && onDelete(admin)}
-                        disabled={isOnlySuperAdmin || isSelf}
-                        className="rounded-xl h-10 font-bold flex items-center gap-2 text-red-500 hover:bg-red-50"
+                        onClick={() => !isLastSuperAdmin && onDelete(admin)}
+                        disabled={isLastSuperAdmin || isSelf}
+                        className={cn(
+                          "rounded-xl h-10 font-bold flex items-center gap-2 text-red-500 hover:bg-red-50",
+                          (isLastSuperAdmin || isSelf) && "opacity-50 cursor-not-allowed"
+                        )}
                       >
-                        <Trash2 size={16} /> Delete Forever
+                        <Trash2 size={16} />
+                        {isLastSuperAdmin ? "Final Super Admin" : "Delete Forever"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -175,6 +175,15 @@ const AdminsTable = ({
           })}
         </TableBody>
       </Table>
+      
+      {superAdminCount === 1 && (
+        <div className="p-4 bg-amber-50 border-t border-amber-100 flex items-center gap-3">
+          <ShieldAlert size={18} className="text-amber-600" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">
+            Operational Guard: One active Super Admin remaining. Access termination is restricted for safety.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

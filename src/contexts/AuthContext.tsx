@@ -3,8 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-
-export type UserRole = 'Super Admin' | 'Admin' | 'Staff';
+import { logAdminAction } from '@/utils/auditLogger';
 
 interface AuthContextType {
   session: Session | null;
@@ -31,83 +30,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    console.group(`[AuthAudit] Profile Sync - ${new Date().toLocaleTimeString()}`);
-    console.log("Current Auth User ID:", userId);
-    
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        console.error("Profile Fetch Error:", error.message);
-        console.log("Attempting to auto-create missing profile...");
-        
-        // Auto-recovery: If profile missing, create it
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData.user) {
-          const { data: newProfile, error: createError } = await supabase
-            .from('profiles')
-            .upsert({ 
-              id: userId, 
-              email: userData.user.email,
-              role: 'Staff', // Default, should be updated via SQL for Super Admin
-              status: 'Active'
-            })
-            .select()
-            .single();
-            
-          if (!createError) {
-            console.log("Auto-created missing profile:", newProfile);
-            setProfile(newProfile);
-          }
-        }
-      } else {
-        console.log("Profile Data Received:", {
-          db_id: data.id,
-          db_email: data.email,
-          db_role: data.role,
-          db_status: data.status
-        });
-        setProfile(data);
-      }
-    } catch (err) {
-      console.error("Unexpected Auth Error:", err);
-    } finally {
-      console.groupEnd();
-    }
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    setProfile(data);
   };
 
   useEffect(() => {
     const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        }
-      } catch (error) {
-        console.error("Auth Init Error:", error);
-      } finally {
-        setLoading(false);
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await fetchProfile(session.user.id);
       }
+      setLoading(false);
     };
 
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(`[AuthAudit] Event: ${event}`);
       setSession(session);
       setUser(session?.user ?? null);
       
-      if (session?.user) {
+      if (event === 'SIGNED_IN' && session?.user) {
         await fetchProfile(session.user.id);
-      } else {
+        await logAdminAction('LOGIN_SUCCESS', { email: session.user.email });
+      } else if (event === 'SIGNED_OUT') {
         setProfile(null);
+      } else if (event === 'USER_UPDATED' && session?.user) {
+        await fetchProfile(session.user.id);
       }
+      
       setLoading(false);
     });
 
@@ -115,12 +71,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    setLoading(true);
+    if (user) {
+      await logAdminAction('LOGOUT_SUCCESS', { email: user.email });
+    }
     await supabase.auth.signOut();
     setSession(null);
     setUser(null);
     setProfile(null);
-    setLoading(false);
   };
 
   const refreshProfile = async () => {

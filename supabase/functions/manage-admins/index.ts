@@ -18,26 +18,26 @@ serve(async (req) => {
     )
 
     const authHeader = req.headers.get('Authorization')
-    if (!authHeader) throw new Error('No authorization header')
+    if (!authHeader) throw new Error('Unauthorized')
 
     const token = authHeader.replace('Bearer ', '')
     const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    
     if (authError || !caller) throw new Error('Unauthorized')
 
-    const { data: callerProfile } = await supabaseAdmin
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', caller.id)
       .single()
 
-    if (callerProfile?.role !== 'Super Admin') {
-      throw new Error('Forbidden: Super Admin access required')
+    if (!['Super Admin', 'Admin'].includes(profile?.role || '')) {
+      throw new Error('Forbidden: Insufficient permissions')
     }
 
-    const { action, userData, userId, newPassword } = await req.json()
+    const { action, userData, userId } = await req.json()
 
     if (action === 'create') {
+      // 1. Create Auth User
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email: userData.email,
         password: userData.password,
@@ -47,51 +47,30 @@ serve(async (req) => {
 
       if (createError) throw createError
 
-      const { error: profileError } = await supabaseAdmin
-        .from('profiles')
-        .upsert({
-          id: newUser.user.id,
-          full_name: userData.full_name,
-          phone: userData.phone,
-          role: userData.role,
-          status: userData.status,
-          avatar_url: userData.avatar_url
-        })
+      // 2. Create Profile
+      await supabaseAdmin.from('profiles').upsert({
+        id: newUser.user.id,
+        full_name: userData.full_name,
+        email: userData.email,
+        phone: userData.phone,
+        role: userData.role,
+        status: 'Active'
+      })
 
-      if (profileError) throw profileError
-
-      // Log the event
-      await supabaseAdmin.from('admin_logs').insert({
-        creator_id: caller.id,
-        target_user_id: newUser.user.id,
-        action: 'CREATE_ADMIN',
-        details: { email: userData.email, role: userData.role }
+      // 3. Log Invite
+      await supabaseAdmin.from('admin_invites').insert({
+        email: userData.email,
+        role: userData.role,
+        inviter_id: caller.id,
+        status: 'Pending'
       })
 
       return new Response(JSON.stringify({ success: true }), { headers: corsHeaders })
     }
 
-    if (action === 'delete') {
-      // Prevent deleting self or last super admin logic
-      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
-      if (deleteError) throw deleteError
-
-      await supabaseAdmin.from('admin_logs').insert({
-        creator_id: caller.id,
-        target_user_id: userId,
-        action: 'DELETE_ADMIN',
-        details: { userId }
-      })
-
-      return new Response(JSON.stringify({ success: true }), { headers: corsHeaders })
-    }
-
-    // Add other actions (update, reset_password) here if needed...
-    
     return new Response(JSON.stringify({ error: 'Invalid action' }), { status: 400, headers: corsHeaders })
 
   } catch (error: any) {
-    console.error("[manage-admins] Error:", error.message)
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
   }
 })
