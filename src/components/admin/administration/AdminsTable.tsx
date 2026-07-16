@@ -27,12 +27,14 @@ import {
   UserCheck, 
   Eye,
   Shield,
-  ShieldAlert,
+  ShieldAlert
+} from 'lucide-react';
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from 'lucide-react';
+} from "@/components/ui/tooltip";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { AdminProfile } from '@/types/administration';

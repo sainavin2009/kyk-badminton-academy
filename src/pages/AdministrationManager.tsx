@@ -14,7 +14,8 @@ import {
   Search,
   Filter,
   Loader2,
-  ShieldAlert
+  ShieldAlert,
+  Download
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -22,9 +23,12 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import AdminsTable from '@/components/admin/administration/AdminsTable';
 import CreateAdminModal from '@/components/admin/administration/CreateAdminModal';
+import AdminProfileViewModal from '@/components/admin/administration/AdminProfileViewModal';
+import AdminEditModal from '@/components/admin/administration/AdminEditModal';
 import AuditLogsTable from '@/components/admin/administration/AuditLogsTable';
 import InviteHistoryTable from '@/components/admin/administration/InviteHistoryTable';
 import RolesPermissions from '@/components/admin/administration/RolesPermissions';
+import ResetPasswordModal from '@/components/admin/sections/ResetPasswordModal';
 import { AdminProfile, ActivityLog, AdminInvite } from '@/types/administration';
 import { logAdminAction } from '@/utils/auditLogger';
 
@@ -34,8 +38,18 @@ const AdministrationManager = () => {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [invites, setInvites] = useState<AdminInvite[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Search & Filter State
   const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+
+  // Modal State
   const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState<AdminProfile | null>(null);
 
   const fetchData = async () => {
     try {
@@ -60,31 +74,53 @@ const AdministrationManager = () => {
     fetchData();
   }, []);
 
+  const invokeManageAdmins = async (payload: any) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const response = await fetch(`https://hsxelnigsofldxlwufri.supabase.co/functions/v1/manage-admins`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    return result;
+  };
+
   const handleInvite = async (formData: any) => {
     try {
-      // 1. Create Supabase Auth User
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(`https://hsxelnigsofldxlwufri.supabase.co/functions/v1/manage-admins`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({
-          action: 'create',
-          userData: formData
-        })
-      });
-      
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
-
-      // 2. Log Invitation
-      await logAdminAction('INVITE_CREATED', { email: formData.email, role: formData.role });
-      
-      toast.success(`Invitation sent to ${formData.email}`);
+      await invokeManageAdmins({ action: 'create', userData: formData });
+      await logAdminAction('ADMIN_PROVISIONED', { email: formData.email, role: formData.role });
+      toast.success(`Access tokens generated for ${formData.email}`);
       fetchData();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleUpdate = async (formData: any) => {
+    if (!selectedAdmin) return;
+    try {
+      const { error } = await supabase.from('profiles').update(formData).eq('id', selectedAdmin.id);
+      if (error) throw error;
+      
+      await logAdminAction('ADMIN_UPDATED', { target: selectedAdmin.email, changes: formData });
+      toast.success('Clearance profile synchronized');
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleResetPassword = async (password: string) => {
+    if (!selectedAdmin) return;
+    try {
+      await invokeManageAdmins({ action: 'reset_password', userId: selectedAdmin.id, newPassword: password });
+      await logAdminAction('PASSWORD_FORCED_RESET', { target: selectedAdmin.email });
+      toast.success('Security tokens rotated successfully');
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -96,19 +132,34 @@ const AdministrationManager = () => {
       const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', admin.id);
       if (error) throw error;
       
-      await logAdminAction('STATUS_CHANGED', { target: admin.email, newStatus });
-      toast.success(`Access ${newStatus === 'Active' ? 'restored' : 'revoked'} for ${admin.full_name}`);
+      await logAdminAction('STATUS_TOGGLED', { target: admin.email, newStatus });
+      toast.success(`System access ${newStatus === 'Active' ? 'restored' : 'revoked'} for ${admin.full_name}`);
       fetchData();
     } catch (err: any) {
       toast.error(err.message);
     }
   };
 
-  const filteredAdmins = admins.filter(a => 
-    a.full_name.toLowerCase().includes(search.toLowerCase()) ||
-    a.email.toLowerCase().includes(search.toLowerCase()) ||
-    a.role.toLowerCase().includes(search.toLowerCase())
-  );
+  const handleDelete = async (admin: AdminProfile) => {
+    try {
+      await invokeManageAdmins({ action: 'delete', userId: admin.id });
+      await logAdminAction('ADMIN_TERMINATED', { target: admin.email });
+      toast.success('Personnel record purged from infrastructure');
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const filteredAdmins = admins.filter(a => {
+    const matchesSearch = a.full_name.toLowerCase().includes(search.toLowerCase()) || 
+                          a.email.toLowerCase().includes(search.toLowerCase()) ||
+                          a.phone?.includes(search);
+    const matchesRole = roleFilter === 'All' || a.role === roleFilter;
+    const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
 
   if (profile?.role !== 'Super Admin') {
     return (
@@ -163,16 +214,36 @@ const AdministrationManager = () => {
         </TabsList>
 
         <TabsContent value="admins" className="space-y-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full lg:w-96 group">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-2 relative group">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
               <Input 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-14 h-16 rounded-2xl border-none bg-white shadow-sm font-bold text-slate-600 focus-visible:ring-2 focus-visible:ring-[#FFC107]" 
-                placeholder="Search by name, email or role..." 
+                placeholder="Search by identity or contact..." 
               />
             </div>
+            <select 
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="h-16 rounded-2xl bg-white border-none shadow-sm px-6 font-black uppercase text-[10px] tracking-widest text-slate-500 outline-none"
+            >
+              <option value="All">All Roles</option>
+              <option value="Super Admin">Super Admin</option>
+              <option value="Admin">Admin</option>
+              <option value="Coach">Coach</option>
+              <option value="Staff">Staff</option>
+            </select>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-16 rounded-2xl bg-white border-none shadow-sm px-6 font-black uppercase text-[10px] tracking-widest text-slate-500 outline-none"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Active">Active Only</option>
+              <option value="Inactive">Deactivated</option>
+            </select>
           </div>
 
           {loading ? (
@@ -181,11 +252,11 @@ const AdministrationManager = () => {
             <AdminsTable 
               admins={filteredAdmins}
               currentUser={currentUser}
-              onView={() => {}}
-              onEdit={() => {}}
-              onResetPassword={() => {}}
+              onView={(admin) => { setSelectedAdmin(admin); setIsViewOpen(true); }}
+              onEdit={(admin) => { setSelectedAdmin(admin); setIsEditOpen(true); }}
+              onResetPassword={(admin) => { setSelectedAdmin(admin); setIsResetOpen(true); }}
               onToggleStatus={handleToggleStatus}
-              onDelete={() => {}}
+              onDelete={handleDelete}
             />
           )}
         </TabsContent>
@@ -208,6 +279,27 @@ const AdministrationManager = () => {
         onClose={() => setIsInviteOpen(false)}
         onInvite={handleInvite}
         currentUserRole={profile?.role}
+      />
+
+      <AdminProfileViewModal 
+        isOpen={isViewOpen}
+        onClose={() => setIsViewOpen(false)}
+        admin={selectedAdmin}
+      />
+
+      <AdminEditModal 
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        admin={selectedAdmin}
+        onUpdate={handleUpdate}
+        currentUserRole={profile?.role}
+      />
+
+      <ResetPasswordModal 
+        isOpen={isResetOpen}
+        onClose={() => setIsResetOpen(false)}
+        onReset={handleResetPassword}
+        adminName={selectedAdmin?.full_name || ''}
       />
     </div>
   );

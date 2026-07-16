@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Shield, Check, Lock, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
