@@ -24,7 +24,7 @@ import { toast } from 'sonner';
 import { AcademyExpense } from '@/types/expense';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import ExpenseForm from './ExpenseForm';
+import ExpenseForm from './expenses/ExpenseForm';
 import {
   AlertDialog,
   AlertDialogAction,

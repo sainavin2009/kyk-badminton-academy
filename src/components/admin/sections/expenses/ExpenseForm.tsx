@@ -109,7 +109,7 @@ const ExpenseForm = ({ isOpen, onClose, onSave, expense }: ExpenseFormProps) => 
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Transaction Date *</Label>
               <div className="relative">
                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                <Input type="date" {...register('date')} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
+                <Input type="date" {...register('date')} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
               </div>
               {errors.date && <p className="text-red-500 text-[10px] font-bold">{errors.date.message}</p>}
             </div>
