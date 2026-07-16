@@ -6,16 +6,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { 
   ShieldCheck, 
   Users, 
-  Lock, 
   History, 
   Mail, 
   Plus, 
   RefreshCw,
   Search,
-  Filter,
   Loader2,
-  ShieldAlert,
-  Download
+  ShieldAlert
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -39,12 +36,10 @@ const AdministrationManager = () => {
   const [invites, setInvites] = useState<AdminInvite[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Search & Filter State
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  // Modal State
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -132,7 +127,7 @@ const AdministrationManager = () => {
       const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', admin.id);
       if (error) throw error;
       
-      await logAdminAction('STATUS_TOGGLED', { target: admin.email, newStatus });
+      await logAdminAction(newStatus === 'Active' ? 'ADMIN_ENABLED' : 'ADMIN_DISABLED', { target: admin.email });
       toast.success(`System access ${newStatus === 'Active' ? 'restored' : 'revoked'} for ${admin.full_name}`);
       fetchData();
     } catch (err: any) {
@@ -153,27 +148,12 @@ const AdministrationManager = () => {
 
   const filteredAdmins = admins.filter(a => {
     const matchesSearch = a.full_name.toLowerCase().includes(search.toLowerCase()) || 
-                          a.email.toLowerCase().includes(search.toLowerCase()) ||
-                          a.phone?.includes(search);
+                          a.email.toLowerCase().includes(search.toLowerCase());
     const matchesRole = roleFilter === 'All' || a.role === roleFilter;
     const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
     
     return matchesSearch && matchesRole && matchesStatus;
   });
-
-  if (profile?.role !== 'Super Admin') {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-6 text-center">
-        <div className="w-24 h-24 rounded-[2.5rem] bg-red-50 text-red-500 flex items-center justify-center shadow-xl rotate-12">
-          <ShieldAlert size={48} strokeWidth={2.5} />
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-4xl font-black text-[#0F4C81] uppercase tracking-tighter">Access Denied</h2>
-          <p className="text-slate-400 font-medium max-w-sm">Administration management is strictly reserved for Super Administrators.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
@@ -205,12 +185,16 @@ const AdministrationManager = () => {
           <TabsTrigger value="roles" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
             <ShieldCheck className="mr-2" size={16} /> Roles & Perms
           </TabsTrigger>
-          <TabsTrigger value="logs" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
-            <History className="mr-2" size={16} /> Security Audit
-          </TabsTrigger>
-          <TabsTrigger value="invites" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
-            <Mail className="mr-2" size={16} /> Invite History
-          </TabsTrigger>
+          {profile?.role === 'Super Admin' && (
+            <>
+              <TabsTrigger value="logs" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
+                <History className="mr-2" size={16} /> Security Audit
+              </TabsTrigger>
+              <TabsTrigger value="invites" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
+                <Mail className="mr-2" size={16} /> Invite History
+              </TabsTrigger>
+            </>
+          )}
         </TabsList>
 
         <TabsContent value="admins" className="space-y-8">
@@ -232,7 +216,6 @@ const AdministrationManager = () => {
               <option value="All">All Roles</option>
               <option value="Super Admin">Super Admin</option>
               <option value="Admin">Admin</option>
-              <option value="Coach">Coach</option>
               <option value="Staff">Staff</option>
             </select>
             <select 
@@ -265,13 +248,16 @@ const AdministrationManager = () => {
           <RolesPermissions />
         </TabsContent>
 
-        <TabsContent value="logs">
-          <AuditLogsTable logs={logs} />
-        </TabsContent>
-
-        <TabsContent value="invites">
-          <InviteHistoryTable invites={invites} />
-        </TabsContent>
+        {profile?.role === 'Super Admin' && (
+          <>
+            <TabsContent value="logs">
+              <AuditLogsTable logs={logs} />
+            </TabsContent>
+            <TabsContent value="invites">
+              <InviteHistoryTable invites={invites} />
+            </TabsContent>
+          </>
+        )}
       </Tabs>
 
       <CreateAdminModal 

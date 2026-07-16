@@ -29,15 +29,10 @@ import {
   Shield,
   ShieldAlert
 } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { AdminProfile } from '@/types/administration';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AdminsTableProps {
   admins: AdminProfile[];
@@ -58,7 +53,7 @@ const AdminsTable = ({
   onDelete,
   currentUser
 }: AdminsTableProps) => {
-
+  const { profile } = useAuth();
   const superAdminCount = admins.filter(a => a.role === 'Super Admin' && a.status === 'Active').length;
 
   return (
@@ -77,7 +72,11 @@ const AdminsTable = ({
         <TableBody>
           {admins.map((admin) => {
             const isSelf = admin.id === currentUser?.id;
-            const isLastSuperAdmin = admin.role === 'Super Admin' && superAdminCount === 1;
+            const isTargetSuperAdmin = admin.role === 'Super Admin';
+            const isLastSuperAdmin = isTargetSuperAdmin && superAdminCount === 1;
+            
+            // Standard Admins cannot manage Super Admins or other Admins
+            const canManage = profile?.role === 'Super Admin' || (profile?.role === 'Admin' && admin.role === 'Staff');
 
             return (
               <TableRow key={admin.id} className="group hover:bg-slate-50 transition-colors">
@@ -120,13 +119,13 @@ const AdminsTable = ({
                     <span className="text-xs font-bold text-slate-600">
                       {admin.last_login ? format(new Date(admin.last_login), 'MMM dd, p') : 'Never'}
                     </span>
-                    <span className="text-[9px] font-medium text-slate-400 uppercase">Last Login</span>
+                    <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Last Login</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-slate-600">{format(new Date(admin.created_at), 'MMM dd, yyyy')}</span>
-                    <span className="text-[9px] font-medium text-slate-400 uppercase">Registered</span>
+                    <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Registered</span>
                   </div>
                 </TableCell>
                 <TableCell className="text-right pr-8">
@@ -140,35 +139,43 @@ const AdminsTable = ({
                       <DropdownMenuItem onClick={() => onView(admin)} className="rounded-xl h-10 font-bold flex items-center gap-2">
                         <Eye size={16} className="text-blue-500" /> View Profile
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(admin)} className="rounded-xl h-10 font-bold flex items-center gap-2">
-                        <Edit3 size={16} className="text-amber-500" /> Edit Permissions
-                      </DropdownMenuItem>
-                      
-                      <div className="h-[1px] bg-slate-100 my-1" />
-                      
-                      <DropdownMenuItem 
-                        onClick={() => !isLastSuperAdmin && onToggleStatus(admin)}
-                        disabled={isLastSuperAdmin || isSelf}
-                        className={cn(
-                          "rounded-xl h-10 font-bold flex items-center gap-2",
-                          admin.status === 'Active' ? 'text-orange-500' : 'text-green-600'
-                        )}
-                      >
-                        {admin.status === 'Active' ? <Ban size={16} /> : <UserCheck size={16} />}
-                        {admin.status === 'Active' ? 'Deactivate Access' : 'Activate Access'}
-                      </DropdownMenuItem>
 
-                      <DropdownMenuItem 
-                        onClick={() => !isLastSuperAdmin && onDelete(admin)}
-                        disabled={isLastSuperAdmin || isSelf}
-                        className={cn(
-                          "rounded-xl h-10 font-bold flex items-center gap-2 text-red-500 hover:bg-red-50",
-                          (isLastSuperAdmin || isSelf) && "opacity-50 cursor-not-allowed"
-                        )}
-                      >
-                        <Trash2 size={16} />
-                        {isLastSuperAdmin ? "Final Super Admin" : "Delete Forever"}
-                      </DropdownMenuItem>
+                      {canManage && !isSelf && (
+                        <>
+                          <DropdownMenuItem onClick={() => onEdit(admin)} className="rounded-xl h-10 font-bold flex items-center gap-2">
+                            <Edit3 size={16} className="text-amber-500" /> Edit Permissions
+                          </DropdownMenuItem>
+                          
+                          {profile?.role === 'Super Admin' && (
+                            <DropdownMenuItem onClick={() => onResetPassword(admin)} className="rounded-xl h-10 font-bold flex items-center gap-2">
+                              <Key size={16} className="text-indigo-500" /> Force Password Reset
+                            </DropdownMenuItem>
+                          )}
+                          
+                          <div className="h-[1px] bg-slate-100 my-1" />
+                          
+                          <DropdownMenuItem 
+                            onClick={() => onToggleStatus(admin)}
+                            disabled={isLastSuperAdmin}
+                            className={cn(
+                              "rounded-xl h-10 font-bold flex items-center gap-2",
+                              admin.status === 'Active' ? 'text-orange-500' : 'text-green-600'
+                            )}
+                          >
+                            {admin.status === 'Active' ? <Ban size={16} /> : <UserCheck size={16} />}
+                            {admin.status === 'Active' ? 'Deactivate Access' : 'Activate Access'}
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem 
+                            onClick={() => onDelete(admin)}
+                            disabled={isLastSuperAdmin}
+                            className="rounded-xl h-10 font-bold flex items-center gap-2 text-red-500 hover:bg-red-50"
+                          >
+                            <Trash2 size={16} />
+                            Delete Account
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -177,15 +184,6 @@ const AdminsTable = ({
           })}
         </TableBody>
       </Table>
-      
-      {superAdminCount === 1 && (
-        <div className="p-4 bg-amber-50 border-t border-amber-100 flex items-center gap-3">
-          <ShieldAlert size={18} className="text-amber-600" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">
-            Operational Guard: One active Super Admin remaining. Access termination is restricted for safety.
-          </p>
-        </div>
-      )}
     </div>
   );
 };

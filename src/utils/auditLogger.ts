@@ -5,7 +5,6 @@ export const logAdminAction = async (action: string, details: any = {}) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Simplified native detection to avoid external dependencies
     const ua = navigator.userAgent;
     let browser = "Unknown";
     let device = "Desktop";
@@ -13,7 +12,6 @@ export const logAdminAction = async (action: string, details: any = {}) => {
     if (ua.includes("Firefox")) browser = "Firefox";
     else if (ua.includes("SamsungBrowser")) browser = "Samsung Browser";
     else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
-    else if (ua.includes("Trident")) browser = "Internet Explorer";
     else if (ua.includes("Edge")) browser = "Edge";
     else if (ua.includes("Chrome")) browser = "Chrome";
     else if (ua.includes("Safari")) browser = "Safari";
@@ -24,17 +22,18 @@ export const logAdminAction = async (action: string, details: any = {}) => {
     const logData = {
       user_id: user.id,
       action,
-      ip_address: 'Logged via Client',
+      ip_address: 'Client Connection',
       device: device,
       browser: browser,
       details: {
         ...details,
-        userAgent: ua.substring(0, 200) // Store partial UA for reference
+        timestamp: new Date().toISOString()
       }
     };
 
+    // Standardized table name used in backend and frontend
     await supabase.from('admin_activity_logs').insert([logData]);
   } catch (error) {
-    console.error("Failed to log admin action:", error);
+    console.error("Audit Log Failure:", error);
   }
 };

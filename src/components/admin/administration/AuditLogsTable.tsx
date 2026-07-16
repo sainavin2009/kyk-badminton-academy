@@ -13,10 +13,8 @@ import { format } from 'date-fns';
 import { 
   ShieldAlert, 
   Monitor, 
-  Globe, 
-  User, 
   Smartphone,
-  ChevronRight
+  Info
 } from 'lucide-react';
 import { ActivityLog } from '@/types/administration';
 
@@ -33,8 +31,8 @@ const AuditLogsTable = ({ logs }: AuditLogsTableProps) => {
             <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400 h-14 pl-8">Event Timestamp</TableHead>
             <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">Administrator</TableHead>
             <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">Action Event</TableHead>
-            <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">System Environment</TableHead>
-            <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">IP Origin</TableHead>
+            <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">Target / Details</TableHead>
+            <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">Environment</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -59,7 +57,15 @@ const AuditLogsTable = ({ logs }: AuditLogsTableProps) => {
               <TableCell>
                 <div className="flex items-center gap-2">
                   <ShieldAlert size={14} className="text-[#FFC107]" />
-                  <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">{log.action}</span>
+                  <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">{log.action.replace(/_/g, ' ')}</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2 text-slate-500">
+                  <Info size={12} className="text-slate-300" />
+                  <span className="text-[10px] font-bold truncate max-w-[200px]">
+                    {log.details?.email || log.details?.target || 'System Action'}
+                  </span>
                 </div>
               </TableCell>
               <TableCell>
@@ -73,9 +79,6 @@ const AuditLogsTable = ({ logs }: AuditLogsTableProps) => {
                     <span className="text-[10px] font-bold">{log.device}</span>
                   </div>
                 </div>
-              </TableCell>
-              <TableCell>
-                <code className="text-[10px] font-mono bg-slate-50 px-2 py-1 rounded text-slate-400">{log.ip_address}</code>
               </TableCell>
             </TableRow>
           ))}

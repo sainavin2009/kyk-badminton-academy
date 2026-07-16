@@ -16,25 +16,15 @@ import SaleManager from '@/components/admin/sections/SaleManager';
 import ReportsManager from '@/components/admin/sections/ReportsManager';
 import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
+import AdministrationManager from '@/components/admin/sections/AdministrationManager';
 import { Bell, Search, User, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-interface AdminDashboardProps {
-  customView?: React.ReactNode;
-  activeTab?: AdminTab;
-}
-
-const AdminDashboard = ({ customView, activeTab: initialTab }: AdminDashboardProps) => {
+const AdminDashboard = () => {
   const { profile, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab || 'dashboard');
-
-  useEffect(() => {
-    if (initialTab) setActiveTab(initialTab);
-  }, [initialTab]);
+  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
   const renderContent = () => {
-    if (customView) return customView;
-
     switch (activeTab) {
       case 'dashboard': return <DashboardOverview />;
       case 'students': return <StudentManager />;
@@ -49,6 +39,7 @@ const AdminDashboard = ({ customView, activeTab: initialTab }: AdminDashboardPro
       case 'content': return <AboutManager />;
       case 'reports': return <ReportsManager />;
       case 'settings': return <SettingsManager />;
+      case 'administration': return <AdministrationManager />;
       default: return <DashboardOverview />;
     }
   };

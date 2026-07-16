@@ -22,7 +22,6 @@ const Join = lazy(() => import("./pages/Join"));
 const Contact = lazy(() => import("./pages/Contact"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const AdministrationManager = lazy(() => import("./pages/AdministrationManager"));
 const ConfigError = lazy(() => import("./pages/ConfigError"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -41,21 +40,13 @@ const LoadingFallback = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode, requiredRole?: string }) => {
-  const { session, profile, loading } = useAuth();
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, loading } = useAuth();
   
   if (loading) return <LoadingFallback />;
   if (!session) return <Navigate to="/admin/login" replace />;
   
-  if (requiredRole && profile?.role !== requiredRole) {
-    return <Navigate to="/admin" replace />;
-  }
-  
   return <>{children}</>;
-};
-
-const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
-  return <div className="bg-slate-50 min-h-screen">{children}</div>;
 };
 
 const App = () => {
@@ -87,17 +78,10 @@ const App = () => {
                   
                   <Route path="/admin/login" element={<AdminLogin />} />
                   
+                  {/* Single entry point for Admin Dashboard */}
                   <Route path="/admin" element={
                     <ProtectedRoute>
                       <AdminDashboard />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/admin/administration" element={
-                    <ProtectedRoute requiredRole="Super Admin">
-                      <div className="flex">
-                        <AdminDashboard customView={<AdministrationManager />} activeTab="administration" />
-                      </div>
                     </ProtectedRoute>
                   } />
 

@@ -24,20 +24,28 @@ serve(async (req) => {
     const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token)
     if (authError || !caller) throw new Error('Unauthorized')
 
-    const { data: profile } = await supabaseAdmin
+    // Fetch caller's role to enforce server-side security
+    const { data: callerProfile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', caller.id)
       .single()
 
-    if (!['Super Admin', 'Admin'].includes(profile?.role || '')) {
+    const callerRole = callerProfile?.role || ''
+
+    if (!['Super Admin', 'Admin'].includes(callerRole)) {
       throw new Error('Forbidden: Insufficient permissions')
     }
 
-    const { action, userData, userId } = await req.json()
+    const { action, userData, userId, newPassword } = await req.json()
 
+    // Create New Admin
     if (action === 'create') {
-      // 1. Create Auth User
+      // Permission Check: Admins can only create Staff
+      if (callerRole === 'Admin' && userData.role !== 'Staff') {
+        throw new Error('Restricted: Admins can only provision Staff accounts.')
+      }
+
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email: userData.email,
         password: userData.password,
@@ -47,7 +55,6 @@ serve(async (req) => {
 
       if (createError) throw createError
 
-      // 2. Create Profile
       await supabaseAdmin.from('profiles').upsert({
         id: newUser.user.id,
         full_name: userData.full_name,
@@ -57,7 +64,6 @@ serve(async (req) => {
         status: 'Active'
       })
 
-      // 3. Log Invite
       await supabaseAdmin.from('admin_invites').insert({
         email: userData.email,
         role: userData.role,
@@ -68,9 +74,44 @@ serve(async (req) => {
       return new Response(JSON.stringify({ success: true }), { headers: corsHeaders })
     }
 
+    // Delete Admin
+    if (action === 'delete') {
+      const { data: targetProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+
+      // Permission Check: Admins cannot delete Super Admins or other Admins
+      if (callerRole === 'Admin' && ['Super Admin', 'Admin'].includes(targetProfile?.role)) {
+        throw new Error('Restricted: Access termination denied.')
+      }
+
+      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
+      if (deleteError) throw deleteError
+
+      return new Response(JSON.stringify({ success: true }), { headers: corsHeaders })
+    }
+
+    // Reset Password
+    if (action === 'reset_password') {
+      if (callerRole !== 'Super Admin') {
+        throw new Error('Restricted: Password rotation reserved for Super Administrators.')
+      }
+
+      const { error: resetError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: newPassword
+      })
+
+      if (resetError) throw resetError
+
+      return new Response(JSON.stringify({ success: true }), { headers: corsHeaders })
+    }
+
     return new Response(JSON.stringify({ error: 'Invalid action' }), { status: 400, headers: corsHeaders })
 
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
+    console.error("[manage-admins]", error.message);
+    return new Response(JSON.stringify({ error: error.message }), { status: 403, headers: corsHeaders })
   }
 })

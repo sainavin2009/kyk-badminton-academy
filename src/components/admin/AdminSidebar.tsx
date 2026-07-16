@@ -17,12 +17,11 @@ import {
   UserCheck,
   TrendingDown,
   MessageSquare,
-  ShieldCheck,
   ShieldAlert
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export type AdminTab = 
   | 'dashboard' 
@@ -48,7 +47,6 @@ interface AdminSidebarProps {
 const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -66,14 +64,8 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const handleTabClick = (tabId: AdminTab) => {
-    if (tabId === 'administration') {
-      navigate('/admin/administration');
-    } else {
-      if (location.pathname !== '/admin') navigate('/admin');
-      setActiveTab(tabId);
-    }
-  };
+  // Super Admin and Admin can access Administration
+  const canAccessAdministration = profile?.role === 'Super Admin' || profile?.role === 'Admin';
 
   const handleSignOut = async () => {
     await signOut();
@@ -96,10 +88,10 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => handleTabClick(item.id as AdminTab)}
+            onClick={() => setActiveTab(item.id as AdminTab)}
             className={cn(
               "w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all duration-200 uppercase text-[10px] tracking-widest group",
-              activeTab === item.id && location.pathname === '/admin'
+              activeTab === item.id 
                 ? "bg-[#FFC107] text-[#0F4C81] shadow-lg shadow-[#FFC107]/20" 
                 : "text-white/60 hover:bg-white/5 hover:text-white"
             )}
@@ -112,21 +104,21 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           </button>
         ))}
 
-        {profile?.role === 'Super Admin' && (
+        {canAccessAdministration && (
           <div className="pt-4 mt-4 border-t border-white/5">
             <p className="px-4 mb-2 text-[8px] font-black uppercase tracking-[0.3em] text-white/30">Privileged Guard</p>
             <button
-              onClick={() => handleTabClick('administration')}
+              onClick={() => setActiveTab('administration')}
               className={cn(
                 "w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all duration-200 uppercase text-[10px] tracking-widest group",
-                location.pathname === '/admin/administration'
+                activeTab === 'administration'
                   ? "bg-red-500 text-white shadow-lg shadow-red-500/20" 
                   : "text-white/60 hover:bg-white/5 hover:text-white"
               )}
             >
               <ShieldAlert size={18} className={cn(
                 "transition-transform group-hover:scale-110",
-                location.pathname === '/admin/administration' ? "stroke-[3px]" : "stroke-[2px]"
+                activeTab === 'administration' ? "stroke-[3px]" : "stroke-[2px]"
               )} />
               Administration
             </button>
