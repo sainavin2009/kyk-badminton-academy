@@ -22,7 +22,6 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { canAccessTab } from '@/utils/permissions';
 
 export type AdminTab = 
   | 'dashboard' 
@@ -65,12 +64,13 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
+  // Super Admin and Admin can access Administration
+  const canAccessAdministration = profile?.role === 'Super Admin' || profile?.role === 'Admin';
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/admin/login');
   };
-
-  const role = profile?.role || 'Staff';
 
   return (
     <div className="w-72 bg-[#0F4C81] h-screen fixed left-0 top-0 text-white flex flex-col shadow-2xl z-50">
@@ -85,7 +85,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
       </div>
 
       <nav className="flex-grow p-6 space-y-1 overflow-y-auto custom-scrollbar">
-        {menuItems.filter(item => canAccessTab(role, item.id as AdminTab)).map((item) => (
+        {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id as AdminTab)}
@@ -104,7 +104,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           </button>
         ))}
 
-        {canAccessTab(role, 'administration') && (
+        {canAccessAdministration && (
           <div className="pt-4 mt-4 border-t border-white/5">
             <p className="px-4 mb-2 text-[8px] font-black uppercase tracking-[0.3em] text-white/30">Privileged Guard</p>
             <button
