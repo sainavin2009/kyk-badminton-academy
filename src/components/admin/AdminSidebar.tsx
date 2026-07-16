@@ -12,7 +12,8 @@ import {
   FileText, 
   Settings, 
   LogOut,
-  Trophy
+  Trophy,
+  Calendar
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,6 +26,7 @@ export type AdminTab =
   | 'inventory' 
   | 'sales' 
   | 'gallery' 
+  | 'events'
   | 'content' 
   | 'reports' 
   | 'settings';
@@ -45,6 +47,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'sales', label: 'Sales', icon: BarChart3 },
     { id: 'gallery', label: 'Gallery', icon: ImageIcon },
+    { id: 'events', label: 'Events', icon: Calendar },
     { id: 'content', label: 'Website Content', icon: Globe },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },

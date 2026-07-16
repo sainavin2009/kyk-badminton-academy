@@ -14,6 +14,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Programs from "./pages/Programs";
 import Gallery from "./pages/Gallery";
+import Events from "./pages/Events";
 import Join from "./pages/Join";
 import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/about" element={<MainLayout><About /></MainLayout>} />
               <Route path="/programs" element={<MainLayout><Programs /></MainLayout>} />
               <Route path="/gallery" element={<MainLayout><Gallery /></MainLayout>} />
+              <Route path="/events" element={<MainLayout><Events /></MainLayout>} />
               <Route path="/join" element={<MainLayout><Join /></MainLayout>} />
               <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
               <Route path="/admin/login" element={<AdminLogin />} />
