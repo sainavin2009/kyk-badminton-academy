@@ -43,7 +43,6 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Optimize for smooth scrolling */
     overscroll-behavior-y: none;
   }
 
@@ -53,7 +52,6 @@
   
   body {
     @apply bg-background text-foreground antialiased font-sans overflow-x-hidden;
-    /* Ensure hardware acceleration for animations */
     transform: translate3d(0,0,0);
   }
 
@@ -73,7 +71,6 @@
     @apply bg-gradient-to-br from-[#0F4C81] to-[#0A2A47];
   }
   
-  /* Performance Utilities */
   .will-change-transform {
     will-change: transform;
   }
@@ -81,5 +78,33 @@
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000;
+  }
+
+  /* Print Utilities */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    
+    body * {
+      visibility: hidden;
+    }
+    
+    #receipt-content, #receipt-content * {
+      visibility: visible;
+    }
+    
+    #receipt-content {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .border-4 {
+      border-width: 4px !important;
+    }
   }
 }

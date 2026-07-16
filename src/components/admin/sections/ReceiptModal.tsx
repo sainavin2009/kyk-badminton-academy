@@ -9,11 +9,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Trophy, Printer, Download, X } from 'lucide-react';
-// @ts-ignore - Module might be missing during environment setup
-import { jsPDF } from 'jspdf';
-// @ts-ignore - Module might be missing during environment setup
-import html2canvas from 'html2canvas';
+import { Trophy, Printer, X } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface ReceiptModalProps {
@@ -31,29 +27,6 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
     window.print();
   };
 
-  const handleDownloadPDF = async () => {
-    if (!receiptRef.current) return;
-    
-    try {
-      const canvas = await html2canvas(receiptRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Receipt_${payment.receipt_no}.pdf`);
-    } catch (error) {
-      console.error("PDF generation failed:", error);
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl">
@@ -64,8 +37,9 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
           </button>
         </div>
 
-        <div className="p-12 bg-white" ref={receiptRef}>
+        <div className="p-12 bg-white" id="receipt-content" ref={receiptRef}>
           <div className="border-4 border-[#0F4C81] p-10 space-y-10 relative overflow-hidden">
+            {/* Background Logo Watermark */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none rotate-12">
               <Trophy size={400} />
             </div>
@@ -140,18 +114,11 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
 
         <DialogFooter className="p-8 bg-slate-50 gap-4 no-print">
           <Button 
-            onClick={handleDownloadPDF}
-            className="flex-1 h-14 rounded-2xl bg-white text-[#0F4C81] hover:bg-slate-100 border border-slate-200 font-bold uppercase tracking-widest text-xs"
-          >
-            <Download className="mr-2" size={16} />
-            Download PDF
-          </Button>
-          <Button 
             onClick={handlePrint}
-            className="flex-1 h-14 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest text-xs shadow-xl shadow-[#0F4C81]/20"
+            className="w-full h-14 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest text-xs shadow-xl shadow-[#0F4C81]/20"
           >
             <Printer className="mr-2" size={16} />
-            Print Receipt
+            Print or Save as PDF
           </Button>
         </DialogFooter>
       </DialogContent>
