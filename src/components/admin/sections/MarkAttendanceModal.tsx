@@ -58,8 +58,8 @@ const MarkAttendanceModal = ({ isOpen, onClose, onSave, students }: MarkAttendan
   };
 
   const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.student_id_serial.toString().includes(searchTerm)
+    s.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.student_id?.toString().includes(searchTerm)
   );
 
   return (
@@ -115,14 +115,13 @@ const MarkAttendanceModal = ({ isOpen, onClose, onSave, students }: MarkAttendan
               >
                 <div className="flex items-center gap-4">
                   <Avatar className="h-10 w-10 rounded-xl shadow-sm">
-                    <AvatarImage src={student.photo_url} />
                     <AvatarFallback className="bg-white font-black text-[#0F4C81]">
-                      {student.name.charAt(0)}
+                      {student.full_name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-bold text-[#0F4C81]">{student.name}</p>
-                    <p className="text-[10px] font-black uppercase text-slate-400">ID: #{student.student_id_serial}</p>
+                    <p className="font-bold text-[#0F4C81]">{student.full_name}</p>
+                    <p className="text-[10px] font-black uppercase text-slate-400">ID: {student.student_id}</p>
                   </div>
                 </div>
 

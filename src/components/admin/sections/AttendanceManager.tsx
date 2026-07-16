@@ -33,8 +33,8 @@ const AttendanceManager = () => {
     try {
       setLoading(true);
       const [stuRes, attRes] = await Promise.all([
-        supabase.from('students').select('*').order('name'),
-        supabase.from('attendance').select('*, students(name, student_id_serial)').eq('date', selectedDate)
+        supabase.from('students').select('*').order('full_name'),
+        supabase.from('attendance').select('*, students(full_name, student_id)').eq('date', selectedDate)
       ]);
 
       setStudents(stuRes.data || []);
@@ -147,8 +147,8 @@ const AttendanceManager = () => {
                     record.status === 'Absent' ? "bg-red-500" : "bg-amber-500"
                   )} />
                   <div>
-                    <p className="font-bold text-[#0F4C81] text-sm">{record.students?.name}</p>
-                    <p className="text-[9px] font-black uppercase text-slate-400">ID: #{record.students?.student_id_serial}</p>
+                    <p className="font-bold text-[#0F4C81] text-sm">{record.students?.full_name}</p>
+                    <p className="text-[9px] font-black uppercase text-slate-400">ID: {record.students?.student_id}</p>
                   </div>
                 </div>
                 <div className="flex justify-between items-center pt-2">

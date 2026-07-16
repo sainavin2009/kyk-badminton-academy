@@ -44,7 +44,7 @@ const SaleManager = () => {
         .from('sales')
         .select(`
           *,
-          students (id, name, student_id_serial),
+          students (id, full_name, student_id),
           sale_items (
             *,
             inventory (id, name)
@@ -55,7 +55,7 @@ const SaleManager = () => {
       if (saleError) throw saleError;
       setSales(saleData || []);
 
-      const { data: stuData } = await supabase.from('students').select('id, name, student_id_serial');
+      const { data: stuData } = await supabase.from('students').select('id, full_name, student_id');
       setStudents(stuData || []);
 
       const { data: invData } = await supabase.from('inventory').select('*').order('name');
@@ -94,7 +94,7 @@ const SaleManager = () => {
 
       if (saleError) throw saleError;
 
-      // 2. Create Sale Items (Trigger will update inventory)
+      // 2. Create Sale Items
       const saleItems = items.map((item: any) => ({
         sale_id: saleHead.id,
         product_id: item.product_id,
@@ -108,15 +108,15 @@ const SaleManager = () => {
 
       toast.success('Sale recorded and inventory updated');
       setIsSaleModalOpen(false);
-      fetchData(); // Refresh history and stock
+      fetchData(); 
     } catch (error: any) {
       toast.error('Sale failed: ' + error.message);
     }
   };
 
   const filteredSales = sales.filter(s => 
-    s.students?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.receipt_no.toString().includes(searchTerm)
+    s.students?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.receipt_no?.toString().includes(searchTerm)
   );
 
   const totalSalesVal = sales.reduce((acc, s) => acc + Number(s.total_amount), 0);
@@ -204,7 +204,7 @@ const SaleManager = () => {
                     <TableCell className="pl-8 py-6 font-black text-[#0F4C81]">#SAL-{s.receipt_no}</TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0F4C81]">{s.students?.name}</span>
+                        <span className="font-bold text-[#0F4C81]">{s.students?.full_name}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase">{format(new Date(s.created_at), 'MMM dd, yyyy')}</span>
                       </div>
                     </TableCell>
