@@ -1,26 +1,59 @@
 "use client";
 
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Trophy, ShieldCheck } from 'lucide-react';
+import { Trophy, ShieldCheck, Loader2, Lock, Mail } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const AdminLogin = () => {
-  const { session } = useAuth();
+  const { session, loading } = useAuth();
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (session) {
+    if (session && !loading) {
       navigate('/admin');
     }
-  }, [session, navigate]);
+  }, [session, loading, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please enter both email and password.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      setIsSubmitting(false);
+    } else {
+      toast.success("Welcome back, administrator.");
+      navigate('/admin');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0F4C81]">
+        <Loader2 className="h-12 w-12 text-[#FFC107] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0F4C81] px-4 relative overflow-hidden">
-      {/* Background Decorative Elements */}
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#FFC107] rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-400 rounded-full blur-[120px]" />
@@ -41,34 +74,45 @@ const AdminLogin = () => {
             </div>
           </div>
 
-          <Auth
-            supabaseClient={supabase}
-            providers={[]}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#0F4C81',
-                    brandAccent: '#FFC107',
-                    inputBackground: '#F8FAFC',
-                    inputText: '#0F4C81',
-                    inputPlaceholder: '#94A3B8',
-                  },
-                  radii: {
-                    buttonBorderRadius: '1rem',
-                    inputBorderRadius: '1rem',
-                  },
-                },
-              },
-              className: {
-                button: 'font-black uppercase tracking-widest py-4 transition-all hover:scale-[1.02] active:scale-[0.98]',
-                label: 'text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-2',
-                input: 'border-none bg-slate-50 h-14 px-5 font-bold shadow-inner',
-              }
-            }}
-            theme="light"
-          />
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <Input 
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="border-none bg-slate-50 h-14 pl-12 pr-5 font-bold shadow-inner rounded-2xl"
+                  placeholder="admin@kykacademy.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <Input 
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="border-none bg-slate-50 h-14 pl-12 pr-5 font-bold shadow-inner rounded-2xl"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full h-14 rounded-2xl bg-[#0F4C81] text-white font-black uppercase tracking-widest hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all shadow-xl"
+            >
+              {isSubmitting ? <Loader2 className="animate-spin h-5 w-5" /> : "Sign In to Dashboard"}
+            </Button>
+          </form>
           
           <div className="mt-8 text-center">
             <button 
