@@ -1,6 +1,4 @@
 import { jsPDF } from 'jspdf';
-// @ts-ignore
-import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 
 export const exportToCSV = (data: any[], filename: string) => {
@@ -29,7 +27,7 @@ export const exportToCSV = (data: any[], filename: string) => {
 export const exportToPDF = (title: string, headers: string[], rows: any[][], filename: string) => {
   const doc = new jsPDF();
   
-  // Add Academy Branding
+  // Header Branding
   doc.setFillColor(15, 76, 129); // #0F4C81
   doc.rect(0, 0, 210, 40, 'F');
   
@@ -51,16 +49,48 @@ export const exportToPDF = (title: string, headers: string[], rows: any[][], fil
   doc.setFont('helvetica', 'bold');
   doc.text(title.toUpperCase(), 15, 55);
 
-  // Table
-  autoTable(doc, {
-    startY: 65,
-    head: [headers],
-    body: rows,
-    theme: 'striped',
-    headStyles: { fillColor: [15, 76, 129], textColor: [255, 255, 255], fontStyle: 'bold' },
-    alternateRowStyles: { fillColor: [248, 250, 252] },
-    margin: { left: 15, right: 15 },
-    styles: { fontSize: 9, cellPadding: 5 }
+  // Table Layout Config
+  const startX = 15;
+  let startY = 70;
+  const rowHeight = 10;
+  const colWidth = 180 / headers.length;
+
+  // Draw Table Headers
+  doc.setFillColor(15, 76, 129);
+  doc.rect(startX, startY, 180, rowHeight, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+
+  headers.forEach((header, index) => {
+    doc.text(header.toUpperCase(), startX + (index * colWidth) + 4, startY + 6);
+  });
+
+  startY += rowHeight;
+
+  // Draw Data Rows
+  doc.setTextColor(51, 65, 85);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+
+  rows.forEach((row, rowIndex) => {
+    // Alternating background colors
+    if (rowIndex % 2 === 1) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(startX, startY, 180, rowHeight, 'F');
+    }
+
+    row.forEach((cell, colIndex) => {
+      doc.text(String(cell), startX + (colIndex * colWidth) + 4, startY + 6);
+    });
+
+    startY += rowHeight;
+
+    // Create a new page if the table is too long
+    if (startY > 270) {
+      doc.addPage();
+      startY = 20;
+    }
   });
 
   doc.save(`${filename}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
