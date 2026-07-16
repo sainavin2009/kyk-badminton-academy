@@ -15,7 +15,7 @@ import GeneralSettings from './GeneralSettings';
 import SecuritySettings from './SecuritySettings';
 import SystemSettings from './SystemSettings';
 import MaintenanceSettings from './MaintenanceSettings';
-import AdminManager from './AdminManager';
+import AdministrationManager from './AdministrationManager';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -85,7 +85,7 @@ const SettingsManager = () => {
         {activeTab === 'system' && <SystemSettings />}
         {activeTab === 'security' && <SecuritySettings />}
         {activeTab === 'maintenance' && <MaintenanceSettings />}
-        {activeTab === 'admins' && <AdminManager />}
+        {activeTab === 'admins' && <AdministrationManager />}
       </div>
     </div>
   );

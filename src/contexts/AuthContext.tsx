@@ -38,6 +38,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setProfile(data);
   };
 
+  const updateLastLogin = async (userId: string) => {
+    await supabase
+      .from('profiles')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', userId);
+  };
+
   useEffect(() => {
     const initializeAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -57,6 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (event === 'SIGNED_IN' && session?.user) {
         await fetchProfile(session.user.id);
+        await updateLastLogin(session.user.id);
         await logAdminAction('LOGIN_SUCCESS', { email: session.user.email });
       } else if (event === 'SIGNED_OUT') {
         setProfile(null);

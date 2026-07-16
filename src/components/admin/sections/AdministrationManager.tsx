@@ -159,7 +159,7 @@ const AdministrationManager = () => {
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-4xl font-black text-[#0F4C81] tracking-tighter uppercase">Infrastructure Personnel</h2>
+          <h2 className="text-4xl font-black text-[#0F4C81] tracking-tighter uppercase">Administrator Management</h2>
           <p className="text-slate-500 font-medium">Provision and supervise digital personnel and their clearances.</p>
         </div>
         
@@ -172,7 +172,7 @@ const AdministrationManager = () => {
             className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 group transition-all"
           >
             <Plus className="mr-3 group-hover:rotate-90 transition-transform" />
-            Provision Admin
+            Add Administrator
           </Button>
         </div>
       </div>
@@ -180,7 +180,7 @@ const AdministrationManager = () => {
       <Tabs defaultValue="admins" className="w-full space-y-8">
         <TabsList className="bg-white p-1 rounded-3xl h-16 border border-slate-100 w-fit shadow-sm">
           <TabsTrigger value="admins" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
-            <Users className="mr-2" size={16} /> Administrators
+            <Users className="mr-2" size={16} /> Admin Accounts
           </TabsTrigger>
           <TabsTrigger value="roles" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
             <ShieldCheck className="mr-2" size={16} /> Roles & Perms
@@ -188,7 +188,7 @@ const AdministrationManager = () => {
           {profile?.role === 'Super Admin' && (
             <>
               <TabsTrigger value="logs" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
-                <History className="mr-2" size={16} /> Security Audit
+                <History className="mr-2" size={16} /> Audit Logs
               </TabsTrigger>
               <TabsTrigger value="invites" className="rounded-2xl px-8 h-14 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
                 <Mail className="mr-2" size={16} /> Invite History
