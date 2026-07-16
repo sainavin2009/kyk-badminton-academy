@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const registrationSchema = z.object({
   name: z.string().min(2, "Full name is required"),
@@ -34,16 +35,33 @@ const Join = () => {
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<RegistrationValues>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
-      program: 'Junior Foundation'
+      program: 'Badminton Foundation'
     }
   });
 
-  const onSubmit = async (data: RegistrationValues) => {
-    // In a real app, this would send data to Supabase
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Registration submitted:", data);
-    toast.success("Registration successful! Our team will contact you shortly.");
-    reset();
+  const onSubmit = async (values: RegistrationValues) => {
+    try {
+      // In this system, new registrations are added as 'Pending' students
+      const studentId = `REG-${Date.now().toString().slice(-6)}`;
+      
+      const { error } = await supabase
+        .from('students')
+        .insert([{
+          student_id: studentId,
+          full_name: values.name,
+          phone: values.phone,
+          program: values.program,
+          remarks: `Initial age provided: ${values.age}. Registered via public join form.`,
+          fee_status: 'Pending'
+        }]);
+
+      if (error) throw error;
+
+      toast.success("Registration successful! Our team will contact you shortly.");
+      reset();
+    } catch (err: any) {
+      toast.error("Failed to submit registration: " + err.message);
+    }
   };
 
   return (
@@ -166,13 +184,14 @@ const Join = () => {
                         {...register('program')}
                         className="w-full h-14 rounded-xl bg-slate-50 border-none px-4 font-bold text-slate-900 focus:ring-2 focus:ring-[#FFC107] outline-none appearance-none"
                       >
-                        <option value="Junior Foundation">Junior Foundation</option>
+                        <option value="Badminton Foundation">Badminton Foundation</option>
                         <option value="Elite Competitive">Elite Competitive</option>
                         <option value="Adult Performance">Adult Performance</option>
                       </select>
                     </div>
 
                     <Button 
+                      type="submit"
                       disabled={isSubmitting}
                       className="w-full h-16 rounded-2xl bg-[#0F4C81] text-white font-black uppercase tracking-widest text-lg shadow-xl shadow-[#0F4C81]/20 group hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all"
                     >

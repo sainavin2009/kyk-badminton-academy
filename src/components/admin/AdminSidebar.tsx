@@ -15,7 +15,8 @@ import {
   Trophy,
   Calendar,
   UserCheck,
-  TrendingDown
+  TrendingDown,
+  MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,6 +32,7 @@ export type AdminTab =
   | 'gallery' 
   | 'events'
   | 'expenses'
+  | 'messages'
   | 'content' 
   | 'reports' 
   | 'settings';
@@ -54,6 +56,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'gallery', label: 'Gallery', icon: ImageIcon },
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },
+    { id: 'messages', label: 'Inquiries', icon: MessageSquare },
     { id: 'content', label: 'Website Content', icon: Globe },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
