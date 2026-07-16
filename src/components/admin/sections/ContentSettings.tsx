@@ -8,16 +8,8 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Save, 
-  RefreshCcw, 
-  Globe, 
-  Palette, 
-  Search, 
   Share2, 
   Trophy,
-  Instagram,
-  Facebook,
-  Twitter,
-  Youtube,
   Trash2,
   Plus
 } from 'lucide-react';
@@ -25,6 +17,7 @@ import { toast } from 'sonner';
 import { SocialLink } from '@/types/settings';
 import HeroManager from './HeroManager';
 import ProgramManager from './ProgramManager';
+import ImageUpload from '../shared/ImageUpload';
 
 const ContentSettings = () => {
   const { settings, refresh } = useSettings();
@@ -34,7 +27,7 @@ const ContentSettings = () => {
 
   useEffect(() => {
     if (settings) {
-      setLogo(settings.logo_url);
+      setLogo(settings.logo_url || "");
       setSocialLinks(settings.social_links || []);
     }
   }, [settings]);
@@ -84,10 +77,8 @@ const ContentSettings = () => {
         </div>
       </div>
 
-      {/* Hero Section */}
       <HeroManager />
 
-      {/* Brand Assets */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
           <div className="flex items-center gap-4">
@@ -97,22 +88,13 @@ const ContentSettings = () => {
             <h3 className="text-xl font-black text-[#0F4C81] uppercase tracking-tight">Brand Identity</h3>
           </div>
 
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Academy Logo URL</label>
-            <Input 
-              value={logo} 
-              onChange={(e) => { setLogo(e.target.value); setIsDirty(true); }}
-              className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-[#0F4C81]" 
-            />
-            {logo && (
-              <div className="p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex justify-center">
-                <img src={logo} alt="Logo Preview" className="h-16 object-contain" />
-              </div>
-            )}
-          </div>
+          <ImageUpload 
+            label="Academy Logo"
+            value={logo}
+            onChange={(url) => { setLogo(url); setIsDirty(true); }}
+          />
         </Card>
 
-        {/* Social Media */}
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -153,7 +135,6 @@ const ContentSettings = () => {
         </Button>
       </div>
 
-      {/* Program Management */}
       <ProgramManager />
     </div>
   );

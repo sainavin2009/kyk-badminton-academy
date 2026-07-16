@@ -9,6 +9,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Globe } from 'lucide-react';
 import { toast } from 'sonner';
+import ImageUpload from '../shared/ImageUpload';
 
 const GeneralSettings = () => {
   const { settings, refresh } = useSettings();
@@ -55,7 +56,7 @@ const GeneralSettings = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Academy Name</Label>
               <Input 
@@ -65,14 +66,11 @@ const GeneralSettings = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Logo URL</Label>
-              <Input 
-                value={logo} 
-                onChange={(e) => { setLogo(e.target.value); setIsDirty(true); }}
-                className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-[#0F4C81]" 
-              />
-            </div>
+            <ImageUpload 
+              label="Academy Logo"
+              value={logo}
+              onChange={(url) => { setLogo(url); setIsDirty(true); }}
+            />
           </div>
 
           <div className="space-y-4">
