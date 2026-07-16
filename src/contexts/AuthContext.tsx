@@ -31,12 +31,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
+    console.log(`[AuthAudit] Fetching profile for UID: ${userId}`);
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
-    setProfile(data);
+    
+    if (error) {
+      console.error("[AuthAudit] Profile fetch error:", error.message);
+      // If profile row doesn't exist, we might need to create it or handle it
+      setProfile(null);
+    } else {
+      console.log("[AuthAudit] Profile loaded successfully:", {
+        id: data.id,
+        role: data.role,
+        full_name: data.full_name
+      });
+      setProfile(data);
+    }
   };
 
   useEffect(() => {
@@ -49,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await fetchProfile(session.user.id);
         }
       } catch (error) {
-        console.error("Auth initialization error:", error);
+        console.error("[AuthAudit] Initialization error:", error);
       } finally {
         setLoading(false);
       }
@@ -58,8 +71,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`[AuthAudit] Auth state changed: ${event}`);
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
         await fetchProfile(session.user.id);
       } else {

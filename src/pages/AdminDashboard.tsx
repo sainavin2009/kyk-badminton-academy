@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar, { AdminTab } from '@/components/admin/AdminSidebar';
 import DashboardOverview from '@/components/admin/sections/DashboardOverview';
@@ -17,12 +17,19 @@ import ReportsManager from '@/components/admin/sections/ReportsManager';
 import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
 import AdminManager from '@/components/admin/sections/AdminManager';
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, ShieldAlert } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const AdminDashboard = () => {
-  const { profile } = useAuth();
+  const { profile, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+
+  // Verify role data presence
+  useEffect(() => {
+    if (!loading && profile) {
+      console.log(`[AdminDashboard] Rendering for role: ${profile.role}`);
+    }
+  }, [profile, loading]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -43,6 +50,8 @@ const AdminDashboard = () => {
       default: return <DashboardOverview />;
     }
   };
+
+  if (loading) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -72,8 +81,8 @@ const AdminDashboard = () => {
             </button>
             <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="flex flex-col text-right">
-                <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">{profile?.full_name || 'Admin User'}</span>
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">{profile?.role || 'Staff'}</span>
+                <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">{profile?.full_name || profile?.email || 'Authenticated User'}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">{profile?.role || 'Pending Role...'}</span>
               </div>
               <div className="w-14 h-14 rounded-2xl bg-[#0F4C81] flex items-center justify-center text-[#FFC107] shadow-xl shadow-[#0F4C81]/20 overflow-hidden">
                 {profile?.avatar_url ? (
