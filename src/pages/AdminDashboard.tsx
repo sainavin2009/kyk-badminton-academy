@@ -10,7 +10,7 @@ import FeeManager from '@/components/admin/sections/FeeManager';
 import GalleryManager from '@/components/admin/sections/GalleryManager';
 import EventManager from '@/components/admin/sections/EventManager';
 import AboutManager from '@/components/admin/sections/AboutManager';
-import ContentSettings from '@/components/admin/sections/ContentSettings';
+import SettingsManager from '@/components/admin/sections/SettingsManager';
 import InventoryManager from '@/components/admin/sections/InventoryManager';
 import SaleManager from '@/components/admin/sections/SaleManager';
 import ReportsManager from '@/components/admin/sections/ReportsManager';
@@ -35,7 +35,7 @@ const AdminDashboard = () => {
       case 'expenses': return <ExpenseManager />;
       case 'content': return <AboutManager />;
       case 'reports': return <ReportsManager />;
-      case 'settings': return <ContentSettings />;
+      case 'settings': return <SettingsManager />;
       default: return <DashboardOverview />;
     }
   };
