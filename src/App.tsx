@@ -22,6 +22,7 @@ const Join = lazy(() => import("./pages/Join"));
 const Contact = lazy(() => import("./pages/Contact"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdministrationManager = lazy(() => import("./pages/AdministrationManager"));
 const ConfigError = lazy(() => import("./pages/ConfigError"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -40,17 +41,24 @@ const LoadingFallback = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
+const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode, requiredRole?: string }) => {
+  const { session, profile, loading } = useAuth();
   
   if (loading) return <LoadingFallback />;
   if (!session) return <Navigate to="/admin/login" replace />;
   
+  if (requiredRole && profile?.role !== requiredRole) {
+    return <Navigate to="/admin" replace />;
+  }
+  
   return <>{children}</>;
 };
 
+const AdminWrapper = ({ children }: { children: React.ReactNode }) => {
+  return <div className="bg-slate-50 min-h-screen">{children}</div>;
+};
+
 const App = () => {
-  // If not configured, only show the ConfigError page
   if (!isConfigured) {
     return (
       <Suspense fallback={<LoadingFallback />}>
@@ -76,8 +84,23 @@ const App = () => {
                   <Route path="/events" element={<MainLayout><Events /></MainLayout>} />
                   <Route path="/join" element={<MainLayout><Join /></MainLayout>} />
                   <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+                  
                   <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                  
+                  <Route path="/admin" element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/admin/administration" element={
+                    <ProtectedRoute requiredRole="Super Admin">
+                      <div className="flex">
+                        <AdminDashboard customView={<AdministrationManager />} activeTab="administration" />
+                      </div>
+                    </ProtectedRoute>
+                  } />
+
                   <Route path="/login" element={<Navigate to="/admin/login" replace />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

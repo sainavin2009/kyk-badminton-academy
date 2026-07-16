@@ -16,15 +16,25 @@ import SaleManager from '@/components/admin/sections/SaleManager';
 import ReportsManager from '@/components/admin/sections/ReportsManager';
 import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
-import AdminManager from '@/components/admin/sections/AdminManager';
 import { Bell, Search, User, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-const AdminDashboard = () => {
+interface AdminDashboardProps {
+  customView?: React.ReactNode;
+  activeTab?: AdminTab;
+}
+
+const AdminDashboard = ({ customView, activeTab: initialTab }: AdminDashboardProps) => {
   const { profile, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab || 'dashboard');
+
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
 
   const renderContent = () => {
+    if (customView) return customView;
+
     switch (activeTab) {
       case 'dashboard': return <DashboardOverview />;
       case 'students': return <StudentManager />;
@@ -36,7 +46,6 @@ const AdminDashboard = () => {
       case 'events': return <EventManager />;
       case 'expenses': return <ExpenseManager />;
       case 'messages': return <MessagesManager />;
-      case 'admins': return <AdminManager />;
       case 'content': return <AboutManager />;
       case 'reports': return <ReportsManager />;
       case 'settings': return <SettingsManager />;
@@ -53,7 +62,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex w-full">
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <main className="flex-grow ml-72">
