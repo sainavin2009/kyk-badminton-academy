@@ -9,7 +9,6 @@ import {
   ShieldCheck, 
   Users, 
   ShieldAlert,
-  Search,
   Lock,
   Loader2
 } from 'lucide-react';
@@ -21,7 +20,7 @@ import AdminForm from './AdminForm';
 import ResetPasswordModal from './ResetPasswordModal';
 
 const AdminManager = () => {
-  const { profile } = useAuth();
+  const { profile, user: currentUser } = useAuth();
   const [admins, setAdmins] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -31,8 +30,6 @@ const AdminManager = () => {
   const fetchAdmins = async () => {
     try {
       setLoading(true);
-      // We fetch from profiles but we need email from auth (which profiles usually mirrors if set up correctly)
-      // In this app, we'll fetch profiles that have roles assigned
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -40,12 +37,9 @@ const AdminManager = () => {
         .order('role', { ascending: true });
 
       if (error) throw error;
-      
-      // Fetch corresponding emails from auth (requires edge function or manual sync)
-      // For this implementation, we assume profiles table has the email field mirrored
       setAdmins(data || []);
     } catch (err: any) {
-      toast.error('Failed to sync administrator records: ' + err.message);
+      toast.error('Failed to sync personnel records: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -79,13 +73,13 @@ const AdminManager = () => {
           userId: selectedAdmin.id,
           userData: formData
         });
-        toast.success(`Permissions updated for ${formData.full_name}`);
+        toast.success(`Access updated for ${formData.full_name}`);
       } else {
         await invokeManageAdmins({
           action: 'create',
           userData: formData
         });
-        toast.success(`Account created successfully for ${formData.full_name}`);
+        toast.success(`Account provisioned for ${formData.full_name}`);
       }
       fetchAdmins();
     } catch (err: any) {
@@ -95,24 +89,34 @@ const AdminManager = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (admins.length === 1 && admins[0].role === 'Super Admin') {
-      return toast.error("System Failure Prevention: Cannot delete the final Super Admin.");
+    if (id === currentUser?.id) {
+      return toast.error("System Override: You cannot delete your own account.");
     }
+
+    const superAdmins = admins.filter(a => a.role === 'Super Admin' && a.status === 'Active');
+    const target = admins.find(a => a.id === id);
+    if (target?.role === 'Super Admin' && superAdmins.length === 1) {
+      return toast.error("Operational Guard: Cannot delete the last active Super Admin.");
+    }
+
     try {
       await invokeManageAdmins({ action: 'delete', userId: id });
       setAdmins(prev => prev.filter(a => a.id !== id));
-      toast.success('Administrator record purged from infrastructure.');
+      toast.success('Personnel record purged successfully.');
     } catch (err: any) {
       toast.error(err.message);
     }
   };
 
   const handleStatusChange = async (id: string, status: string) => {
+    if (id === currentUser?.id) {
+      return toast.error("You cannot disable your own administrative clearance.");
+    }
     try {
       const { error } = await supabase.from('profiles').update({ status }).eq('id', id);
       if (error) throw error;
       setAdmins(prev => prev.map(a => a.id === id ? { ...a, status } : a));
-      toast.success(`Account marked as ${status}`);
+      toast.success(`Clearance ${status === 'Active' ? 'restored' : 'revoked'}`);
     } catch (err: any) {
       toast.error('Status sync failed: ' + err.message);
     }
@@ -125,7 +129,7 @@ const AdminManager = () => {
         userId: selectedAdmin.id,
         newPassword: password
       });
-      toast.success(`Security keys rotated for ${selectedAdmin.full_name}`);
+      toast.success(`Security tokens rotated for ${selectedAdmin.full_name}`);
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -140,7 +144,7 @@ const AdminManager = () => {
         <div className="space-y-2">
           <h2 className="text-4xl font-black text-[#0F4C81] uppercase tracking-tighter">Access Forbidden</h2>
           <p className="text-slate-400 font-medium max-w-sm">
-            Administrator management is restricted to Super Administrators only. Please contact systems support if you require high-level clearance.
+            Administrator management is restricted to Super Administrators only.
           </p>
         </div>
       </div>
@@ -152,7 +156,7 @@ const AdminManager = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h2 className="text-4xl font-black text-[#0F4C81] tracking-tighter uppercase">Infrastructure Personnel</h2>
-          <p className="text-slate-500 font-medium">Create and supervise the digital personnel managing academy operations.</p>
+          <p className="text-slate-500 font-medium">Provision and supervise digital personnel and their clearances.</p>
         </div>
         
         <div className="flex gap-3">
