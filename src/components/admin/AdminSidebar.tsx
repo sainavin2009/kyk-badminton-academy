@@ -16,7 +16,8 @@ import {
   Calendar,
   UserCheck,
   TrendingDown,
-  MessageSquare
+  MessageSquare,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,6 +34,7 @@ export type AdminTab =
   | 'events'
   | 'expenses'
   | 'messages'
+  | 'admins'
   | 'content' 
   | 'reports' 
   | 'settings';
@@ -43,7 +45,7 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
   const navigate = useNavigate();
 
   const menuItems = [
@@ -61,6 +63,9 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
+  // Only show Admin Management to Super Admins
+  const showAdminMgmt = profile?.role === 'Super Admin';
 
   const handleSignOut = async () => {
     await signOut();
@@ -98,6 +103,27 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
             {item.label}
           </button>
         ))}
+
+        {showAdminMgmt && (
+          <div className="pt-4 mt-4 border-t border-white/5">
+            <p className="px-4 mb-2 text-[8px] font-black uppercase tracking-[0.3em] text-white/30">Privileged Access</p>
+            <button
+              onClick={() => setActiveTab('admins')}
+              className={cn(
+                "w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all duration-200 uppercase text-[10px] tracking-widest group",
+                activeTab === 'admins' 
+                  ? "bg-red-500 text-white shadow-lg shadow-red-500/20" 
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
+              )}
+            >
+              <ShieldCheck size={18} className={cn(
+                "transition-transform group-hover:scale-110",
+                activeTab === 'admins' ? "stroke-[3px]" : "stroke-[2px]"
+              )} />
+              Admin Management
+            </button>
+          </div>
+        )}
       </nav>
 
       <div className="p-6 border-t border-white/10 bg-[#0A2A47]/50">

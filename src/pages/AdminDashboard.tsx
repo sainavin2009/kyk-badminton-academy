@@ -16,11 +16,12 @@ import SaleManager from '@/components/admin/sections/SaleManager';
 import ReportsManager from '@/components/admin/sections/ReportsManager';
 import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
+import AdminManager from '@/components/admin/sections/AdminManager';
 import { Bell, Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const AdminDashboard = () => {
-  const { session } = useAuth();
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
   const renderContent = () => {
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
       case 'events': return <EventManager />;
       case 'expenses': return <ExpenseManager />;
       case 'messages': return <MessagesManager />;
+      case 'admins': return <AdminManager />;
       case 'content': return <AboutManager />;
       case 'reports': return <ReportsManager />;
       case 'settings': return <SettingsManager />;
@@ -70,11 +72,15 @@ const AdminDashboard = () => {
             </button>
             <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="flex flex-col text-right">
-                <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">Admin User</span>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Super Administrator</span>
+                <span className="text-xs font-black text-[#0F4C81] uppercase tracking-tight">{profile?.full_name || 'Admin User'}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">{profile?.role || 'Staff'}</span>
               </div>
-              <div className="w-14 h-14 rounded-2xl bg-[#0F4C81] flex items-center justify-center text-[#FFC107] shadow-xl shadow-[#0F4C81]/20">
-                <User size={24} strokeWidth={2.5} />
+              <div className="w-14 h-14 rounded-2xl bg-[#0F4C81] flex items-center justify-center text-[#FFC107] shadow-xl shadow-[#0F4C81]/20 overflow-hidden">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <User size={24} strokeWidth={2.5} />
+                )}
               </div>
             </div>
           </div>
