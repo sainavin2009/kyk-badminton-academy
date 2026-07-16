@@ -15,22 +15,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { Check, X, User, Phone, Mail, Calendar, MapPin, ClipboardList } from 'lucide-react';
+import { Check, User, Phone, ClipboardList } from 'lucide-react';
 
 const studentSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  parent_name: z.string().min(2, "Parent name is required"),
+  student_id: z.string().min(2, "ID is required"),
+  full_name: z.string().min(2, "Name is required"),
+  father_name: z.string().min(2, "Father name is required"),
+  mother_name: z.string().optional(),
   phone: z.string().min(10, "Valid phone is required"),
   whatsapp: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.string().length(0)),
-  dob: z.string().optional(),
+  date_of_birth: z.string().optional(),
   gender: z.string().optional(),
   address: z.string().optional(),
   joining_date: z.string().optional(),
@@ -41,7 +36,6 @@ const studentSchema = z.object({
   medical_notes: z.string().optional(),
   fee_status: z.string().default('Pending'),
   remarks: z.string().optional(),
-  photo_url: z.string().optional(),
 });
 
 type StudentFormValues = z.infer<typeof studentSchema>;
@@ -54,7 +48,7 @@ interface StudentFormProps {
 }
 
 const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => {
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<StudentFormValues>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
       fee_status: 'Pending'
@@ -66,16 +60,18 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
       reset(student);
     } else {
       reset({
-        name: '',
-        parent_name: '',
+        student_id: `KYK-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+        full_name: '',
+        father_name: '',
+        mother_name: '',
         phone: '',
         whatsapp: '',
         email: '',
-        dob: '',
+        date_of_birth: '',
         gender: 'Male',
         address: '',
         joining_date: new Date().toISOString().split('T')[0],
-        program: 'Badminton',
+        program: 'Badminton Foundation',
         batch: 'Morning',
         coach: '',
         emergency_contact: '',
@@ -98,7 +94,6 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
         </div>
 
         <form onSubmit={handleSubmit(onSave)} className="p-8 space-y-10 bg-white">
-          {/* Basic Information */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><User size={18} /></div>
@@ -106,38 +101,39 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student Name *</Label>
-                <Input {...register('name')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
-                {errors.name && <p className="text-red-500 text-[10px] font-bold">{errors.name.message}</p>}
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Student ID *</Label>
+                <Input {...register('student_id')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                {errors.student_id && <p className="text-red-500 text-[10px] font-bold">{errors.student_id.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Parent/Guardian Name *</Label>
-                <Input {...register('parent_name')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
-                {errors.parent_name && <p className="text-red-500 text-[10px] font-bold">{errors.parent_name.message}</p>}
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name *</Label>
+                <Input {...register('full_name')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                {errors.full_name && <p className="text-red-500 text-[10px] font-bold">{errors.full_name.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Gender</Label>
-                <select 
-                  {...register('gender')}
-                  className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-sm"
-                >
+                <select {...register('gender')} className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-sm">
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date of Birth</Label>
-                <Input type="date" {...register('dob')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Father's Name *</Label>
+                <Input {...register('father_name')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                {errors.father_name && <p className="text-red-500 text-[10px] font-bold">{errors.father_name.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Photo URL</Label>
-                <Input {...register('photo_url')} placeholder="https://..." className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mother's Name</Label>
+                <Input {...register('mother_name')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date of Birth</Label>
+                <Input type="date" {...register('date_of_birth')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
               </div>
             </div>
           </div>
 
-          {/* Contact Information */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="p-2 bg-green-50 text-green-600 rounded-lg"><Phone size={18} /></div>
@@ -168,7 +164,6 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
             </div>
           </div>
 
-          {/* Academy Details */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="p-2 bg-purple-50 text-purple-600 rounded-lg"><ClipboardList size={18} /></div>
@@ -181,10 +176,7 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Program</Label>
-                <select 
-                  {...register('program')}
-                  className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-sm"
-                >
+                <select {...register('program')} className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-sm">
                   <option value="Badminton Foundation">Badminton Foundation</option>
                   <option value="Elite Competitive">Elite Competitive</option>
                   <option value="Adult Performance">Adult Performance</option>
@@ -202,10 +194,7 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fee Status</Label>
-                <select 
-                  {...register('fee_status')}
-                  className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-sm"
-                >
+                <select {...register('fee_status')} className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-sm">
                   <option value="Paid">Paid</option>
                   <option value="Pending">Pending</option>
                   <option value="Overdue">Overdue</option>
@@ -214,7 +203,6 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
             </div>
           </div>
 
-          {/* Additional Notes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Medical Notes</Label>
@@ -227,18 +215,8 @@ const StudentForm = ({ isOpen, onClose, onSave, student }: StudentFormProps) => 
           </div>
 
           <DialogFooter className="sticky bottom-0 bg-white pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
-            <Button 
-              type="button" 
-              variant="ghost" 
-              onClick={onClose}
-              className="rounded-2xl h-14 px-8 font-bold text-slate-400 hover:text-red-500"
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit"
-              className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all"
-            >
+            <Button type="button" variant="ghost" onClick={onClose} className="rounded-2xl h-14 px-8 font-bold text-slate-400 hover:text-red-500">Cancel</Button>
+            <Button type="submit" className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all">
               <Check className="mr-2" size={20} />
               {student ? 'Update Student' : 'Enroll Student'}
             </Button>
