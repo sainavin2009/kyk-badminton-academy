@@ -10,14 +10,19 @@ import {
   Users, 
   ShieldAlert,
   Lock,
-  Loader2
+  Loader2,
+  FileClock,
+  UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import AdminTable from './AdminTable';
 import AdminForm from './AdminForm';
 import ResetPasswordModal from './ResetPasswordModal';
+import AdminLogsTable from './AdminLogsTable';
+import { cn } from '@/lib/utils';
 
 const AdminManager = () => {
   const { profile, user: currentUser } = useAuth();
@@ -173,50 +178,67 @@ const AdminManager = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-8 rounded-[3rem] bg-[#0F4C81] text-white border-none shadow-xl flex items-center gap-6">
-          <div className="w-14 h-14 rounded-2xl bg-white/10 text-[#FFC107] flex items-center justify-center">
-            <ShieldCheck size={28} />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">Active Clearances</p>
-            <h3 className="text-3xl font-black">{admins.filter(a => a.status === 'Active').length}</h3>
-          </div>
-        </Card>
-        <Card className="p-8 rounded-[3rem] bg-white border-none shadow-sm flex items-center gap-6">
-          <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <Users size={28} />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Personnel</p>
-            <h3 className="text-3xl font-black text-[#0F4C81]">{admins.length}</h3>
-          </div>
-        </Card>
-        <Card className="p-8 rounded-[3rem] bg-white border-none shadow-sm flex items-center gap-6">
-          <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
-            <Lock size={28} />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Access Revoked</p>
-            <h3 className="text-3xl font-black text-red-600">{admins.filter(a => a.status === 'Inactive').length}</h3>
-          </div>
-        </Card>
-      </div>
+      <Tabs defaultValue="registry" className="w-full space-y-8">
+        <TabsList className="bg-white p-1 rounded-2xl h-14 border border-slate-100 w-fit shadow-sm">
+          <TabsTrigger value="registry" className="rounded-xl px-8 h-12 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
+            <UserCheck className="mr-2" size={16} /> Personnel Registry
+          </TabsTrigger>
+          <TabsTrigger value="logs" className="rounded-xl px-8 h-12 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-[#0F4C81] data-[state=active]:text-white">
+            <FileClock className="mr-2" size={16} /> Audit Logs
+          </TabsTrigger>
+        </TabsList>
 
-      {loading ? (
-        <div className="py-40 flex flex-col items-center justify-center gap-4 text-slate-300">
-          <Loader2 className="animate-spin" size={48} />
-          <p className="font-black uppercase text-[10px] tracking-widest">Scanning Personnel Registry...</p>
-        </div>
-      ) : (
-        <AdminTable 
-          admins={admins} 
-          onEdit={(admin) => { setSelectedAdmin(admin); setIsFormOpen(true); }}
-          onDelete={handleDelete}
-          onStatusChange={handleStatusChange}
-          onResetPassword={(admin) => { setSelectedAdmin(admin); setIsResetOpen(true); }}
-        />
-      )}
+        <TabsContent value="registry" className="space-y-10 focus-visible:outline-none">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="p-8 rounded-[3rem] bg-[#0F4C81] text-white border-none shadow-xl flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-white/10 text-[#FFC107] flex items-center justify-center">
+                <ShieldCheck size={28} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">Active Clearances</p>
+                <h3 className="text-3xl font-black">{admins.filter(a => a.status === 'Active').length}</h3>
+              </div>
+            </Card>
+            <Card className="p-8 rounded-[3rem] bg-white border-none shadow-sm flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Users size={28} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Personnel</p>
+                <h3 className="text-3xl font-black text-[#0F4C81]">{admins.length}</h3>
+              </div>
+            </Card>
+            <Card className="p-8 rounded-[3rem] bg-white border-none shadow-sm flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
+                <Lock size={28} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Access Revoked</p>
+                <h3 className="text-3xl font-black text-red-600">{admins.filter(a => a.status === 'Inactive').length}</h3>
+              </div>
+            </Card>
+          </div>
+
+          {loading ? (
+            <div className="py-40 flex flex-col items-center justify-center gap-4 text-slate-300">
+              <Loader2 className="animate-spin" size={48} />
+              <p className="font-black uppercase text-[10px] tracking-widest">Scanning Personnel Registry...</p>
+            </div>
+          ) : (
+            <AdminTable 
+              admins={admins} 
+              onEdit={(admin) => { setSelectedAdmin(admin); setIsFormOpen(true); }}
+              onDelete={handleDelete}
+              onStatusChange={handleStatusChange}
+              onResetPassword={(admin) => { setSelectedAdmin(admin); setIsResetOpen(true); }}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="logs" className="focus-visible:outline-none">
+          <AdminLogsTable />
+        </TabsContent>
+      </Tabs>
 
       <AdminForm 
         isOpen={isFormOpen}

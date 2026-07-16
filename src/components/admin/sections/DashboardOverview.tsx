@@ -1,9 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
-  CreditCard, 
   TrendingUp, 
   Package, 
   ShoppingCart, 
@@ -12,14 +11,36 @@ import {
   Plus,
   UserPlus,
   DollarSign,
-  Briefcase
+  Briefcase,
+  ShieldCheck,
+  FileClock
 } from 'lucide-react';
 import DashboardCard from '../DashboardCard';
 import { IncomeExpenseChart, SalesBarChart } from '../charts/DashboardCharts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
 const DashboardOverview = () => {
+  const { profile } = useAuth();
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (profile?.role === 'Super Admin') {
+      const fetchLogs = async () => {
+        const { data } = await supabase
+          .from('admin_logs')
+          .select('action, created_at')
+          .order('created_at', { ascending: false })
+          .limit(3);
+        setRecentLogs(data || []);
+      };
+      fetchLogs();
+    }
+  }, [profile]);
+
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header with quick actions */}
@@ -94,13 +115,23 @@ const DashboardOverview = () => {
           icon={Package} 
           trend="Stable" 
         />
-        <DashboardCard 
-          label="Sold Today" 
-          value="14 Units" 
-          icon={ShoppingCart} 
-          trend="+8%" 
-          trendType="up" 
-        />
+        {profile?.role === 'Super Admin' ? (
+           <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-[#0F4C81] text-white flex items-center gap-4">
+              <div className="p-3 bg-white/10 rounded-xl"><ShieldCheck size={20} className="text-[#FFC107]" /></div>
+              <div>
+                 <p className="text-[8px] font-black uppercase text-[#FFC107] tracking-widest">Security Status</p>
+                 <p className="text-sm font-black uppercase">Infrastructure Secure</p>
+              </div>
+           </Card>
+        ) : (
+          <DashboardCard 
+            label="Sold Today" 
+            value="14 Units" 
+            icon={ShoppingCart} 
+            trend="+8%" 
+            trendType="up" 
+          />
+        )}
       </div>
 
       {/* Charts Section */}
@@ -142,93 +173,57 @@ const DashboardOverview = () => {
           </div>
         </Card>
 
-        {/* Latest Registrations */}
-        <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Latest Registrations</h3>
-            <Button variant="link" className="text-[10px] font-black uppercase text-[#FFC107]">View All</Button>
-          </div>
-          <div className="space-y-4">
-            {[
-              { name: 'Rohan Sharma', program: 'Badminton Elite', status: 'Pending' },
-              { name: 'Emma Wilson', program: 'CrossFit Adult', status: 'Active' },
-              { name: 'Lucas Scott', program: 'Junior Academy', status: 'Active' }
-            ].map((reg, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
-                    {reg.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#0F4C81]">{reg.name}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">{reg.program}</p>
-                  </div>
-                </div>
-                <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-md ${
-                  reg.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
-                }`}>
-                  {reg.status}
-                </span>
+        {profile?.role === 'Super Admin' ? (
+           <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
+              <div className="flex justify-between items-center">
+                 <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Security Audit</h3>
+                 <FileClock size={16} className="text-slate-300" />
               </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Low Stock Products */}
-        <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Low Stock Products</h3>
-            <Button variant="link" className="text-[10px] font-black uppercase text-[#FFC107]">Inventory</Button>
-          </div>
-          <div className="space-y-4">
-            {[
-              { name: 'Yonex Shuttlecocks (Pro)', stock: '2 tubes left', level: 10 },
-              { name: 'Academy T-Shirt (Large)', stock: '5 units left', level: 25 },
-              { name: 'Grip Tape (Neon Green)', stock: 'Out of stock', level: 0 }
-            ].map((item, i) => (
-              <div key={i} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm font-bold text-[#0F4C81]">{item.name}</p>
-                  <p className="text-[10px] font-black text-red-500 uppercase">{item.stock}</p>
-                </div>
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${item.level === 0 ? 'bg-red-500' : 'bg-[#FFC107]'}`} 
-                    style={{ width: `${item.level}%` }} 
-                  />
-                </div>
+              <div className="space-y-4">
+                 {recentLogs.map((log, i) => (
+                    <div key={i} className="p-4 rounded-2xl bg-slate-50 flex justify-between items-center">
+                       <div>
+                          <p className="text-xs font-black text-[#0F4C81] uppercase">{log.action.replace('_', ' ')}</p>
+                          <p className="text-[9px] font-bold text-slate-400">{format(new Date(log.created_at), 'PPP p')}</p>
+                       </div>
+                       <ShieldCheck size={14} className="text-green-500" />
+                    </div>
+                 ))}
+                 {recentLogs.length === 0 && <p className="text-center py-8 text-[10px] font-bold text-slate-300 uppercase">No recent security events.</p>}
               </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Upcoming Fee Due Dates */}
-        <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Upcoming Fee Due</h3>
-            <Button variant="link" className="text-[10px] font-black uppercase text-[#FFC107]">Follow Up</Button>
-          </div>
-          <div className="space-y-4">
-            {[
-              { name: 'Marcus Aurelius', due: 'Tomorrow', amount: '$150' },
-              { name: 'Seneca Young', due: 'In 3 days', amount: '$150' },
-              { name: 'Zeno Smith', due: 'In 5 days', amount: '$300' }
-            ].map((fee, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white text-[#0F4C81] flex items-center justify-center font-bold text-xs border border-slate-100">
-                    <Clock size={16} />
+           </Card>
+        ) : (
+          <Card className="p-8 rounded-[2.5rem] border-none shadow-sm bg-white space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-black text-[#0F4C81] uppercase tracking-widest">Latest Registrations</h3>
+              <Button variant="link" className="text-[10px] font-black uppercase text-[#FFC107]">View All</Button>
+            </div>
+            <div className="space-y-4">
+              {[
+                { name: 'Rohan Sharma', program: 'Badminton Elite', status: 'Pending' },
+                { name: 'Emma Wilson', program: 'CrossFit Adult', status: 'Active' },
+                { name: 'Lucas Scott', program: 'Junior Academy', status: 'Active' }
+              ].map((reg, i) => (
+                <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
+                      {reg.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[#0F4C81]">{reg.name}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">{reg.program}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#0F4C81]">{fee.name}</p>
-                    <p className="text-[10px] font-bold text-red-400 uppercase">Due {fee.due}</p>
-                  </div>
+                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-md ${
+                    reg.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
+                  }`}>
+                    {reg.status}
+                  </span>
                 </div>
-                <p className="text-sm font-black text-[#0F4C81]">{fee.amount}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
