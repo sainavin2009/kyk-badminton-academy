@@ -17,7 +17,8 @@ import {
   UserCheck,
   TrendingDown,
   MessageSquare,
-  ShieldAlert
+  ShieldAlert,
+  Home
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,6 +36,7 @@ export type AdminTab =
   | 'expenses'
   | 'messages'
   | 'content' 
+  | 'homepage_mgmt'
   | 'reports' 
   | 'settings'
   | 'administration';
@@ -59,6 +61,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'messages', label: 'Inquiries', icon: MessageSquare },
+    { id: 'homepage_mgmt', label: 'Homepage Mgmt', icon: Home },
     { id: 'content', label: 'Website Content', icon: Globe },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
