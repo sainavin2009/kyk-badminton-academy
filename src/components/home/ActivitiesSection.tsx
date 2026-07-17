@@ -15,7 +15,7 @@ const activities = [
     icon: Target,
     title: 'Court Supremacy',
     description: 'Specialized training focus on lightning reflexes, biomechanical efficiency, and tactical warfare on the court.',
-    stats: ["8 Pro Courts", "Elite Coaching", "Junior Programs"]
+    stats: ["2 Courts", "Elite Coaching", "Junior Programs"]
   },
   {
     id: 'crossfit',
