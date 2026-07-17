@@ -58,7 +58,7 @@ const Navbar = () => {
               {settings?.hero_heading || 'KYK Academy'}
             </span>
             <span className="text-[8px] font-black tracking-[0.4em] text-[#FFC107] uppercase mt-1">
-              {settings?.hero_subheading || 'Smash Your Limits'}
+              {settings?.hero_subheading || 'SMASH YOUR LIMITS'}
             </span>
           </div>
         </Link>
