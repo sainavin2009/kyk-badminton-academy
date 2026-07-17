@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Undo2, MapPin, Phone, Clock, MessageSquare } from 'lucide-react';
+import { Save, Undo2, MapPin, Phone, Clock, MessageSquare, Instagram, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ContactInformationManager = () => {
@@ -125,13 +125,23 @@ const ContactInformationManager = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Official Email</Label>
-              <Input name="email" value={formData.email} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <Input name="email" value={formData.email} onChange={handleInputChange} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">WhatsApp Number</Label>
               <div className="relative">
                 <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                 <Input name="whatsapp_number" value={formData.whatsapp_number} onChange={handleInputChange} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Instagram URL</Label>
+              <div className="relative">
+                <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <Input name="instagram_url" value={formData.instagram_url} onChange={handleInputChange} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
               </div>
             </div>
           </div>

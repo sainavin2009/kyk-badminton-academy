@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Trophy, Instagram, Facebook, Twitter, Youtube, MapPin, Phone, Mail, ArrowRight, Lock, LayoutDashboard } from 'lucide-react';
+import { Trophy, Instagram, MapPin, Phone, Mail, ArrowRight, Lock, LayoutDashboard, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -10,7 +10,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { session } = useAuth();
-  const { settings } = useSettings();
+  const { contactInfo } = useSettings();
   
   const footerLinks = {
     explore: [
@@ -25,19 +25,34 @@ const Footer = () => {
       { name: 'Elite Intermediate', path: '/programs' },
       { name: 'Adult Performance', path: '/programs' },
       { name: 'CrossFit & Conditioning', path: '/programs' },
-    ],
-    social: [
-      { icon: Instagram, href: '#', label: 'Instagram' },
-      { icon: Facebook, href: '#', label: 'Facebook' },
-      { icon: Twitter, href: '#', label: 'Twitter' },
-      { icon: Youtube, href: '#', label: 'Youtube' },
     ]
   };
 
-  const contactDetails = settings ? [
-    { icon: MapPin, text: settings.address || 'No. 65, Appasamy Street, Kolathur, Chennai' },
-    { icon: Phone, text: settings.phone || '+91 93639 78810' },
-    { icon: Mail, text: settings.email || 'info@kykacademy.com' },
+  const socialIcons = contactInfo ? [
+    { 
+      icon: Instagram, 
+      href: contactInfo.instagram_url || 'https://www.instagram.com/kyk_badminton_academy/?hl=en', 
+      label: 'Instagram',
+      target: '_blank'
+    },
+    { 
+      icon: MessageSquare, 
+      href: `https://wa.me/${(contactInfo.whatsapp_number || '919363978810').replace(/\D/g, '')}`, 
+      label: 'WhatsApp',
+      target: '_blank'
+    },
+    { 
+      icon: Mail, 
+      href: `mailto:${contactInfo.email || 'info@kykacademy.com'}`, 
+      label: 'Email',
+      target: '_self'
+    },
+  ] : [];
+
+  const contactDetails = contactInfo ? [
+    { icon: MapPin, text: contactInfo.address },
+    { icon: Phone, text: contactInfo.primary_phone },
+    { icon: Mail, text: contactInfo.email },
   ] : [
     { icon: MapPin, text: 'No. 65, Appasamy Street, Kolathur, Chennai' },
     { icon: Phone, text: '+91 93639 78810' },
@@ -62,8 +77,18 @@ const Footer = () => {
             </Link>
             <p className="text-white/60 leading-relaxed text-sm font-medium">World-class badminton coaching and CrossFit training on international standard courts.</p>
             <div className="flex gap-4">
-              {footerLinks.social.map((item, idx) => (
-                <motion.a key={idx} href={item.href} whileHover={{ y: -4 }} className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all duration-300" aria-label={item.label}><item.icon size={20} /></motion.a>
+              {socialIcons.map((item, idx) => (
+                <motion.a 
+                  key={idx} 
+                  href={item.href} 
+                  target={item.target}
+                  rel={item.target === '_blank' ? "noopener noreferrer" : ""}
+                  whileHover={{ y: -4 }} 
+                  className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all duration-300" 
+                  aria-label={item.label}
+                >
+                  <item.icon size={20} />
+                </motion.a>
               ))}
             </div>
           </div>

@@ -91,7 +91,7 @@ const ContactSection = () => {
             </div>
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
               <Button asChild className="h-16 px-8 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-lg shadow-xl group transition-all">
-                <a href={`https://wa.me/${contactInfo.whatsapp_number.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                <a href={`https://wa.me/${(contactInfo.whatsapp_number || '919363978810').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
                   <MessageSquare className="fill-current" /> WhatsApp
                 </a>
               </Button>
