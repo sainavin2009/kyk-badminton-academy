@@ -17,6 +17,8 @@ export interface SiteSettings {
   id: number;
   hero_heading: string;
   hero_subheading: string;
+  programs_hero_title: string;
+  programs_hero_subtitle: string;
   about_heading: string;
   about_content: string;
   about_image: string;

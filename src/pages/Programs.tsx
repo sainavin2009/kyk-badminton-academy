@@ -1,8 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2 } from 'lucide-react';
+import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Play, Users, MapPin, GraduationCap, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -15,8 +15,13 @@ const iconMap: Record<string, any> = {
 };
 
 const Programs = () => {
-  const { programs, loading } = useSettings();
+  const { programs, settings, loading } = useSettings();
+  const programsRef = useRef<HTMLElement>(null);
   const visiblePrograms = programs.filter(p => p.is_visible);
+
+  const scrollToPrograms = () => {
+    programsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   if (loading) {
     return (
@@ -26,26 +31,95 @@ const Programs = () => {
     );
   }
 
+  const infoBadges = [
+    { icon: Target, text: "Beginner to Advanced Coaching" },
+    { icon: Users, text: "Kids • Teens • Adults" },
+    { icon: MapPin, text: "2 International Synthetic Courts" },
+    { icon: GraduationCap, text: "Professional Coaching" },
+    { icon: Clock, text: "Morning • Evening • Weekend Batches" },
+    { icon: Dumbbell, text: "CrossFit & Conditioning Available" },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
-      <section className="pt-40 pb-20 bg-[#0F4C81] text-white">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-4xl mx-auto space-y-6"
-          >
-            <h1 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
-              Master the <span className="text-[#FFC107]">Game</span>
-            </h1>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto font-medium italic">
-              From absolute beginners to national champions, we have a specialized path for every athlete.
-            </p>
-          </motion.div>
+      {/* Informative Hero Section */}
+      <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 bg-[#0F4C81] text-white overflow-hidden">
+        {/* Subtle Background Overlay */}
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
+          <img 
+            src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070" 
+            alt="Background" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#0F4C81]/80" />
+        </div>
+
+        <div className="container relative z-10 mx-auto px-6">
+          <div className="max-w-5xl mx-auto text-center space-y-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
+            >
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+                {settings?.programs_hero_title || 'MASTER THE GAME'}
+              </h1>
+              <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto font-medium leading-relaxed">
+                {settings?.programs_hero_subtitle || 'From beginners to competitive athletes, KYK Badminton Academy provides structured coaching for Kids, Teens, and Adults with scientific training methods and individual skill development.'}
+              </p>
+            </motion.div>
+
+            {/* Info Pills */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-4xl mx-auto"
+            >
+              {infoBadges.map((badge, i) => (
+                <div 
+                  key={i} 
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white/90 text-[10px] md:text-xs font-black uppercase tracking-wider whitespace-nowrap group hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all duration-300"
+                >
+                  <badge.icon size={14} className="text-[#FFC107] group-hover:text-[#0F4C81] transition-colors" />
+                  {badge.text}
+                </div>
+              ))}
+            </motion.div>
+
+            {/* CTA Buttons */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4"
+            >
+              <Button 
+                asChild 
+                className="h-14 px-10 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 transition-all font-black uppercase tracking-widest text-base shadow-xl shadow-[#FFC107]/20 group"
+              >
+                <Link to="/join">
+                  Join Now
+                  <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              
+              <Button 
+                onClick={scrollToPrograms}
+                variant="outline"
+                className="h-14 px-10 rounded-full border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white transition-all font-black uppercase tracking-widest text-base backdrop-blur-md"
+              >
+                View Batch Timings
+                <Play className="ml-2 w-4 h-4 fill-current rotate-90" />
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      <section className="py-24 md:py-32">
+      {/* Programs List Section */}
+      <section ref={programsRef} id="programs-list" className="py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {visiblePrograms.map((program, idx) => {
