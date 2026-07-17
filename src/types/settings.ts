@@ -8,6 +8,11 @@ export interface SocialLink {
   url: string;
 }
 
+export interface ProgramSchedule {
+  label: string;
+  time: string;
+}
+
 export interface SiteSettings {
   id: number;
   hero_heading: string;
@@ -48,7 +53,9 @@ export interface Program {
   age_range: string;
   description: string;
   features: string[];
+  schedule: ProgramSchedule[];
   icon_name: string;
   color_class: string;
   order_index: number;
+  is_visible: boolean;
 }
