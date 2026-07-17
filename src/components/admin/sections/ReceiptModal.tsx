@@ -99,7 +99,7 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
 
             <div className="flex justify-between items-end pt-10">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase text-slate-400 italic">"Engineering Excellence since 2014"</p>
+                <p className="text-[10px] font-black uppercase text-slate-400 italic">"Smash Your Limits"</p>
                 <p className="text-[9px] font-bold text-slate-300">Authorized Digital Signature</p>
               </div>
               <div className="text-right">

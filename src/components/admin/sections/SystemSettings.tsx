@@ -70,7 +70,7 @@ const SystemSettings = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Receipt Footer Text</Label>
-              <Textarea defaultValue="Engineering Excellence since 2014. Professional Badminton Training." className="h-24 rounded-xl bg-slate-50 border-none font-medium p-4 resize-none" />
+              <Textarea defaultValue="Smash Your Limits. Professional Badminton Training." className="h-24 rounded-xl bg-slate-50 border-none font-medium p-4 resize-none" />
             </div>
           </div>
         </Card>

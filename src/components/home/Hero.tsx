@@ -51,9 +51,9 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-3xl text-white/70 font-bold tracking-tight italic max-w-3xl mx-auto"
+            className="text-xl md:text-3xl text-white/70 font-bold tracking-tight italic max-w-3xl mx-auto uppercase"
           >
-            {settings?.hero_subheading || 'Professional Badminton & CrossFit Training for Kids, Adults and Competitive Players.'}
+            {settings?.hero_subheading || 'Smash Your Limits'}
           </motion.p>
 
           <motion.div 
