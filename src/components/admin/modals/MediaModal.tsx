@@ -13,12 +13,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { 
   Upload, 
   X, 
   Image as ImageIcon, 
   Play, 
-  Check
+  Check,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -29,14 +32,16 @@ interface MediaModalProps {
   onSave: (item: any) => void;
   item?: any;
   type: 'image' | 'video';
+  fixedCategory?: string;
 }
 
-const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) => {
+const MediaModal = ({ isOpen, onClose, onSave, item, type, fixedCategory }: MediaModalProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
   const [thumbnail, setThumbnail] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -46,12 +51,14 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
       setUrl(item.url || '');
       setThumbnail(item.thumbnail || '');
       setPreview(item.type === 'video' ? item.thumbnail : item.url);
+      setIsVisible(item.is_visible ?? true);
     } else {
       setTitle('');
       setDescription('');
       setUrl('');
       setThumbnail('');
       setPreview(null);
+      setIsVisible(true);
     }
   }, [item, isOpen]);
 
@@ -78,12 +85,15 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
     }
 
     onSave({
-      id: item?.id || Math.random().toString(36).substr(2, 9),
+      id: item?.id,
       title,
       description,
       type,
       url,
       thumbnail: type === 'video' ? (thumbnail || url) : undefined,
+      category: fixedCategory || item?.category || 'Badminton',
+      is_visible: isVisible,
+      updated_at: new Date().toISOString()
     });
     
     toast.success(item ? 'Asset updated successfully' : 'Asset added successfully');
@@ -112,7 +122,7 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
                 <Input 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Morning Sprints"
+                  placeholder="e.g. Training Session"
                   className="h-14 rounded-2xl bg-slate-50 border-none font-bold focus-visible:ring-2 focus-visible:ring-[#FFC107]"
                 />
               </div>
@@ -122,9 +132,17 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
                 <Textarea 
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Tell the story behind this shot..."
+                  placeholder="Tell the story..."
                   className="min-h-[120px] rounded-2xl bg-slate-50 border-none font-medium p-4 resize-none focus-visible:ring-2 focus-visible:ring-[#FFC107]"
                 />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50">
+                <div className="flex items-center gap-2">
+                  {isVisible ? <Eye size={16} className="text-green-500" /> : <EyeOff size={16} className="text-slate-400" />}
+                  <span className="text-xs font-black uppercase text-[#0F4C81]">Public Visibility</span>
+                </div>
+                <Switch checked={isVisible} onCheckedChange={setIsVisible} />
               </div>
             </div>
 
@@ -160,33 +178,17 @@ const MediaModal = ({ isOpen, onClose, onSave, item, type }: MediaModalProps) =>
                   onChange={handleFileChange}
                 />
               </div>
-              
-              {type === 'video' && (
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Video URL (Optional)</Label>
-                  <Input 
-                    value={url}
-                    onChange={(e) => { setUrl(e.target.value); if(!preview) setPreview(e.target.value); }}
-                    placeholder="Youtube/Vimeo link"
-                    className="h-10 rounded-xl bg-slate-50 border-none font-medium text-xs focus-visible:ring-2 focus-visible:ring-[#FFC107]"
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
 
         <DialogFooter className="p-8 bg-slate-50 flex items-center justify-between gap-4">
-          <Button 
-            variant="ghost" 
-            onClick={onClose}
-            className="rounded-2xl h-14 px-8 font-bold text-slate-400 hover:text-red-500"
-          >
+          <Button variant="ghost" onClick={onClose} className="rounded-2xl h-14 px-8 font-bold text-slate-400">
             Cancel
           </Button>
           <Button 
             onClick={handleSave}
-            className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all"
+            className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl"
           >
             <Check className="mr-2" size={20} />
             {item ? 'Update Asset' : 'Add to Gallery'}

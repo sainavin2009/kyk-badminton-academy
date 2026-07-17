@@ -44,7 +44,8 @@ const AdminDashboard = () => {
       case 'fees': return <FeeManager />;
       case 'inventory': return <InventoryManager />;
       case 'sales': return <SaleManager />;
-      case 'gallery': return <GalleryManager />;
+      case 'gallery_badminton': return <GalleryManager category="Badminton" />;
+      case 'gallery_crossfit': return <GalleryManager category="CrossFit" />;
       case 'events': return <EventManager />;
       case 'expenses': return <ExpenseManager />;
       case 'messages': return <MessagesManager />;
@@ -82,7 +83,7 @@ const AdminDashboard = () => {
             <div className="h-10 w-[1px] bg-slate-100 hidden md:block" />
             <div className="hidden md:flex flex-col">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Section</span>
-              <span className="text-sm font-black text-[#0F4C81] uppercase tracking-tighter">{activeTab}</span>
+              <span className="text-sm font-black text-[#0F4C81] uppercase tracking-tighter">{activeTab.replace(/_/g, ' ')}</span>
             </div>
           </div>
 

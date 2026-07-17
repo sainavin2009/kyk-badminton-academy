@@ -1,6 +1,7 @@
-UPDATE public.site_settings
-SET
-  address = 'No. 65, Appasamy Street, Poompuhar Nagar East Extension, Kolathur, Chennai – 600099',
-  phone = '+91 93639 78810',
-  whatsapp = '919363978810'
-WHERE id = 1;
+-- Add visibility and updated_at columns
+ALTER TABLE public.gallery_items 
+ADD COLUMN IF NOT EXISTS is_visible BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
+
+-- Update existing items to have Badminton as default if empty
+UPDATE public.gallery_items SET category = 'Badminton' WHERE category IS NULL;

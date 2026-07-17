@@ -18,7 +18,8 @@ import {
   TrendingDown,
   MessageSquare,
   ShieldAlert,
-  Home
+  Home,
+  Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,7 +32,8 @@ export type AdminTab =
   | 'fees' 
   | 'inventory' 
   | 'sales' 
-  | 'gallery' 
+  | 'gallery_badminton' 
+  | 'gallery_crossfit'
   | 'events'
   | 'expenses'
   | 'messages'
@@ -57,7 +59,8 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'fees', label: 'Fees', icon: CreditCard },
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'sales', label: 'Sales', icon: BarChart3 },
-    { id: 'gallery', label: 'Gallery', icon: ImageIcon },
+    { id: 'gallery_badminton', label: 'Badminton Gallery', icon: ImageIcon },
+    { id: 'gallery_crossfit', label: 'CrossFit Gallery', icon: Zap },
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'messages', label: 'Inquiries', icon: MessageSquare },
@@ -67,7 +70,6 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  // Super Admin and Admin can access Administration
   const canAccessAdministration = profile?.role === 'Super Admin' || profile?.role === 'Admin';
 
   const handleSignOut = async () => {
