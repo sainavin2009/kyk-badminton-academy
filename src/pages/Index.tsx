@@ -6,7 +6,7 @@ import AboutSection from '@/components/home/AboutSection';
 import ActivitiesSection from '@/components/home/ActivitiesSection';
 import ContactSection from '@/components/home/ContactSection';
 import { motion } from 'framer-motion';
-import { Award, Target, Zap, ShieldCheck, Loader2 } from 'lucide-react';
+import { Award, Target, Zap, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { HomepageStats } from '@/types/homepage';
 
@@ -94,7 +94,7 @@ const Index = () => {
       {/* 4. Training Domains & Gallery */}
       <ActivitiesSection />
 
-      {/* 5. Client Testimonial / Trust Section (Premium touch) */}
+      {/* 5. Client Testimonial / Trust Section */}
       <section className="py-32 bg-white">
         <div className="container mx-auto px-8 lg:px-12">
           <div className="flex flex-col lg:flex-row items-center gap-20">

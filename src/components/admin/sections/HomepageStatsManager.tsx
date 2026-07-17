@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, RefreshCw, BarChart3, Loader2 } from 'lucide-react';
+import { Save, RefreshCw, BarChart3, Loader2, Undo2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { HomepageStats } from '@/types/homepage';
 
@@ -58,7 +58,7 @@ const HomepageStatsManager = () => {
 
       if (error) throw error;
       toast.success('Homepage statistics updated successfully');
-      setStatsOriginal(stats);
+      setStatsOriginal({ ...stats });
     } catch (err: any) {
       toast.error('Update failed: ' + err.message);
     } finally {
@@ -67,8 +67,10 @@ const HomepageStatsManager = () => {
   };
 
   const handleReset = () => {
-    setStats(originalStats);
-    toast.info('Changes discarded');
+    if (originalStats) {
+      setStats({ ...originalStats });
+      toast.info('Changes discarded');
+    }
   };
 
   if (loading) {
@@ -87,6 +89,13 @@ const HomepageStatsManager = () => {
           <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Homepage Management</h2>
           <p className="text-slate-500 font-medium">Customize the key performance indicators shown to visitors.</p>
         </div>
+        <Button 
+          variant="ghost" 
+          onClick={fetchStats}
+          className="h-14 w-14 rounded-2xl bg-white shadow-sm text-slate-400 hover:text-[#0F4C81]"
+        >
+          <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
+        </Button>
       </div>
 
       <Card className="p-8 md:p-12 rounded-[3rem] border-none shadow-sm space-y-10 bg-white">
@@ -167,8 +176,9 @@ const HomepageStatsManager = () => {
             variant="ghost"
             onClick={handleReset}
             disabled={saving}
-            className="h-14 px-8 rounded-2xl text-slate-400 font-bold uppercase tracking-widest text-xs"
+            className="h-14 px-8 rounded-2xl text-slate-400 font-bold uppercase tracking-widest text-xs flex items-center gap-2"
           >
+            <Undo2 size={16} />
             Reset
           </Button>
            <Button 
