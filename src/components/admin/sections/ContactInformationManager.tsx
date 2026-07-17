@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Undo2, Eye, MapPin, Phone, Mail, MessageSquare, Clock } from 'lucide-react';
+import { Save, Undo2, MapPin, Phone, Clock, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ContactInformationManager = () => {
@@ -76,7 +76,7 @@ const ContactInformationManager = () => {
           <Button 
             onClick={handleSave}
             disabled={!isDirty}
-            className="h-14 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all"
+            className="h-14 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl transition-all"
           >
             <Save className="mr-2" size={20} /> Save Changes
           </Button>
@@ -84,7 +84,6 @@ const ContactInformationManager = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Basic Info */}
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-50 text-[#0F4C81] rounded-2xl"><MapPin size={24} /></div>
@@ -102,12 +101,11 @@ const ContactInformationManager = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Google Maps Embed URL</Label>
-              <Input name="google_maps_url" value={formData.google_maps_url} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-medium text-xs" placeholder="https://www.google.com/maps/embed?..." />
+              <Input name="google_maps_url" value={formData.google_maps_url} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-medium text-xs" />
             </div>
           </div>
         </Card>
 
-        {/* Communication */}
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-green-50 text-green-600 rounded-2xl"><Phone size={24} /></div>
@@ -130,7 +128,7 @@ const ContactInformationManager = () => {
               <Input name="email" value={formData.email} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">WhatsApp Number (International Format)</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">WhatsApp Number</Label>
               <div className="relative">
                 <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                 <Input name="whatsapp_number" value={formData.whatsapp_number} onChange={handleInputChange} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
@@ -139,7 +137,6 @@ const ContactInformationManager = () => {
           </div>
         </Card>
 
-        {/* Working Hours */}
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white lg:col-span-2">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl"><Clock size={24} /></div>
