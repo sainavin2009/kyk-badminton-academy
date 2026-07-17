@@ -21,8 +21,8 @@ const Footer = () => {
       { name: 'Join Academy', path: '/join' },
     ],
     programs: [
-      { name: 'Badminton Training Program', path: '/programs' },
-      { name: 'CrossFit Training', path: '/programs' },
+      { name: 'Beginner to Advanced Coaching', path: '/programs' },
+      { name: 'Advanced Coaching Program', path: '/programs' },
     ]
   };
 
@@ -82,9 +82,9 @@ const Footer = () => {
                 <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">
                   {settings?.hero_subheading ? (
                     settings.hero_subheading.length > 30 
-                      ? "Elite Training Academy" 
+                      ? "SMASH YOUR LIMITS" 
                       : settings.hero_subheading
-                  ) : "Elite Training Academy"}
+                  ) : "SMASH YOUR LIMITS"}
                 </span>
               </div>
             </Link>
