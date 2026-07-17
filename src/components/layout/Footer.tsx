@@ -80,11 +80,7 @@ const Footer = () => {
                    {settings?.hero_heading || 'KYK Academy'}
                 </span>
                 <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">
-                  {settings?.hero_subheading ? (
-                    settings.hero_subheading.length > 30 
-                      ? "SMASH YOUR LIMITS" 
-                      : settings.hero_subheading
-                  ) : "SMASH YOUR LIMITS"}
+                  SMASH YOUR LIMITS
                 </span>
               </div>
             </Link>

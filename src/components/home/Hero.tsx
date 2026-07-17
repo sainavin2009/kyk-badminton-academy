@@ -53,7 +53,7 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-3xl text-white/70 font-bold tracking-tight italic max-w-3xl mx-auto uppercase"
           >
-            {settings?.hero_subheading || 'SMASH YOUR LIMITS'}
+            SMASH YOUR LIMITS
           </motion.p>
 
           <motion.div 
