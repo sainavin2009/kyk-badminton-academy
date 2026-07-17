@@ -10,7 +10,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { session } = useAuth();
-  const { contactInfo } = useSettings();
+  const { settings } = useSettings();
   
   const footerLinks = {
     explore: [
@@ -34,12 +34,15 @@ const Footer = () => {
     ]
   };
 
-  const contactDetails = contactInfo ? [
-    { icon: MapPin, text: contactInfo.address },
-    { icon: Phone, text: contactInfo.primary_phone },
-    { icon: Phone, text: contactInfo.secondary_phone },
-    { icon: Mail, text: contactInfo.email },
-  ] : [];
+  const contactDetails = settings ? [
+    { icon: MapPin, text: settings.address || 'No. 65, Appasamy Street, Kolathur, Chennai' },
+    { icon: Phone, text: settings.phone || '+91 93639 78810' },
+    { icon: Mail, text: settings.email || 'info@kykacademy.com' },
+  ] : [
+    { icon: MapPin, text: 'No. 65, Appasamy Street, Kolathur, Chennai' },
+    { icon: Phone, text: '+91 93639 78810' },
+    { icon: Mail, text: 'info@kykacademy.com' },
+  ];
 
   return (
     <footer className="bg-[#0A2A47] text-white pt-24 pb-12 border-t border-white/5">
@@ -52,7 +55,7 @@ const Footer = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tighter uppercase leading-none">
-                   {contactInfo?.academy_name || 'KYK Academy'}
+                   KYK Academy
                 </span>
                 <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">Elite Training</span>
               </div>
@@ -93,7 +96,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-white/40 text-sm font-semibold tracking-tight">© {currentYear} <span className="text-white/70">{contactInfo?.academy_name || 'KYK Academy'}</span>.</p>
+          <p className="text-white/40 text-sm font-semibold tracking-tight">© {currentYear} <span className="text-white/70">KYK Academy</span>.</p>
           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
             <Link to="#" className="hover:text-[#FFC107] transition-colors">Privacy</Link>
             <span className="w-1 h-1 bg-white/10 rounded-full" />

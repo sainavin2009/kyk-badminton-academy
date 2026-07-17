@@ -26,21 +26,6 @@ export interface SiteSettings {
   updated_at: string;
 }
 
-export interface ContactInformation {
-  id: number;
-  academy_name: string;
-  address: string;
-  primary_phone: string;
-  secondary_phone: string;
-  email: string;
-  whatsapp_number: string;
-  google_maps_url: string;
-  monday_friday_hours: string;
-  saturday_hours: string;
-  sunday_hours: string;
-  updated_at: string;
-}
-
 export interface Program {
   id: string;
   title: string;
