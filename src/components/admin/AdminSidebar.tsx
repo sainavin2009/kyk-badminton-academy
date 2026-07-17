@@ -19,7 +19,8 @@ import {
   MessageSquare,
   ShieldAlert,
   Home,
-  Zap
+  Zap,
+  PhoneCall
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,6 +38,7 @@ export type AdminTab =
   | 'events'
   | 'expenses'
   | 'messages'
+  | 'contact_info'
   | 'content' 
   | 'homepage_mgmt'
   | 'reports' 
@@ -64,6 +66,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'messages', label: 'Inquiries', icon: MessageSquare },
+    { id: 'contact_info', label: 'Contact Info', icon: PhoneCall },
     { id: 'homepage_mgmt', label: 'Homepage Mgmt', icon: Home },
     { id: 'content', label: 'Website Content', icon: Globe },
     { id: 'reports', label: 'Reports', icon: FileText },

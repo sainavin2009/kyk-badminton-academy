@@ -10,7 +10,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { session } = useAuth();
-  const { settings } = useSettings();
+  const { settings, contactInfo } = useSettings();
   
   const footerLinks = {
     explore: [
@@ -26,11 +26,6 @@ const Footer = () => {
       { name: 'Adult Performance', path: '/programs' },
       { name: 'CrossFit & Conditioning', path: '/programs' },
     ],
-    contact: [
-      { icon: MapPin, text: settings?.address || 'No. 65, Appasamy Street, Kolathur, Chennai – 600099' },
-      { icon: Phone, text: settings?.phone || '+91 93639 78810' },
-      { icon: Mail, text: settings?.email || 'info@kykacademy.com' },
-    ],
     social: [
       { icon: Instagram, href: '#', label: 'Instagram' },
       { icon: Facebook, href: '#', label: 'Facebook' },
@@ -38,6 +33,13 @@ const Footer = () => {
       { icon: Youtube, href: '#', label: 'Youtube' },
     ]
   };
+
+  const contactDetails = contactInfo ? [
+    { icon: MapPin, text: contactInfo.address },
+    { icon: Phone, text: contactInfo.primary_phone },
+    { icon: Phone, text: contactInfo.secondary_phone },
+    { icon: Mail, text: contactInfo.email },
+  ] : [];
 
   return (
     <footer className="bg-[#0A2A47] text-white pt-24 pb-12 border-t border-white/5">
@@ -51,13 +53,13 @@ const Footer = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tighter uppercase leading-none">
-                   {settings?.hero_heading || 'KYK Academy'}
+                   {contactInfo?.academy_name || 'KYK Academy'}
                 </span>
-                <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">Badminton Excellence</span>
+                <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">Elite Training</span>
               </div>
             </Link>
             <p className="text-white/60 leading-relaxed text-sm font-medium">
-              We provide world-class badminton coaching and CrossFit training on international standard courts to help athletes reach their full potential.
+              World-class badminton coaching and CrossFit training on international standard courts to help athletes reach their full potential.
             </p>
             <div className="flex gap-4">
               {footerLinks.social.map((item, idx) => (
@@ -78,7 +80,7 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold mb-8 flex items-center gap-2">
               <span className="w-6 h-0.5 bg-[#FFC107] rounded-full" />
-              Quick Explore
+              Explore
             </h4>
             <ul className="space-y-4">
               {footerLinks.explore.map((link) => (
@@ -99,7 +101,7 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold mb-8 flex items-center gap-2">
               <span className="w-6 h-0.5 bg-[#FFC107] rounded-full" />
-              Our Programs
+              Programs
             </h4>
             <ul className="space-y-4">
               {footerLinks.programs.map((link) => (
@@ -120,15 +122,15 @@ const Footer = () => {
           <div className="space-y-8">
             <h4 className="text-lg font-bold mb-8 flex items-center gap-2">
               <span className="w-6 h-0.5 bg-[#FFC107] rounded-full" />
-              Get In Touch
+              Contact
             </h4>
             <ul className="space-y-6">
-              {footerLinks.contact.map((item, idx) => (
+              {contactDetails.map((item, idx) => (
                 <li key={idx} className="flex gap-4 group">
                   <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#FFC107] group-hover:bg-[#FFC107] group-hover:text-[#0F4C81] transition-all duration-300">
                     <item.icon size={18} />
                   </div>
-                  <span className="text-sm font-medium text-white/70 leading-relaxed group-hover:text-white transition-colors">
+                  <span className="text-sm font-medium text-white/70 leading-relaxed group-hover:text-white transition-colors whitespace-pre-line">
                     {item.text}
                   </span>
                 </li>
@@ -140,15 +142,14 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-white/40 text-sm font-semibold tracking-tight">
-            © {currentYear} <span className="text-white/70">KYK Badminton Academy & SS Performance Lab</span>.
+            © {currentYear} <span className="text-white/70">{contactInfo?.academy_name || 'KYK Badminton Academy'}</span>.
           </p>
           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
-            <Link to="#" className="hover:text-[#FFC107] transition-colors">Privacy Policy</Link>
+            <Link to="#" className="hover:text-[#FFC107] transition-colors">Privacy</Link>
             <span className="w-1 h-1 bg-white/10 rounded-full" />
-            <Link to="#" className="hover:text-[#FFC107] transition-colors">Terms of Service</Link>
+            <Link to="#" className="hover:text-[#FFC107] transition-colors">Terms</Link>
             <span className="w-1 h-1 bg-white/10 rounded-full" />
             
-            {/* Admin/Dashboard subtle link */}
             <Link 
               to={session ? "/admin" : "/admin/login"}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-white/40 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all font-black"

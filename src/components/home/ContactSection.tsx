@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, MessageSquare, Send, Loader2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageSquare, Send, Loader2, PhoneCall } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,7 @@ const contactSchema = z.object({
 type ContactValues = z.infer<typeof contactSchema>;
 
 const ContactSection = () => {
-  const { settings } = useSettings();
+  const { contactInfo } = useSettings();
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactValues>({
     resolver: zodResolver(contactSchema)
   });
@@ -44,22 +44,35 @@ const ContactSection = () => {
     }
   };
 
+  if (!contactInfo) return null;
+
   const contactDetails = [
     {
       icon: MapPin,
       title: "Academy Address",
-      content: settings?.address || "No. 65, Appasamy Street, Poompuhar Nagar East Extension, Kolathur, Chennai – 600099",
+      content: contactInfo.address,
     },
     {
       icon: Phone,
-      title: "Phone Number",
-      content: settings?.phone || "+91 93639 78810",
+      title: "Primary Contact",
+      content: contactInfo.primary_phone,
+    },
+    {
+      icon: PhoneCall,
+      title: "Secondary Contact",
+      content: contactInfo.secondary_phone,
     },
     {
       icon: Mail,
       title: "Email Address",
-      content: settings?.email || "info@kykacademy.com",
+      content: contactInfo.email,
     },
+  ];
+
+  const timings = [
+    { days: "Monday – Friday", hours: contactInfo.monday_friday_hours },
+    { days: "Saturday", hours: contactInfo.saturday_hours },
+    { days: "Sunday", hours: contactInfo.sunday_hours },
   ];
 
   return (
@@ -75,11 +88,11 @@ const ContactSection = () => {
           <div className="lg:w-1/2 space-y-10">
             <div className="space-y-4">
               <span className="inline-block px-4 py-1.5 rounded-full bg-[#FFC107]/10 text-[#0F4C81] text-xs font-black tracking-widest uppercase">
-                Contact Us
+                Connect With Us
               </span>
               <h2 className="text-4xl md:text-5xl font-black text-[#0F4C81] leading-tight tracking-tighter">
-                Let's Start Your <br />
-                <span className="text-[#FFC107]">Professional Journey</span>
+                Visit our <br />
+                <span className="text-[#FFC107]">Badminton Arena</span>
               </h2>
             </div>
 
@@ -92,13 +105,13 @@ const ContactSection = () => {
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-bold text-[#0F4C81] text-base">{item.title}</h4>
-                      <p className="text-sm font-semibold text-slate-800">{item.content}</p>
+                      <p className="text-sm font-semibold text-slate-800 leading-relaxed whitespace-pre-line">{item.content}</p>
                     </div>
                   </div>
                 </Card>
               ))}
               
-              {settings?.working_hours?.map((t: any, idx: number) => (
+              {timings.map((t, idx) => (
                 <Card key={`timing-${idx}`} className="p-6 rounded-[2rem] border-none bg-slate-50 shadow-sm group">
                   <div className="flex flex-col gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-[#FFC107] shadow-sm">
@@ -118,11 +131,23 @@ const ContactSection = () => {
                 asChild
                 className="h-16 px-8 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-lg shadow-xl shadow-green-500/20 group transition-all"
               >
-                <a href={`https://wa.me/${settings?.whatsapp || '919363978810'}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                <a href={`https://wa.me/${contactInfo.whatsapp_number.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
                   <MessageSquare className="fill-current" />
-                  Chat on WhatsApp
+                  WhatsApp
                 </a>
               </Button>
+              {contactInfo.google_maps_url && (
+                <div className="flex-grow rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-lg min-h-[150px]">
+                  <iframe
+                    src={contactInfo.google_maps_url}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -133,7 +158,7 @@ const ContactSection = () => {
               <div className="space-y-8 relative z-10">
                 <div className="space-y-2">
                   <h3 className="text-2xl font-black uppercase tracking-tight">Send a Message</h3>
-                  <p className="text-sm text-white/50 font-medium italic">Have a specific question? Ask us anything.</p>
+                  <p className="text-sm text-white/50 font-medium italic">Have a question? We respond within 24 hours.</p>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

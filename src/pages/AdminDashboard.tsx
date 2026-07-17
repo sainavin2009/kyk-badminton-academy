@@ -18,6 +18,7 @@ import ExpenseManager from '@/components/admin/sections/ExpenseManager';
 import MessagesManager from '@/components/admin/sections/MessagesManager';
 import AdministrationManager from '@/components/admin/sections/AdministrationManager';
 import HomepageStatsManager from '@/components/admin/sections/HomepageStatsManager';
+import ContactInformationManager from '@/components/admin/sections/ContactInformationManager';
 import { Bell, Search, User, Loader2, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
@@ -49,6 +50,7 @@ const AdminDashboard = () => {
       case 'events': return <EventManager />;
       case 'expenses': return <ExpenseManager />;
       case 'messages': return <MessagesManager />;
+      case 'contact_info': return <ContactInformationManager />;
       case 'homepage_mgmt': return <HomepageStatsManager />;
       case 'content': return <AboutManager />;
       case 'reports': return <ReportsManager />;
