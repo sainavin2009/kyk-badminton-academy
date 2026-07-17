@@ -47,7 +47,7 @@ const ContactSection = () => {
     { icon: MapPin, title: "Academy Address", content: contactInfo.address },
     { icon: Phone, title: "Primary Contact", content: contactInfo.primary_phone },
     { icon: PhoneCall, title: "Secondary Contact", content: contactInfo.secondary_phone },
-    { icon: Mail, title: "Email Address", content: contactInfo.email },
+    { icon: Mail, title: "Email Address", content: contactInfo.email || 'kykacademy1104@gmail.com' },
   ];
 
   const timings = [

@@ -28,35 +28,36 @@ const Footer = () => {
     ]
   };
 
-  const socialIcons = contactInfo ? [
+  // Strictly defining the 3 requested social icons
+  const socialIcons = [
     { 
       icon: Instagram, 
-      href: contactInfo.instagram_url || 'https://www.instagram.com/kyk_badminton_academy/?hl=en', 
+      href: contactInfo?.instagram_url || 'https://www.instagram.com/kyk_badminton_academy/?hl=en', 
       label: 'Instagram',
       target: '_blank'
     },
     { 
       icon: MessageSquare, 
-      href: `https://wa.me/${(contactInfo.whatsapp_number || '919363978810').replace(/\D/g, '')}`, 
+      href: `https://wa.me/${(contactInfo?.whatsapp_number || '919363978810').replace(/\D/g, '')}`, 
       label: 'WhatsApp',
       target: '_blank'
     },
     { 
       icon: Mail, 
-      href: `mailto:${contactInfo.email || 'info@kykacademy.com'}`, 
+      href: `mailto:${contactInfo?.email || 'kykacademy1104@gmail.com'}`, 
       label: 'Email',
       target: '_self'
     },
-  ] : [];
+  ];
 
   const contactDetails = contactInfo ? [
     { icon: MapPin, text: contactInfo.address },
     { icon: Phone, text: contactInfo.primary_phone },
-    { icon: Mail, text: contactInfo.email },
+    { icon: Mail, text: contactInfo.email || 'kykacademy1104@gmail.com' },
   ] : [
     { icon: MapPin, text: 'No. 65, Appasamy Street, Kolathur, Chennai' },
     { icon: Phone, text: '+91 93639 78810' },
-    { icon: Mail, text: 'info@kykacademy.com' },
+    { icon: Mail, text: 'kykacademy1104@gmail.com' },
   ];
 
   return (
