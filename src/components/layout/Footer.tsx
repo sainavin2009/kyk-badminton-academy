@@ -10,7 +10,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { session } = useAuth();
-  const { contactInfo } = useSettings();
+  const { contactInfo, settings } = useSettings();
   
   const footerLinks = {
     explore: [
@@ -21,18 +21,15 @@ const Footer = () => {
       { name: 'Join Academy', path: '/join' },
     ],
     programs: [
-      { name: 'Badminton Beginner', path: '/programs' },
-      { name: 'Elite Intermediate', path: '/programs' },
-      { name: 'Adult Performance', path: '/programs' },
-      { name: 'CrossFit & Conditioning', path: '/programs' },
+      { name: 'Badminton Training Program', path: '/programs' },
+      { name: 'CrossFit Training', path: '/programs' },
     ]
   };
 
-  // Strictly defining the 3 requested social icons
   const socialIcons = [
     { 
       icon: Instagram, 
-      href: contactInfo?.instagram_url || 'https://www.instagram.com/kyk_badminton_academy/?hl=en', 
+      href: contactInfo?.instagram_url || 'https://www.instagram.com/kyk_badminton_academy/', 
       label: 'Instagram',
       target: '_blank'
     },
@@ -50,14 +47,19 @@ const Footer = () => {
     },
   ];
 
-  const contactDetails = contactInfo ? [
-    { icon: MapPin, text: contactInfo.address },
-    { icon: Phone, text: contactInfo.primary_phone },
-    { icon: Mail, text: contactInfo.email || 'kykacademy1104@gmail.com' },
-  ] : [
-    { icon: MapPin, text: 'No. 65, Appasamy Street, Kolathur, Chennai' },
-    { icon: Phone, text: '+91 93639 78810' },
-    { icon: Mail, text: 'kykacademy1104@gmail.com' },
+  const contactDetails = [
+    { 
+      icon: MapPin, 
+      text: contactInfo?.address || 'No. 65, Appasamy Street, Kolathur, Chennai' 
+    },
+    { 
+      icon: Phone, 
+      text: contactInfo?.primary_phone || '+91 93639 78810' 
+    },
+    { 
+      icon: Mail, 
+      text: contactInfo?.email || 'kykacademy1104@gmail.com' 
+    },
   ];
 
   return (
@@ -66,17 +68,29 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
           <div className="space-y-8">
             <Link to="/" className="flex items-center gap-3 group inline-flex">
-              <div className="p-2.5 bg-[#FFC107] rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#FFC107]/20">
-                <Trophy className="text-[#0F4C81] h-7 w-7" strokeWidth={2.5} />
-              </div>
+              {settings?.logo_url ? (
+                <img src={settings.logo_url} alt="Logo" className="h-12 w-auto object-contain" />
+              ) : (
+                <div className="p-2.5 bg-[#FFC107] rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#FFC107]/20">
+                  <Trophy className="text-[#0F4C81] h-7 w-7" strokeWidth={2.5} />
+                </div>
+              )}
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tighter uppercase leading-none">
-                   KYK Academy
+                   {settings?.hero_heading || 'KYK Academy'}
                 </span>
-                <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">Elite Training</span>
+                <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">
+                  {settings?.hero_subheading ? (
+                    settings.hero_subheading.length > 30 
+                      ? "Elite Training Academy" 
+                      : settings.hero_subheading
+                  ) : "Elite Training Academy"}
+                </span>
               </div>
             </Link>
-            <p className="text-white/60 leading-relaxed text-sm font-medium">World-class badminton coaching and CrossFit training on international standard courts.</p>
+            <p className="text-white/60 leading-relaxed text-sm font-medium">
+              World-class badminton coaching and CrossFit training on international standard courts.
+            </p>
             <div className="flex gap-4">
               {socialIcons.map((item, idx) => (
                 <motion.a 
@@ -122,7 +136,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-white/40 text-sm font-semibold tracking-tight">© {currentYear} <span className="text-white/70">KYK Academy</span>.</p>
+          <p className="text-white/40 text-sm font-semibold tracking-tight">© {currentYear} <span className="text-white/70">{settings?.hero_heading || 'KYK Academy'}</span>.</p>
           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
             <Link to="#" className="hover:text-[#FFC107] transition-colors">Privacy</Link>
             <span className="w-1 h-1 bg-white/10 rounded-full" />
