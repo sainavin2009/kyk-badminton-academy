@@ -48,7 +48,7 @@ const ContactSection = () => {
     {
       icon: MapPin,
       title: "Academy Address",
-      content: settings?.address || "No. 65, Appasamy Street, Kolathur, Chennai – 600099",
+      content: settings?.address || "No. 65, Appasamy Street, Poompuhar Nagar East Extension, Kolathur, Chennai – 600099",
     },
     {
       icon: Phone,
