@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Zap, ChevronRight, Target } from 'lucide-react';
+import { Trophy, Zap, ChevronRight, Target, Clock, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import BadmintonGallery from './BadmintonGallery';
@@ -14,15 +14,47 @@ const activities = [
     label: 'Badminton',
     icon: Target,
     title: 'Court Supremacy',
-    description: 'Specialized training focus on lightning reflexes, biomechanical efficiency, and tactical warfare on the court.',
+    description: 'Specialized coaching for all skill levels on international standard courts.',
+    details: [
+      {
+        label: "Beginner Batch",
+        info: "Morning: 6:00 AM – 7:00 AM | Evening: 4:30 – 5:30 PM, 5:00 – 6:00 PM, 6:00 – 7:00 PM"
+      },
+      {
+        label: "Intermediate Batch",
+        info: "Monday – Friday: 6:30 PM – 8:00 PM"
+      },
+      {
+        label: "Adult Batch",
+        info: "Monday – Friday: 7:00 PM – 8:00 PM"
+      },
+      {
+        label: "Weekend Batch",
+        info: "Saturday: 5:00 PM – 7:00 PM | Sunday: 7:00 AM – 9:00 AM"
+      }
+    ],
     stats: ["2 Courts", "Elite Coaching", "Junior Programs"]
   },
   {
     id: 'crossfit',
     label: 'CrossFit',
     icon: Zap,
-    title: 'Functional Power',
-    description: 'Built to supplement elite racket sports performance. We build functional strength that translates to court dominance.',
+    title: 'SS Performance Lab',
+    description: 'Functional power and conditioning designed to build elite athletes and confidence.',
+    details: [
+      { label: "Batch 1", info: "7:00 AM – 8:00 AM" },
+      { label: "Batch 2", info: "8:00 AM – 9:00 AM" },
+      { label: "Batch 3", info: "9:00 AM – 10:00 AM" },
+      { label: "Trial", info: "Free Trial Class Available" }
+    ],
+    features: [
+      "Functional Strength",
+      "Endurance Improvement",
+      "Conditioning",
+      "Confidence Building",
+      "Goal-based Training",
+      "Community Driven"
+    ],
     stats: ["Strength Drills", "Conditioning", "Mobility Focus"]
   }
 ];
@@ -89,20 +121,45 @@ const ActivitiesSection = () => {
             transition={{ duration: 0.6 }}
             className="space-y-20"
           >
-            <div className="flex flex-col md:flex-row items-end justify-between gap-8 pb-12 border-b border-slate-200">
-              <div className="space-y-4 max-w-2xl">
-                <h4 className="text-4xl font-black text-[#0F4C81] tracking-tight uppercase">
-                  {currentActivity.title}
-                </h4>
-                <p className="text-lg text-slate-500 font-medium leading-relaxed italic">
-                  "{currentActivity.description}"
-                </p>
+            <div className="flex flex-col md:flex-row items-start justify-between gap-12 pb-12 border-b border-slate-200">
+              <div className="space-y-8 max-w-2xl">
+                <div className="space-y-2">
+                  <h4 className="text-4xl font-black text-[#0F4C81] tracking-tight uppercase">
+                    {currentActivity.title}
+                  </h4>
+                  <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                    {currentActivity.description}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {currentActivity.details.map((detail, idx) => (
+                    <div key={idx} className="flex gap-4">
+                      <div className="mt-1"><Clock size={16} className="text-[#FFC107]" /></div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#0F4C81]">{detail.label}</p>
+                        <p className="text-xs font-bold text-slate-500">{detail.info}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {currentActivity.features && (
+                  <div className="grid grid-cols-2 gap-3 pt-4">
+                    {currentActivity.features.map((f, i) => (
+                      <div key={i} className="flex items-center gap-2 text-[10px] font-bold text-slate-600 uppercase">
+                        <CheckCircle2 size={12} className="text-[#FFC107]" /> {f}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="flex gap-4">
+              
+              <div className="flex flex-wrap gap-4 md:flex-col lg:flex-row">
                 {currentActivity.stats.map((stat, i) => (
-                  <div key={i} className="px-5 py-3 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Feature</span>
-                    <span className="text-xs font-black text-[#0F4C81]">{stat}</span>
+                  <div key={i} className="px-6 py-4 bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col min-w-[140px]">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Academy Pro</span>
+                    <span className="text-sm font-black text-[#0F4C81]">{stat}</span>
                   </div>
                 ))}
               </div>
@@ -114,8 +171,8 @@ const ActivitiesSection = () => {
 
             <div className="flex justify-center pt-12">
               <Button asChild className="h-18 px-14 rounded-full bg-[#0F4C81] text-white hover:bg-black transition-all duration-500 text-xl font-black uppercase tracking-widest shadow-2xl hover:scale-105 group">
-                <Link to="/programs" className="flex items-center gap-3">
-                  Join the Program
+                <Link to="/join" className="flex items-center gap-3">
+                  Join the Squad
                   <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>

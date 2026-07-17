@@ -53,7 +53,7 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-3xl text-white/70 font-bold tracking-tight italic max-w-3xl mx-auto"
           >
-            {settings?.hero_subheading || 'Engineering Excellence. Forging the Champions of Tomorrow.'}
+            {settings?.hero_subheading || 'Professional Badminton & CrossFit Training for Kids, Adults and Competitive Players.'}
           </motion.p>
 
           <motion.div 
@@ -67,7 +67,7 @@ const Hero = () => {
               className="h-16 px-12 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 active:scale-95 transition-all duration-300 font-black uppercase tracking-widest text-lg shadow-2xl shadow-[#FFC107]/20 group"
             >
               <Link to="/join">
-                Start Training
+                Join Now
                 <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
@@ -77,8 +77,8 @@ const Hero = () => {
               variant="outline"
               className="h-16 px-12 rounded-full border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white transition-all duration-300 font-black uppercase tracking-widest text-lg backdrop-blur-md"
             >
-              <Link to="/gallery">
-                Watch Academy
+              <Link to="/programs">
+                View Programs
                 <Play className="ml-2 w-4 h-4 fill-current" />
               </Link>
             </Button>

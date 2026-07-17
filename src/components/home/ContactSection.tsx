@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, MessageSquare, ExternalLink, Send, Loader2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageSquare, Send, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,12 +48,12 @@ const ContactSection = () => {
     {
       icon: MapPin,
       title: "Academy Address",
-      content: settings?.address || "123 Smash Court, Badminton Valley, Sports City 54321",
+      content: settings?.address || "No. 65, Appasamy Street, Kolathur, Chennai – 600099",
     },
     {
       icon: Phone,
       title: "Phone Number",
-      content: settings?.phone || "+1 (234) 567-890",
+      content: settings?.phone || "+91 93639 78810",
     },
     {
       icon: Mail,
@@ -118,7 +118,7 @@ const ContactSection = () => {
                 asChild
                 className="h-16 px-8 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-lg shadow-xl shadow-green-500/20 group transition-all"
               >
-                <a href={`https://wa.me/${settings?.whatsapp || '1234567890'}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                <a href={`https://wa.me/${settings?.whatsapp || '919363978810'}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
                   <MessageSquare className="fill-current" />
                   Chat on WhatsApp
                 </a>

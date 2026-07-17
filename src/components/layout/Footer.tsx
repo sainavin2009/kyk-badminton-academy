@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import { Trophy, Instagram, Facebook, Twitter, Youtube, MapPin, Phone, Mail, ArrowRight, Lock, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSettings } from '@/contexts/SettingsContext';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { session } = useAuth();
+  const { settings } = useSettings();
   
   const footerLinks = {
     explore: [
@@ -19,15 +21,15 @@ const Footer = () => {
       { name: 'Join Academy', path: '/join' },
     ],
     programs: [
-      { name: 'Junior Foundation', path: '/programs' },
-      { name: 'Elite Competitive', path: '/programs' },
+      { name: 'Badminton Beginner', path: '/programs' },
+      { name: 'Elite Intermediate', path: '/programs' },
       { name: 'Adult Performance', path: '/programs' },
-      { name: 'Strength & Conditioning', path: '/programs' },
+      { name: 'CrossFit & Conditioning', path: '/programs' },
     ],
     contact: [
-      { icon: MapPin, text: '123 Smash Court, Badminton Valley, SC 54321' },
-      { icon: Phone, text: '+1 (234) 567-890' },
-      { icon: Mail, text: 'info@kykacademy.com' },
+      { icon: MapPin, text: settings?.address || 'No. 65, Appasamy Street, Kolathur, Chennai – 600099' },
+      { icon: Phone, text: settings?.phone || '+91 93639 78810' },
+      { icon: Mail, text: settings?.email || 'info@kykacademy.com' },
     ],
     social: [
       { icon: Instagram, href: '#', label: 'Instagram' },
@@ -48,12 +50,14 @@ const Footer = () => {
                 <Trophy className="text-[#0F4C81] h-7 w-7" strokeWidth={2.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tighter uppercase leading-none">KYK Academy</span>
+                <span className="text-2xl font-black tracking-tighter uppercase leading-none">
+                   {settings?.hero_heading || 'KYK Academy'}
+                </span>
                 <span className="text-[10px] font-bold tracking-[0.3em] text-[#FFC107] uppercase">Badminton Excellence</span>
               </div>
             </Link>
             <p className="text-white/60 leading-relaxed text-sm font-medium">
-              We provide world-class badminton coaching and fitness training to help athletes reach their full potential through discipline and expert guidance.
+              We provide world-class badminton coaching and CrossFit training on international standard courts to help athletes reach their full potential.
             </p>
             <div className="flex gap-4">
               {footerLinks.social.map((item, idx) => (
@@ -136,7 +140,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-white/40 text-sm font-semibold tracking-tight">
-            © {currentYear} <span className="text-white/70">KYK Badminton Academy</span>. All Rights Reserved.
+            © {currentYear} <span className="text-white/70">KYK Badminton Academy & SS Performance Lab</span>.
           </p>
           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
             <Link to="#" className="hover:text-[#FFC107] transition-colors">Privacy Policy</Link>

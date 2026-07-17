@@ -2,16 +2,16 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Users, Shield, GraduationCap, Award, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Target, Users, Shield, GraduationCap, Award, Zap, Ruler, Star } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 
 const highlights = [
-  { icon: Target, title: "Precision Vision", description: "Developing technical surgicality for circuit dominance." },
-  { icon: Users, title: "Elite Mentorship", description: "Learn from coaches who have stood on national podiums." },
-  { icon: Shield, title: "Iron Discipline", description: "We don't just build athletes; we forge character." },
-  { icon: GraduationCap, title: "Scientific Growth", description: "Data-driven performance tracking." }
+  { icon: Award, title: "NS-NIS Certified", description: "Learn from expert coaches certified by the premier national sports institute." },
+  { icon: Target, title: "Scientific Methods", description: "Data-driven training focusing on biomechanics and performance optimization." },
+  { icon: Zap, title: "Agility Focus", description: "Specialized physical fitness and agility development for all age groups." },
+  { icon: Ruler, title: "Pro Infrastructure", description: "International standard synthetic courts for an elite training experience." },
+  { icon: Users, title: "All Ages Welcome", description: "Structured progression programs designed for both kids and adults." },
+  { icon: Star, title: "Technique Mastery", description: "Deep-dive focus on footwork, technique, and tactical court awareness." }
 ];
 
 const AboutSection = () => {
@@ -47,7 +47,7 @@ const AboutSection = () => {
                 transition={{ duration: 0.8, delay: 0.1 }}
                 className="text-xl text-slate-500 leading-relaxed max-w-xl font-medium"
               >
-                {settings?.about_content || 'At KYK Academy, we believe badminton is a game of millimeters.'}
+                {settings?.about_content || 'At KYK Academy, we provide professional coaching for kids and adults using NS-NIS certified scientific training methods. Our focus is on physical fitness, agility, and technical footwork on international standard synthetic courts.'}
               </motion.p>
             </div>
 
