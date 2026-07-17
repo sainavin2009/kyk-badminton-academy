@@ -37,6 +37,7 @@ const Index = () => {
     fetchStats();
   }, []);
 
+  // Display exactly three stats as requested
   const stats = statsData ? [
     { label: statsData.coaches_label, value: statsData.coaches_number, icon: Target },
     { label: statsData.courts_label, value: statsData.courts_number, icon: Award },
