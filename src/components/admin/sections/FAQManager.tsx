@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { Reorder } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   HelpCircle, 
@@ -12,22 +13,13 @@ import {
   Eye,
   EyeOff,
   Loader2,
-  ChevronUp,
-  ChevronDown,
-  GripVertical
+  GripVertical,
+  CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,6 +42,7 @@ const FAQManager = () => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFAQ, setSelectedFAQ] = useState<FAQ | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const fetchFAQs = async () => {
     try {
@@ -87,11 +80,11 @@ const FAQManager = () => {
       } else {
         const { data, error } = await supabase
           .from('faqs')
-          .insert([formData])
+          .insert([{ ...formData, display_order: faqs.length }])
           .select();
         
         if (error) throw error;
-        setFaqs(prev => [...prev, data[0]].sort((a, b) => a.display_order - b.display_order));
+        setFaqs(prev => [...prev, data[0]]);
         toast.success('New FAQ added to registry');
       }
     } catch (err: any) {
@@ -126,6 +119,29 @@ const FAQManager = () => {
     }
   };
 
+  const handleReorder = async (newOrder: FAQ[]) => {
+    setFaqs(newOrder);
+    setIsSyncing(true);
+    
+    try {
+      const updates = newOrder.map((faq, index) => ({
+        id: faq.id,
+        display_order: index,
+        question: faq.question,
+        answer: faq.answer,
+        is_active: faq.is_active
+      }));
+
+      const { error } = await supabase.from('faqs').upsert(updates);
+      if (error) throw error;
+      
+      setTimeout(() => setIsSyncing(false), 1000);
+    } catch (err) {
+      console.error("Reorder failed:", err);
+      setIsSyncing(false);
+    }
+  };
+
   const filtered = faqs.filter(f => 
     f.question.toLowerCase().includes(search.toLowerCase()) ||
     f.answer.toLowerCase().includes(search.toLowerCase())
@@ -135,17 +151,24 @@ const FAQManager = () => {
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-4xl font-black text-[#0F4C81] tracking-tighter uppercase leading-none">FAQ Registry</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-4xl font-black text-[#0F4C81] tracking-tighter uppercase leading-none">FAQ Registry</h2>
+            {isSyncing && (
+              <Badge className="bg-green-50 text-green-600 border-none animate-pulse">
+                <CheckCircle2 size={10} className="mr-1" /> Syncing Order
+              </Badge>
+            )}
+          </div>
           <p className="text-slate-500 font-medium">Manage the knowledge base and common athlete inquiries.</p>
         </div>
         
         <div className="flex gap-3">
-          <Button variant="ghost" onClick={fetchFAQs} className="h-16 w-16 rounded-2xl text-slate-400 hover:bg-white shadow-sm transition-colors">
+          <Button variant="ghost" onClick={fetchFAQs} className="h-16 w-16 rounded-2xl text-slate-400 hover:bg-white shadow-sm">
             <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
           </Button>
           <Button 
             onClick={() => { setSelectedFAQ(null); setIsModalOpen(true); }}
-            className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 group transition-all"
+            className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl group transition-all"
           >
             <Plus className="mr-3 group-hover:rotate-90 transition-transform" />
             Add New FAQ
@@ -168,87 +191,73 @@ const FAQManager = () => {
           <Loader2 className="animate-spin" size={48} />
           <p className="font-black uppercase text-[10px] tracking-widest">Loading Help Center...</p>
         </div>
-      ) : (
-        <div className="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-100">
-          <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow className="border-none">
-                <TableHead className="w-[80px] font-black uppercase text-[10px] tracking-widest text-slate-400 h-14 pl-8">Order</TableHead>
-                <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">Inquiry & Knowledge</TableHead>
-                <TableHead className="font-black uppercase text-[10px] tracking-widest text-slate-400">Status</TableHead>
-                <TableHead className="text-right pr-8 font-black uppercase text-[10px] tracking-widest text-slate-400">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((faq) => (
-                <TableRow key={faq.id} className="group hover:bg-slate-50 transition-colors">
-                  <TableCell className="pl-8 py-6">
-                    <div className="flex items-center gap-2">
-                       <GripVertical size={14} className="text-slate-300" />
-                       <span className="font-black text-[#0F4C81]">{faq.display_order}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1 max-w-2xl">
-                      <p className="font-bold text-[#0F4C81] text-base leading-tight">{faq.question}</p>
-                      <p className="text-xs text-slate-400 font-medium line-clamp-1 italic">"{faq.answer}"</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <button 
-                      onClick={() => handleToggleStatus(faq)}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all",
-                        faq.is_active ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-400"
-                      )}
-                    >
-                      {faq.is_active ? <Eye size={12} /> : <EyeOff size={12} />}
-                      <span className="text-[9px] font-black uppercase tracking-widest">{faq.is_active ? 'Live' : 'Draft'}</span>
-                    </button>
-                  </TableCell>
-                  <TableCell className="text-right pr-8">
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        onClick={() => { setSelectedFAQ(faq); setIsModalOpen(true); }}
-                        className="h-10 w-10 rounded-xl hover:bg-[#0F4C81]/10 text-[#0F4C81]"
-                      >
-                        <Edit3 size={16} />
+      ) : faqs.length > 0 ? (
+        <Reorder.Group axis="y" values={faqs} onReorder={handleReorder} className="space-y-4">
+          {filtered.map((faq) => (
+            <Reorder.Item key={faq.id} value={faq}>
+              <Card className={cn(
+                "p-6 rounded-[2rem] border-none bg-white shadow-sm hover:shadow-md transition-all flex items-center gap-6",
+                !faq.is_active && "opacity-60"
+              )}>
+                <div className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-[#0F4C81] transition-colors">
+                  <GripVertical size={20} />
+                </div>
+                
+                <div className="flex-grow space-y-1">
+                  <div className="flex items-center gap-3">
+                    <h4 className="font-bold text-[#0F4C81] text-lg leading-tight">{faq.question}</h4>
+                    {!faq.is_active && <Badge variant="outline" className="text-[8px] font-black uppercase border-slate-200">Draft</Badge>}
+                  </div>
+                  <p className="text-sm text-slate-400 font-medium line-clamp-1 italic">"{faq.answer}"</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => handleToggleStatus(faq)}
+                    className={cn(
+                      "h-10 w-10 rounded-xl",
+                      faq.is_active ? "text-green-500 hover:bg-green-50" : "text-slate-300"
+                    )}
+                  >
+                    {faq.is_active ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </Button>
+                  
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => { setSelectedFAQ(faq); setIsModalOpen(true); }}
+                    className="h-10 w-10 rounded-xl text-blue-500 hover:bg-blue-50"
+                  >
+                    <Edit3 size={18} />
+                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" className="h-10 w-10 rounded-xl text-red-500 hover:bg-red-50">
+                        <Trash2 size={18} />
                       </Button>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-red-50 text-red-500">
-                            <Trash2 size={16} />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="rounded-[2.5rem]">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className="text-2xl font-black uppercase text-[#0F4C81]">Purge FAQ?</AlertDialogTitle>
-                            <AlertDialogDescription className="text-slate-500 font-medium">Delete this question? This action will immediately remove it from the public site.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter className="gap-3">
-                            <AlertDialogCancel className="rounded-2xl h-14 font-bold border-none bg-slate-50">Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(faq.id)} className="rounded-2xl h-14 font-black bg-red-500 hover:bg-red-600 text-white border-none">Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow>
-                   <TableCell colSpan={4} className="h-64 text-center">
-                      <div className="flex flex-col items-center gap-4 text-slate-300">
-                         <HelpCircle size={48} strokeWidth={1} />
-                         <p className="text-[10px] font-black uppercase tracking-widest">Knowledge base is empty.</p>
-                      </div>
-                   </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="rounded-[2.5rem]">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-2xl font-black uppercase text-[#0F4C81]">Purge FAQ?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-500 font-medium">Delete this question? This action will immediately remove it from the public site.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="gap-3">
+                        <AlertDialogCancel className="rounded-2xl h-14 font-bold border-none bg-slate-50">Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(faq.id)} className="rounded-2xl h-14 font-black bg-red-500 hover:bg-red-600 text-white border-none">Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </Card>
+            </Reorder.Item>
+          ))}
+        </Reorder.Group>
+      ) : (
+        <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+          <HelpCircle className="mx-auto text-slate-200 mb-4" size={48} />
+          <h3 className="text-2xl font-black text-[#0F4C81] uppercase">No FAQs Registered</h3>
+          <p className="text-slate-400 font-medium mt-2">Start building your knowledge base to help your athletes.</p>
         </div>
       )}
 
