@@ -7,7 +7,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Printer, X, Download } from 'lucide-react';
+import { Printer, X, Download, Image as ImageIcon, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSettings } from '@/contexts/SettingsContext';
 import { jsPDF } from 'jspdf';
@@ -45,6 +45,22 @@ const SaleInvoiceModal = ({ isOpen, onClose, sale }: SaleInvoiceModalProps) => {
     
     pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
     pdf.save(`Invoice_SAL_${sale.receipt_no}.pdf`);
+  };
+
+  const handleDownloadImage = async () => {
+    if (!receiptRef.current) return;
+    
+    const canvas = await html2canvas(receiptRef.current, {
+      scale: 3,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      logging: false
+    });
+    
+    const link = document.createElement("a");
+    link.download = `Invoice_SAL_${sale.receipt_no}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   };
 
   const customerName = sale.customer_name || sale.students?.full_name || 'Walk-in Customer';
@@ -165,17 +181,24 @@ const SaleInvoiceModal = ({ isOpen, onClose, sale }: SaleInvoiceModalProps) => {
 
         <DialogFooter className="p-8 bg-slate-50 gap-4 no-print flex-col sm:flex-row">
           <Button 
-            onClick={handleDownloadPDF} 
-            variant="outline"
-            className="flex-1 h-14 rounded-2xl border-2 border-[#0F4C81] text-[#0F4C81] hover:bg-[#0F4C81] hover:text-white font-black uppercase tracking-widest"
+            onClick={handlePrint} 
+            variant="ghost"
+            className="flex-1 h-14 rounded-2xl border-2 border-slate-200 text-slate-500 hover:bg-slate-100 font-black uppercase tracking-widest transition-all"
           >
-            <Download className="mr-2" size={18} /> Download PDF
+            <Printer className="mr-2" size={18} /> Print
           </Button>
           <Button 
-            onClick={handlePrint} 
-            className="flex-1 h-14 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl"
+            onClick={handleDownloadPDF} 
+            variant="outline"
+            className="flex-1 h-14 rounded-2xl border-2 border-[#0F4C81] text-[#0F4C81] hover:bg-[#0F4C81] hover:text-white font-black uppercase tracking-widest transition-all"
           >
-            <Printer className="mr-2" size={18} /> Print Invoice
+            <FileText className="mr-2" size={18} /> Download PDF
+          </Button>
+          <Button 
+            onClick={handleDownloadImage} 
+            className="flex-1 h-14 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl transition-all"
+          >
+            <ImageIcon className="mr-2" size={18} /> Download Image
           </Button>
         </DialogFooter>
       </DialogContent>
