@@ -23,7 +23,8 @@ import BatchTimingsManager from '@/components/admin/sections/BatchTimingsManager
 import TestimonialsManager from '@/components/admin/sections/TestimonialsManager';
 import FacultyManager from '@/components/admin/sections/FacultyManager';
 import FAQManager from '@/components/admin/sections/FAQManager';
-import { Bell, Search, User, Loader2, Check } from 'lucide-react';
+import ContentSettings from '@/components/admin/sections/ContentSettings';
+import { Bell, Search, User, Loader2, Check, ExternalLink, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
   DropdownMenu, 
@@ -35,6 +36,7 @@ import {
 import { useNotifications } from '@/hooks/use-notifications';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 const AdminDashboard = () => {
   const { profile, loading } = useAuth();
@@ -60,7 +62,7 @@ const AdminDashboard = () => {
       case 'contact_info': return <ContactInformationManager />;
       case 'homepage_mgmt': return <HomepageStatsManager />;
       case 'batch_timings': return <BatchTimingsManager />;
-      case 'content': return <AboutManager />;
+      case 'content': return <ContentSettings />;
       case 'reports': return <ReportsManager />;
       case 'settings': return <SettingsManager />;
       case 'administration': return <AdministrationManager />;
@@ -98,6 +100,18 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex items-center gap-6">
+            <Button 
+              variant="ghost" 
+              asChild
+              className="hidden xl:flex items-center gap-2 h-12 px-6 rounded-2xl text-slate-400 font-bold hover:text-[#0F4C81] hover:bg-slate-50"
+            >
+              <a href="/" target="_blank" rel="noopener noreferrer">
+                <Globe size={18} />
+                View Website
+                <ExternalLink size={12} className="opacity-50" />
+              </a>
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative p-4 rounded-2xl bg-slate-50 text-slate-400 hover:text-[#0F4C81] transition-all">
