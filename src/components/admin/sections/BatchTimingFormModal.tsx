@@ -45,12 +45,12 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
     if (isOpen) {
       if (batch) {
         reset({
-          batch_name: batch.batch_name,
-          age_group: batch.age_group,
-          days: batch.days,
-          timings: batch.timings,
+          batch_name: batch.batch_name || '',
+          age_group: batch.age_group || '',
+          days: batch.days || '',
+          timings: batch.timings || '',
           description: batch.description || '',
-          display_order: batch.display_order
+          display_order: batch.display_order || 0
         });
       } else {
         reset({
@@ -74,7 +74,7 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl rounded-[3rem] p-0 border-none shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-xl rounded-[3rem] p-0 border-none shadow-2xl overflow-hidden z-[100]">
         <div className="bg-[#0F4C81] p-8 text-white">
           <DialogHeader>
             <DialogTitle className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">

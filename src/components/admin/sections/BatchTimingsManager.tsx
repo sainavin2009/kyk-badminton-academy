@@ -237,7 +237,7 @@ const BatchTimingsManager = () => {
                       <Trash2 size={20} />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="rounded-[3rem]">
+                  <AlertDialogContent className="rounded-[3rem] z-[100]">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-2xl font-black uppercase text-[#0F4C81]">Delete batch timing?</AlertDialogTitle>
                       <AlertDialogDescription className="text-slate-500 font-medium">
