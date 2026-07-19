@@ -84,15 +84,15 @@ const Navbar = () => {
             {session ? (
               <Link 
                 to="/admin" 
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:border-white transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:border-white transition-all bg-white/5"
               >
                 <LayoutDashboard size={14} className="text-[#FFC107]" />
-                Admin Portal
+                🛠 Admin Portal
               </Link>
             ) : (
               <Link 
                 to="/admin/login" 
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 text-white/50 text-[10px] font-black uppercase tracking-widest hover:text-white hover:bg-white/5 transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white/50 text-[10px] font-black uppercase tracking-widest hover:text-white hover:bg-white/5 transition-all"
               >
                 <Lock size={12} />
                 Admin
@@ -153,7 +153,7 @@ const Navbar = () => {
                 {session ? (
                   <>
                     <LayoutDashboard size={16} className="text-[#FFC107]" />
-                    Admin Dashboard
+                    🛠 Admin Portal
                   </>
                 ) : (
                   <>

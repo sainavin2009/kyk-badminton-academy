@@ -110,10 +110,10 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           href="/" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="w-full flex items-center justify-between gap-4 px-4 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-white/5 border border-white/10 hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all group shadow-xl"
+          className="w-full flex items-center justify-between gap-4 px-4 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-white/10 border border-white/20 hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all group shadow-xl"
         >
           <div className="flex items-center gap-3">
-            <Globe size={16} />
+            <span className="text-base">🌐</span>
             View Website
           </div>
           <ExternalLink size={12} className="opacity-40 group-hover:opacity-100" />
