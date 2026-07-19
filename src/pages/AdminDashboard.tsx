@@ -20,6 +20,7 @@ import AdministrationManager from '@/components/admin/sections/AdministrationMan
 import HomepageStatsManager from '@/components/admin/sections/HomepageStatsManager';
 import ContactInformationManager from '@/components/admin/sections/ContactInformationManager';
 import BatchTimingsManager from '@/components/admin/sections/BatchTimingsManager';
+import TestimonialsManager from '@/components/admin/sections/TestimonialsManager';
 import { Bell, Search, User, Loader2, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
@@ -48,6 +49,7 @@ const AdminDashboard = () => {
       case 'sales': return <SaleManager />;
       case 'gallery_badminton': return <GalleryManager category="Badminton" />;
       case 'gallery_crossfit': return <GalleryManager category="CrossFit" />;
+      case 'testimonials': return <TestimonialsManager />;
       case 'events': return <EventManager />;
       case 'expenses': return <ExpenseManager />;
       case 'messages': return <MessagesManager />;
