@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Play, Users, MapPin, GraduationCap, Dumbbell, ChevronDown, Calendar } from 'lucide-react';
+import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Users, MapPin, GraduationCap, Dumbbell, ChevronDown, Calendar, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -22,21 +22,29 @@ const Programs = () => {
   const [isBatchPanelOpen, setIsBatchPanelOpen] = useState(false);
   const [batches, setBatches] = useState<BatchTiming[]>([]);
   const [batchesLoading, setBatchesLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   const visiblePrograms = programs.filter(p => p.is_visible);
 
   useEffect(() => {
     const fetchBatches = async () => {
       try {
-        const { data } = await supabase
+        setFetchError(false);
+        const { data, error } = await supabase
           .from('batch_timings')
           .select('*')
           .eq('is_visible', true)
           .order('display_order', { ascending: true });
         
+        if (error) {
+           console.error("Batch Timings DB Query Failed:", error);
+           setFetchError(true);
+           return;
+        }
         setBatches(data || []);
       } catch (err) {
         console.error('Batch fetch error:', err);
+        setFetchError(true);
       } finally {
         setBatchesLoading(false);
       }
@@ -142,8 +150,16 @@ const Programs = () => {
                   >
                     <div className="pt-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
                       {batchesLoading ? (
-                         <div className="col-span-full py-10 flex justify-center"><Loader2 className="animate-spin text-[#FFC107]" /></div>
-                      ) : batches.map((batch, bIdx) => (
+                         <div className="col-span-full py-10 flex flex-col items-center gap-4">
+                            <Loader2 className="animate-spin text-[#FFC107]" size={40} />
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Synchronizing Schedule...</p>
+                         </div>
+                      ) : fetchError ? (
+                        <div className="col-span-full py-10 flex flex-col items-center gap-3">
+                           <AlertTriangle className="text-red-500" size={32} />
+                           <p className="text-sm font-bold text-white/70">Schedule information is currently offline. Please contact academy staff.</p>
+                        </div>
+                      ) : batches.length > 0 ? batches.map((batch, bIdx) => (
                         <motion.div
                           key={batch.id}
                           initial={{ y: 20, opacity: 0 }}
@@ -170,10 +186,20 @@ const Programs = () => {
                               <p className="text-sm font-bold text-white leading-relaxed whitespace-pre-line">
                                 {batch.timings}
                               </p>
+                              {batch.description && (
+                                <p className="mt-3 pt-3 border-t border-white/5 text-xs text-[#FFC107]/60 font-medium italic">
+                                  * {batch.description}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </motion.div>
-                      ))}
+                      )) : (
+                        <div className="col-span-full py-20 text-center opacity-30">
+                           <Clock size={48} className="mx-auto mb-4" />
+                           <p className="text-[10px] font-black uppercase tracking-[0.3em]">No public batches scheduled.</p>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
