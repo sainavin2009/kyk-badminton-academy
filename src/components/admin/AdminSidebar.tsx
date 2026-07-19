@@ -22,7 +22,8 @@ import {
   Zap,
   PhoneCall,
   Clock,
-  Quote
+  Quote,
+  Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,6 +38,8 @@ export type AdminTab =
   | 'sales' 
   | 'gallery_badminton' 
   | 'gallery_crossfit'
+  | 'testimonials'
+  | 'faculty'
   | 'events'
   | 'expenses'
   | 'messages'
@@ -44,7 +47,6 @@ export type AdminTab =
   | 'content' 
   | 'homepage_mgmt'
   | 'batch_timings'
-  | 'testimonials'
   | 'reports' 
   | 'settings'
   | 'administration';
@@ -68,6 +70,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'sales', label: 'Sales', icon: BarChart3 },
     { id: 'gallery_badminton', label: 'Badminton Gallery', icon: ImageIcon },
     { id: 'gallery_crossfit', label: 'CrossFit Gallery', icon: Zap },
+    { id: 'faculty', label: 'Faculty', icon: Award },
     { id: 'testimonials', label: 'Testimonials', icon: Quote },
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },

@@ -2,33 +2,34 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Target, Shield, Users, Heart, Star, Loader2 } from 'lucide-react';
+import { Trophy, Target, Shield, Users, Heart, Star, Loader2, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import FacultyCarousel from '@/components/home/FacultyCarousel';
+import { FacultyMember } from '@/types/faculty';
 
 const values = [
   { icon: Target, title: "Precision", desc: "Focusing on technical details and technique mastery for the best results on court." },
-  { icon: Shield, title: "Discipline", desc: "Building character through punctuality, hard work, and dedicated training sessions." },
-  { icon: Users, title: "Community", desc: "A supportive ecosystem where athletes of all ages push each other toward greatness." },
-  { icon: Heart, title: "Passion", desc: "Fueling every smash and drill with an undying love for professional sports." }
+  { icon: Shield, title: "Discipline", desc: "Character through hard work, and dedicated training sessions." },
+  { icon: Users, title: "Community", desc: "A supportive ecosystem where athletes push each other toward greatness." },
+  { icon: Heart, title: "Passion", desc: "Fueling every smash and drill with an undying love for sports." }
 ];
 
 const About = () => {
-  const [coaches, setCoaches] = useState<any[]>([]);
+  const [faculty, setFaculty] = useState<FacultyMember[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCoaches = async () => {
+    const fetchFaculty = async () => {
       const { data } = await supabase
-        .from('profiles')
-        .select('full_name, role, avatar_url')
-        .eq('role', 'Coach')
-        .eq('status', 'Active')
-        .limit(3);
+        .from('faculty')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
       
-      setCoaches(data || []);
+      setFaculty(data || []);
       setLoading(false);
     };
-    fetchCoaches();
+    fetchFaculty();
   }, []);
 
   return (
@@ -111,40 +112,30 @@ const About = () => {
       </section>
 
       {/* Faculty Section */}
-      <section className="py-24 bg-slate-50">
-        <div className="container mx-auto px-4 text-center space-y-16">
-          <div className="space-y-4">
-            <h2 className="text-4xl md:text-5xl font-black text-[#0F4C81] tracking-tighter uppercase">Our Faculty</h2>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Certified NS-NIS Professional Coaches</p>
+      <section className="py-32 bg-slate-50 overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-20">
+            <div className="space-y-4">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 block">The Elite Team</span>
+              <h2 className="text-4xl md:text-6xl font-black text-[#0F4C81] tracking-tighter uppercase leading-[0.9]">
+                Our <span className="text-[#FFC107]">Faculty</span>
+              </h2>
+            </div>
+            <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] max-w-xs md:text-right">
+              Certified NS-NIS Professional Coaches delivering world-class training.
+            </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {loading ? (
-              <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin text-[#0F4C81]" /></div>
-            ) : coaches.length > 0 ? (
-              coaches.map((coach, i) => (
-                <motion.div 
-                  key={i}
-                  whileHover={{ y: -10 }}
-                  className="group bg-white p-8 rounded-[3rem] shadow-sm hover:shadow-xl transition-all border border-slate-100"
-                >
-                  <div className="aspect-square rounded-[2.5rem] overflow-hidden mb-6 bg-slate-100 relative">
-                    <img src={coach.avatar_url || `https://i.pravatar.cc/400?img=${i + 15}`} alt={coach.full_name} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" />
-                    <div className="absolute inset-0 bg-[#0F4C81]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <h4 className="text-xl font-black text-[#0F4C81] uppercase tracking-tight">{coach.full_name}</h4>
-                  <p className="text-[#FFC107] text-[10px] font-black uppercase tracking-widest mb-4">{coach.role}</p>
-                  <p className="text-sm text-slate-500 font-medium leading-relaxed italic">
-                    NS-NIS Certified Coach specializing in scientific training and footwork mastery.
-                  </p>
-                </motion.div>
-              ))
-            ) : (
-              <div className="col-span-full py-20 text-center">
-                 <p className="font-black uppercase text-slate-300 text-xs tracking-widest">Faculty records being synchronized...</p>
-              </div>
-            )}
-          </div>
+          {loading ? (
+            <div className="py-40 flex justify-center"><Loader2 className="animate-spin text-[#0F4C81]" size={48} /></div>
+          ) : faculty.length > 0 ? (
+            <FacultyCarousel members={faculty} />
+          ) : (
+            <div className="py-32 text-center bg-white rounded-[4rem] border-2 border-dashed border-slate-200">
+               <Award className="mx-auto mb-6 text-slate-200" size={64} />
+               <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Coaching records are being synchronized...</p>
+            </div>
+          )}
         </div>
       </section>
     </div>
