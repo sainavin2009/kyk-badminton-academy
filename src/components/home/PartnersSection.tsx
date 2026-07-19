@@ -6,19 +6,16 @@ import { ShieldCheck, Handshake, Users } from 'lucide-react';
 
 const partners = [
   { 
-    name: "District", 
-    icon: ShieldCheck, 
-    desc: "Operational Excellence Partner" 
+    name: "DISTRICT", 
+    icon: ShieldCheck
   },
   { 
-    name: "Turf Town", 
-    icon: Handshake, 
-    desc: "Infrastructure & Venue Partner" 
+    name: "TURF TOWN", 
+    icon: Handshake
   },
   { 
-    name: "LYF Skills", 
-    icon: Users, 
-    desc: "Holistic Development Partner" 
+    name: "LYF SKILLS", 
+    icon: Users
   }
 ];
 
@@ -56,7 +53,6 @@ const PartnersSection = () => {
               whileHover={{ y: -10 }}
               className="group relative bg-white p-12 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col items-center text-center"
             >
-              {/* Logo Placeholder */}
               <div className="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center text-[#0F4C81]/20 group-hover:bg-[#FFC107]/10 group-hover:text-[#FFC107] transition-colors mb-8">
                 <partner.icon size={48} strokeWidth={1} />
               </div>
@@ -65,12 +61,8 @@ const PartnersSection = () => {
                 <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tight">
                   {partner.name}
                 </h3>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFC107]">
-                  {partner.desc}
-                </p>
               </div>
 
-              {/* Decorative Corner Element */}
               <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="w-2 h-2 rounded-full bg-[#FFC107]" />
               </div>
