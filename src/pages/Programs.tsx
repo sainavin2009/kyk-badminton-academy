@@ -9,6 +9,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { BatchTiming } from '@/types/batch';
 import { cn } from '@/lib/utils';
+import SEO from '@/components/SEO';
 
 const iconMap: Record<string, any> = {
   Trophy: Trophy,
@@ -69,12 +70,19 @@ const Programs = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="Training Programs & Batch Timings"
+        description="Explore our specialized badminton training programs for all ages. From foundation coaching for kids to elite competitive training and adult performance batches."
+        path="/programs"
+      />
+
       <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 bg-[#0F4C81] text-white overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
           <img 
             src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070" 
             alt="Background" 
             className="w-full h-full object-cover"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-[#0F4C81]/80" />
         </div>

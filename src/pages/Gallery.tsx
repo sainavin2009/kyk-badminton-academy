@@ -5,6 +5,7 @@ import GalleryGrid from '@/components/gallery/GalleryGrid';
 import VideoCard from '@/components/video/VideoCard';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import SEO from '@/components/SEO';
 
 const Gallery = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -29,6 +30,12 @@ const Gallery = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="Academy Media Gallery"
+        description="Visual highlights from KYK Badminton Academy. Explore photos and videos of our elite training sessions, tournaments, and victory moments."
+        path="/gallery"
+      />
+
       {/* Header */}
       <section className="pt-32 pb-16 bg-[#0F4C81] text-white">
         <div className="container mx-auto px-4 text-center">
@@ -61,8 +68,8 @@ const Gallery = () => {
                     <VideoCard 
                       key={idx} 
                       title={video.title}
-                      description={video.caption}
-                      thumbnail={video.url}
+                      description={video.description}
+                      thumbnail={video.thumbnail || video.url}
                       videoUrl={video.url}
                       category={video.category}
                     />

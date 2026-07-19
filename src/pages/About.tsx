@@ -6,6 +6,7 @@ import { Trophy, Target, Shield, Users, Heart, Star, Loader2, Award } from 'luci
 import { supabase } from '@/integrations/supabase/client';
 import FacultyCarousel from '@/components/home/FacultyCarousel';
 import { FacultyMember } from '@/types/faculty';
+import SEO from '@/components/SEO';
 
 const values = [
   { icon: Target, title: "Precision", desc: "Focusing on technical details and technique mastery for the best results on court." },
@@ -34,6 +35,12 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="About Our Academy"
+        description="Learn about the philosophy and scientific coaching methods at KYK Badminton Academy. Meet our NS-NIS certified trainers and explore our world-class infrastructure."
+        path="/about"
+      />
+
       {/* Hero Section */}
       <section className="pt-40 pb-24 bg-[#0F4C81] text-white overflow-hidden relative">
         <div className="container mx-auto px-4 relative z-10">
@@ -66,6 +73,7 @@ const About = () => {
                   src="https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=1200" 
                   alt="Academy Training" 
                   className="w-full h-full object-cover aspect-[4/5]"
+                  loading="lazy"
                 />
               </div>
               <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-[#FFC107] rounded-[3rem] p-10 flex flex-col justify-center shadow-2xl">

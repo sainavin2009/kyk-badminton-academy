@@ -4,6 +4,7 @@ import React from 'react';
 import ContactSection from '@/components/home/ContactSection';
 import FAQSection from '@/components/home/FAQSection';
 import { motion } from 'framer-motion';
+import SEO from '@/components/SEO';
 
 const Contact = () => {
   const scrollToFAQ = () => {
@@ -15,6 +16,12 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="Contact Us"
+        description="Reach out to KYK Badminton Academy for admissions, guest play bookings, or general inquiries. Located in Kolathur, Chennai. Call us at +919363978810."
+        path="/contact"
+      />
+
       {/* Page Header */}
       <section className="pt-40 pb-20 bg-[#0F4C81] text-white">
         <div className="container mx-auto px-4 text-center">

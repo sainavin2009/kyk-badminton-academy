@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar, { AdminTab } from '@/components/admin/AdminSidebar';
 import DashboardOverview from '@/components/admin/sections/DashboardOverview';
@@ -9,7 +9,6 @@ import AttendanceManager from '@/components/admin/sections/AttendanceManager';
 import FeeManager from '@/components/admin/sections/FeeManager';
 import GalleryManager from '@/components/admin/sections/GalleryManager';
 import EventManager from '@/components/admin/sections/EventManager';
-import AboutManager from '@/components/admin/sections/AboutManager';
 import SettingsManager from '@/components/admin/sections/SettingsManager';
 import InventoryManager from '@/components/admin/sections/InventoryManager';
 import SaleManager from '@/components/admin/sections/SaleManager';
@@ -24,6 +23,7 @@ import TestimonialsManager from '@/components/admin/sections/TestimonialsManager
 import FacultyManager from '@/components/admin/sections/FacultyManager';
 import FAQManager from '@/components/admin/sections/FAQManager';
 import ContentSettings from '@/components/admin/sections/ContentSettings';
+import SEO from '@/components/SEO';
 import { Bell, Search, User, Loader2, Check, ExternalLink, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
@@ -80,6 +80,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex w-full">
+      <SEO title="Admin Portal" description="KYK Academy Administration" path="/admin" noindex />
+      
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <main className="flex-grow ml-72">

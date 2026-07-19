@@ -9,8 +9,9 @@ import ActivitiesSection from '@/components/home/ActivitiesSection';
 import ContactSection from '@/components/home/ContactSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import FAQSection from '@/components/home/FAQSection';
+import SEO from '@/components/SEO';
 import { motion } from 'framer-motion';
-import { Award, Target, Zap, Loader2 } from 'lucide-react';
+import { Award, Target, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { HomepageStats } from '@/types/homepage';
 
@@ -19,20 +20,18 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "KYK Badminton Academy | World Class Training Center";
-    
     const fetchStats = async () => {
       try {
         const { data, error } = await supabase
           .from('homepage_statistics')
           .select('*')
           .eq('id', 1)
-          .maybeSingle(); // Use maybeSingle to prevent production errors if row is missing
+          .maybeSingle();
 
         if (error) throw error;
         if (data) setStatsData(data);
       } catch (err) {
-        console.error('Production Audit - Stats Fetch Warning:', err);
+        console.error('Stats Fetch Warning:', err);
       } finally {
         setLoading(false);
       }
@@ -59,8 +58,51 @@ const Index = () => {
     }
   ];
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "KYK Badminton Academy",
+    "image": "https://kykacademy.com/logo.png",
+    "@id": "https://kykacademy.com",
+    "url": "https://kykacademy.com",
+    "telephone": "+919363978810",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "No. 65, Appasamy Street",
+      "addressLocality": "Kolathur, Chennai",
+      "postalCode": "600099",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 13.1256,
+      "longitude": 80.2134
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "opens": "06:00",
+        "closes": "21:00"
+      }
+    ],
+    "sameAs": [
+      "https://www.instagram.com/kyk_badminton_academy/"
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-white selection:bg-[#FFC107] selection:text-[#0F4C81]">
+      <SEO 
+        title="World Class Badminton Training Center"
+        description="Elite badminton coaching in Chennai for all ages. Professional NS-NIS certified trainers, international standard synthetic courts, and CrossFit performance programs."
+        path="/"
+      >
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </SEO>
+
       <Hero />
       <AboutSection />
       <PartnersSection />
