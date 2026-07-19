@@ -23,7 +23,8 @@ import {
   PhoneCall,
   Clock,
   Quote,
-  Award
+  Award,
+  HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,6 +41,7 @@ export type AdminTab =
   | 'gallery_crossfit'
   | 'testimonials'
   | 'faculty'
+  | 'faqs'
   | 'events'
   | 'expenses'
   | 'messages'
@@ -72,6 +74,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'gallery_crossfit', label: 'CrossFit Gallery', icon: Zap },
     { id: 'faculty', label: 'Faculty', icon: Award },
     { id: 'testimonials', label: 'Testimonials', icon: Quote },
+    { id: 'faqs', label: 'FAQ Registry', icon: HelpCircle },
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'messages', label: 'Inquiries', icon: MessageSquare },

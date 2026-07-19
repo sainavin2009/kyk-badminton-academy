@@ -5,6 +5,13 @@ import ContactSection from '@/components/home/ContactSection';
 import { motion } from 'framer-motion';
 
 const Contact = () => {
+  const scrollToFAQ = () => {
+    const faqSection = document.getElementById('faq');
+    if (faqSection) {
+      faqSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Page Header */}
@@ -35,7 +42,10 @@ const Contact = () => {
               <p className="text-slate-500 font-medium">Check out our frequently asked questions or give us a call.</p>
             </div>
             <div className="flex gap-4">
-              <button className="px-8 py-4 rounded-full bg-[#0F4C81] text-white font-bold hover:bg-[#0F4C81]/90 transition-all">
+              <button 
+                onClick={scrollToFAQ}
+                className="px-8 py-4 rounded-full bg-[#0F4C81] text-white font-bold hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all shadow-xl shadow-[#0F4C81]/10"
+              >
                 View FAQs
               </button>
             </div>

@@ -8,6 +8,7 @@ import GuestPlaySection from '@/components/home/GuestPlaySection';
 import ActivitiesSection from '@/components/home/ActivitiesSection';
 import ContactSection from '@/components/home/ContactSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
+import FAQSection from '@/components/home/FAQSection';
 import { motion } from 'framer-motion';
 import { Award, Target, Zap, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,8 +100,9 @@ const Index = () => {
 
       <ActivitiesSection />
 
-      {/* Dynamic Testimonials Section */}
       <TestimonialsSection />
+      
+      <FAQSection />
 
       <ContactSection />
     </div>

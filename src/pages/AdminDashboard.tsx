@@ -22,6 +22,7 @@ import ContactInformationManager from '@/components/admin/sections/ContactInform
 import BatchTimingsManager from '@/components/admin/sections/BatchTimingsManager';
 import TestimonialsManager from '@/components/admin/sections/TestimonialsManager';
 import FacultyManager from '@/components/admin/sections/FacultyManager';
+import FAQManager from '@/components/admin/sections/FAQManager';
 import { Bell, Search, User, Loader2, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
@@ -52,6 +53,7 @@ const AdminDashboard = () => {
       case 'gallery_crossfit': return <GalleryManager category="CrossFit" />;
       case 'testimonials': return <TestimonialsManager />;
       case 'faculty': return <FacultyManager />;
+      case 'faqs': return <FAQManager />;
       case 'events': return <EventManager />;
       case 'expenses': return <ExpenseManager />;
       case 'messages': return <MessagesManager />;
