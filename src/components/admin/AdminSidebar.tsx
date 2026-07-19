@@ -20,7 +20,8 @@ import {
   ShieldAlert,
   Home,
   Zap,
-  PhoneCall
+  PhoneCall,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,6 +42,7 @@ export type AdminTab =
   | 'contact_info'
   | 'content' 
   | 'homepage_mgmt'
+  | 'batch_timings'
   | 'reports' 
   | 'settings'
   | 'administration';
@@ -58,6 +60,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'students', label: 'Students', icon: Users },
     { id: 'attendance', label: 'Attendance', icon: UserCheck },
+    { id: 'batch_timings', label: 'Batch Timings', icon: Clock },
     { id: 'fees', label: 'Fees', icon: CreditCard },
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'sales', label: 'Sales', icon: BarChart3 },

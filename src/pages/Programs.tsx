@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Play, Users, MapPin, GraduationCap, Dumbbell } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Play, Users, MapPin, GraduationCap, Dumbbell, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useSettings } from '@/contexts/SettingsContext';
+import { supabase } from '@/integrations/supabase/client';
+import { BatchTiming } from '@/types/batch';
 
 const iconMap: Record<string, any> = {
   Trophy: Trophy,
@@ -15,15 +17,33 @@ const iconMap: Record<string, any> = {
 };
 
 const Programs = () => {
-  const { programs, settings, loading } = useSettings();
-  const programsRef = useRef<HTMLElement>(null);
+  const { programs, settings, loading: settingsLoading } = useSettings();
+  const [isBatchPanelOpen, setIsBatchPanelOpen] = useState(false);
+  const [batches, setBatches] = useState<BatchTiming[]>([]);
+  const [batchesLoading, setBatchesLoading] = useState(true);
+
   const visiblePrograms = programs.filter(p => p.is_visible);
 
-  const scrollToPrograms = () => {
-    programsRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        const { data } = await supabase
+          .from('batch_timings')
+          .select('*')
+          .eq('is_visible', true)
+          .order('order_index', { ascending: true });
+        
+        setBatches(data || []);
+      } catch (err) {
+        console.error('Batch fetch error:', err);
+      } finally {
+        setBatchesLoading(false);
+      }
+    };
+    fetchBatches();
+  }, []);
 
-  if (loading) {
+  if (settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <Loader2 className="animate-spin text-[#0F4C81]" size={48} />
@@ -86,36 +106,93 @@ const Programs = () => {
               ))}
             </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4"
-            >
-              <Button 
-                asChild 
-                className="h-14 px-10 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 transition-all font-black uppercase tracking-widest text-base shadow-xl group"
-              >
-                <Link to="/join">
-                  Join Now
-                  <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              
-              <Button 
-                onClick={scrollToPrograms}
-                variant="outline"
-                className="h-14 px-10 rounded-full border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white transition-all font-black uppercase tracking-widest text-base backdrop-blur-md"
-              >
-                View Batch Timings
-                <Play className="ml-2 w-4 h-4 fill-current rotate-90" />
-              </Button>
-            </motion.div>
+            <div className="space-y-8 pt-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+                <Button 
+                  asChild 
+                  className="h-14 px-10 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 transition-all font-black uppercase tracking-widest text-base shadow-xl group"
+                >
+                  <Link to="/join">
+                    Join Now
+                    <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+                
+                <Button 
+                  onClick={() => setIsBatchPanelOpen(!isBatchPanelOpen)}
+                  variant="outline"
+                  className={cn(
+                    "h-14 px-10 rounded-full border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white transition-all font-black uppercase tracking-widest text-base backdrop-blur-md",
+                    isBatchPanelOpen && "bg-[#FFC107] border-transparent text-[#0F4C81] hover:bg-[#FFC107]/90"
+                  )}
+                >
+                  View Batch Timings
+                  <ChevronDown className={cn("ml-2 w-5 h-5 transition-transform duration-300", isBatchPanelOpen && "rotate-180")} />
+                </Button>
+              </div>
+
+              {/* Expandable Batch Timings Panel */}
+              <AnimatePresence>
+                {isBatchPanelOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.5, ease: [0.04, 0.62, 0.23, 0.98] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+                      {batchesLoading ? (
+                         <div className="col-span-full py-10 flex justify-center"><Loader2 className="animate-spin text-[#FFC107]" /></div>
+                      ) : batches.map((batch, bIdx) => (
+                        <motion.div
+                          key={batch.id}
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ delay: bIdx * 0.1 }}
+                          className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 text-left hover:bg-white/10 transition-colors group"
+                        >
+                          <div className="flex items-center gap-4 mb-6">
+                            <div className="p-3 bg-[#FFC107] text-[#0F4C81] rounded-2xl shadow-lg">
+                              <Clock size={20} strokeWidth={3} />
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-black uppercase tracking-tight text-[#FFC107]">{batch.name}</h3>
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Age Group: {batch.age_group}</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            {batch.sections?.map((section, sIdx) => (
+                              <div key={sIdx} className="space-y-4">
+                                {section.title && (
+                                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107]/60 flex items-center gap-2">
+                                    <span className="w-4 h-0.5 bg-[#FFC107]/30" /> {section.title}
+                                  </h4>
+                                )}
+                                <div className="space-y-3">
+                                  {section.timings.map((t, tIdx) => (
+                                    <div key={tIdx} className="space-y-1">
+                                      <p className="text-[10px] font-black uppercase text-white/40 tracking-wider">{t.days}</p>
+                                      <p className="text-sm font-bold text-white group-hover:text-[#FFC107] transition-colors">{t.time}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </section>
 
-      <section ref={programsRef} id="programs-list" className="py-24 md:py-32">
+      <section id="programs-list" className="py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {visiblePrograms.map((program, idx) => {

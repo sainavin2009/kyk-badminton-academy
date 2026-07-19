@@ -19,6 +19,7 @@ import MessagesManager from '@/components/admin/sections/MessagesManager';
 import AdministrationManager from '@/components/admin/sections/AdministrationManager';
 import HomepageStatsManager from '@/components/admin/sections/HomepageStatsManager';
 import ContactInformationManager from '@/components/admin/sections/ContactInformationManager';
+import BatchTimingsManager from '@/components/admin/sections/BatchTimingsManager';
 import { Bell, Search, User, Loader2, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
@@ -52,6 +53,7 @@ const AdminDashboard = () => {
       case 'messages': return <MessagesManager />;
       case 'contact_info': return <ContactInformationManager />;
       case 'homepage_mgmt': return <HomepageStatsManager />;
+      case 'batch_timings': return <BatchTimingsManager />;
       case 'content': return <AboutManager />;
       case 'reports': return <ReportsManager />;
       case 'settings': return <SettingsManager />;
