@@ -91,7 +91,7 @@ const BatchTimingsManager = () => {
       }
       
       setIsModalOpen(false);
-      await fetchBatches(); // Verified: Direct Supabase fetch after save
+      await fetchBatches();
     } catch (err: any) {
       console.error("[Save Error]", err.message);
       toast.error('Operation failed: ' + err.message);
@@ -108,7 +108,7 @@ const BatchTimingsManager = () => {
       if (error) throw error;
       
       toast.success("Batch deleted from database.");
-      await fetchBatches(); // Verified: Direct Supabase fetch after delete
+      await fetchBatches();
     } catch (err: any) {
       console.error("[Delete Error]", err.message);
       toast.error('Delete failed: ' + err.message);

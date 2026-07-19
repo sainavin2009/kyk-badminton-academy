@@ -67,7 +67,7 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
 
   const onSubmit = (data: BatchFormValues) => {
     onSave({
-      id: batch?.id, // ID is critical for the UPDATE operation
+      id: batch?.id,
       ...data
     });
   };
