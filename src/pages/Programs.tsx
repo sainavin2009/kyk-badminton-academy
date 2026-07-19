@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Play, Users, MapPin, GraduationCap, Dumbbell, ChevronDown } from 'lucide-react';
+import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Play, Users, MapPin, GraduationCap, Dumbbell, ChevronDown, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { BatchTiming } from '@/types/batch';
+import { cn } from '@/lib/utils';
 
 const iconMap: Record<string, any> = {
   Trophy: Trophy,
@@ -31,7 +32,7 @@ const Programs = () => {
           .from('batch_timings')
           .select('*')
           .eq('is_visible', true)
-          .order('order_index', { ascending: true });
+          .order('display_order', { ascending: true });
         
         setBatches(data || []);
       } catch (err) {
@@ -62,7 +63,6 @@ const Programs = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Informative Hero Section */}
       <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 bg-[#0F4C81] text-white overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
           <img 
@@ -131,7 +131,6 @@ const Programs = () => {
                 </Button>
               </div>
 
-              {/* Expandable Batch Timings Panel */}
               <AnimatePresence>
                 {isBatchPanelOpen && (
                   <motion.div
@@ -157,29 +156,21 @@ const Programs = () => {
                               <Clock size={20} strokeWidth={3} />
                             </div>
                             <div>
-                              <h3 className="text-xl font-black uppercase tracking-tight text-[#FFC107]">{batch.name}</h3>
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Age Group: {batch.age_group}</p>
+                              <h3 className="text-xl font-black uppercase tracking-tight text-[#FFC107]">{batch.batch_name}</h3>
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Target Group: {batch.age_group}</p>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                            {batch.sections?.map((section, sIdx) => (
-                              <div key={sIdx} className="space-y-4">
-                                {section.title && (
-                                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107]/60 flex items-center gap-2">
-                                    <span className="w-4 h-0.5 bg-[#FFC107]/30" /> {section.title}
-                                  </h4>
-                                )}
-                                <div className="space-y-3">
-                                  {section.timings.map((t, tIdx) => (
-                                    <div key={tIdx} className="space-y-1">
-                                      <p className="text-[10px] font-black uppercase text-white/40 tracking-wider">{t.days}</p>
-                                      <p className="text-sm font-bold text-white group-hover:text-[#FFC107] transition-colors">{t.time}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            ))}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 text-white/40">
+                              <Calendar size={14} />
+                              <span className="text-[10px] font-black uppercase tracking-widest">{batch.days}</span>
+                            </div>
+                            <div className="bg-white/5 p-5 rounded-2xl border border-white/5 group-hover:border-white/10 transition-colors">
+                              <p className="text-sm font-bold text-white leading-relaxed whitespace-pre-line">
+                                {batch.timings}
+                              </p>
+                            </div>
                           </div>
                         </motion.div>
                       ))}
@@ -223,22 +214,6 @@ const Programs = () => {
                   </div>
 
                   <div className="space-y-6 flex-grow">
-                    {program.schedule && program.schedule.length > 0 && (
-                      <div className="space-y-3 p-6 rounded-3xl bg-white border border-slate-100 shadow-sm">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#0F4C81] flex items-center gap-2">
-                          <Clock size={12} /> Training Schedule
-                        </h4>
-                        <div className="space-y-2">
-                          {program.schedule.map((item, sidx) => (
-                            <div key={sidx} className="flex justify-between items-start gap-4 text-xs">
-                              <span className="font-bold text-[#0F4C81] whitespace-nowrap">{item.label}</span>
-                              <span className="text-slate-500 font-medium text-right">{item.time}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {program.features?.map((feature, fidx) => (
                         <div key={fidx} className="flex items-center gap-2 text-xs font-bold text-[#0F4C81]/70">

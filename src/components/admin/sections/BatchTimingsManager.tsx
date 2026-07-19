@@ -10,7 +10,8 @@ import {
   Trash2, 
   Eye, 
   EyeOff, 
-  Users
+  Users,
+  Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -43,7 +44,7 @@ const BatchTimingsManager = () => {
       const { data, error } = await supabase
         .from('batch_timings')
         .select('*')
-        .order('order_index', { ascending: true });
+        .order('display_order', { ascending: true });
 
       if (error) throw error;
       setBatches(data || []);
@@ -64,9 +65,11 @@ const BatchTimingsManager = () => {
         const { error } = await supabase
           .from('batch_timings')
           .update({
-            name: formData.name,
+            batch_name: formData.batch_name,
             age_group: formData.age_group,
-            sections: formData.sections,
+            days: formData.days,
+            timings: formData.timings,
+            display_order: formData.display_order,
             updated_at: new Date().toISOString()
           })
           .eq('id', formData.id);
@@ -75,10 +78,7 @@ const BatchTimingsManager = () => {
       } else {
         const { error } = await supabase
           .from('batch_timings')
-          .insert([{
-            ...formData,
-            order_index: batches.length
-          }]);
+          .insert([formData]);
         if (error) throw error;
         toast.success("New batch timing added");
       }
@@ -118,7 +118,7 @@ const BatchTimingsManager = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Batch Schedule Management</h2>
-          <p className="text-slate-500 font-medium">Control the dynamic schedule panel displayed on the public Programs page.</p>
+          <p className="text-slate-500 font-medium">Control the training schedules displayed on the public website.</p>
         </div>
         
         <div className="flex gap-3">
@@ -148,25 +148,23 @@ const BatchTimingsManager = () => {
 
               <div className="flex-grow space-y-4">
                 <div className="flex items-center gap-3">
-                  <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tighter">{batch.name}</h3>
+                  <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tighter">{batch.batch_name}</h3>
                   <Badge variant="outline" className="rounded-lg text-[9px] font-black uppercase tracking-widest border-slate-200 px-3">
                     <Users size={10} className="mr-1.5" /> {batch.age_group}
                   </Badge>
+                  <Badge className="bg-slate-100 text-slate-400 border-none shadow-none rounded-lg text-[9px] font-black">Order: {batch.display_order}</Badge>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {batch.sections?.map((section, idx) => (
-                    <div key={idx} className="space-y-2">
-                      {section.title && <p className="text-[10px] font-black uppercase text-[#FFC107] tracking-widest">{section.title}</p>}
-                      <div className="space-y-1">
-                        {section.timings.map((t, tIdx) => (
-                          <p key={tIdx} className="text-xs font-bold text-slate-500">
-                            <span className="text-[#0F4C81]">{t.days}:</span> {t.time}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Calendar size={14} className="text-[#FFC107] mt-0.5" />
+                    <p className="text-sm font-bold text-[#0F4C81]">{batch.days}</p>
+                  </div>
+                  <div className="pl-6">
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed italic whitespace-pre-line">
+                      {batch.timings}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -195,7 +193,7 @@ const BatchTimingsManager = () => {
                   <AlertDialogContent className="rounded-[2.5rem]">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-2xl font-black uppercase">Delete Schedule?</AlertDialogTitle>
-                      <AlertDialogDescription className="text-slate-500 font-medium">Remove "{batch.name}" from public display permanently?</AlertDialogDescription>
+                      <AlertDialogDescription className="text-slate-500 font-medium">Remove "{batch.batch_name}" permanently?</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2">
                       <AlertDialogCancel className="rounded-2xl h-14 font-bold border-none bg-slate-50">Cancel</AlertDialogCancel>
@@ -209,7 +207,7 @@ const BatchTimingsManager = () => {
         )) : (
           <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
              <Clock className="mx-auto text-slate-200 mb-4" size={48} />
-             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400">No batch timings configured.</p>
+             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400">No batch timings found.</p>
           </div>
         )}
       </div>
