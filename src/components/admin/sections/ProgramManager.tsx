@@ -3,177 +3,228 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Plus, Trash2, ShieldCheck, Eye, EyeOff, GripVertical, Clock } from 'lucide-react';
+import { 
+  Plus, 
+  Trash2, 
+  Eye, 
+  EyeOff, 
+  GripVertical, 
+  Edit3, 
+  RefreshCw,
+  Clock,
+  LayoutGrid
+} from 'lucide-react';
 import { toast } from 'sonner';
-import { Program, ProgramSchedule } from '@/types/settings';
-import { Switch } from '@/components/ui/switch';
+import { Program } from '@/types/settings';
+import ProgramFormModal from './ProgramFormModal';
+import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const ProgramManager = () => {
-  const { programs, refresh } = useSettings();
-  const [editingPrograms, setEditingPrograms] = useState<Program[]>(programs);
+  const { programs, refresh, loading } = useSettings();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
 
-  React.useEffect(() => {
-    setEditingPrograms(programs);
-  }, [programs]);
-
-  const handleUpdate = (id: string, field: keyof Program, value: any) => {
-    setEditingPrograms(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  const handleOpenCreate = () => {
+    setSelectedProgram(null);
+    setIsModalOpen(true);
   };
 
-  const handleUpdateSchedule = (progId: string, idx: number, field: keyof ProgramSchedule, value: string) => {
-    setEditingPrograms(prev => prev.map(p => {
-      if (p.id === progId) {
-        const newSchedule = [...(p.schedule || [])];
-        newSchedule[idx] = { ...newSchedule[idx], [field]: value };
-        return { ...p, schedule: newSchedule };
+  const handleOpenEdit = (program: Program) => {
+    setSelectedProgram(program);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (data: any) => {
+    try {
+      if (data.id) {
+        const { error } = await supabase
+          .from('programs')
+          .update({
+            title: data.title,
+            age_range: data.age_range,
+            description: data.description,
+            features: data.features,
+            schedule: data.schedule,
+            icon_name: data.icon_name,
+            color_class: data.color_class,
+            is_visible: data.is_visible,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', data.id);
+        if (error) throw error;
+        toast.success("Program updated successfully");
+      } else {
+        const { error } = await supabase
+          .from('programs')
+          .insert([{
+            ...data,
+            order_index: programs.length
+          }]);
+        if (error) throw error;
+        toast.success("New program created");
       }
-      return p;
-    }));
+      setIsModalOpen(false);
+      await refresh();
+    } catch (err: any) {
+      toast.error('Operation failed: ' + err.message);
+    }
   };
 
-  const addScheduleItem = (progId: string) => {
-    setEditingPrograms(prev => prev.map(p => {
-      if (p.id === progId) {
-        return { ...p, schedule: [...(p.schedule || []), { label: '', time: '' }] };
-      }
-      return p;
-    }));
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from('programs').delete().eq('id', id);
+      if (error) throw error;
+      toast.success("Program deleted");
+      await refresh();
+    } catch (err: any) {
+      toast.error('Delete failed: ' + err.message);
+    }
   };
 
-  const removeScheduleItem = (progId: string, idx: number) => {
-    setEditingPrograms(prev => prev.map(p => {
-      if (p.id === progId) {
-        return { ...p, schedule: p.schedule.filter((_, i) => i !== idx) };
-      }
-      return p;
-    }));
-  };
-
-  const handleSave = async (program: Program) => {
+  const toggleVisibility = async (program: Program) => {
     try {
       const { error } = await supabase
         .from('programs')
-        .update({
-          title: program.title,
-          age_range: program.age_range,
-          description: program.description,
-          features: program.features,
-          schedule: program.schedule,
-          is_visible: program.is_visible,
-          order_index: program.order_index
-        })
+        .update({ is_visible: !program.is_visible })
         .eq('id', program.id);
-
       if (error) throw error;
-      toast.success(`Program "${program.title}" synchronized`);
       await refresh();
     } catch (err: any) {
-      toast.error('Sync failed: ' + err.message);
+      toast.error('Toggle failed: ' + err.message);
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tight">Training Programs</h3>
-        <Button variant="outline" className="rounded-2xl h-12 border-none bg-white shadow-sm font-bold text-[#0F4C81]">
-          <Plus className="mr-2" size={18} /> New Program
-        </Button>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Academy Offerings</h2>
+          <p className="text-slate-500 font-medium">Manage dynamic training programs and their batch timings.</p>
+        </div>
+        
+        <div className="flex gap-3">
+          <Button variant="ghost" onClick={refresh} className="h-16 w-16 rounded-2xl text-slate-400">
+            <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
+          </Button>
+          <Button 
+            onClick={handleOpenCreate}
+            className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl group transition-all"
+          >
+            <Plus className="mr-3 group-hover:rotate-90 transition-transform" />
+            Create Program
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8">
-        {editingPrograms.map((program) => (
-          <Card key={program.id} className="p-8 md:p-10 rounded-[3rem] border-none shadow-sm bg-white space-y-8 relative overflow-hidden">
-            {!program.is_visible && <div className="absolute inset-0 bg-slate-50/50 backdrop-blur-[1px] z-10 pointer-events-none" />}
-            
-            <div className="flex justify-between items-center relative z-20">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-blue-50 text-[#0F4C81] rounded-2xl"><GripVertical size={20} /></div>
-                <h4 className="font-black text-[#0F4C81] uppercase tracking-tight">Live Program Editor</h4>
+      <div className="grid grid-cols-1 gap-6">
+        {programs.length > 0 ? programs.map((program) => (
+          <Card key={program.id} className={cn(
+            "p-8 rounded-[3rem] border-none shadow-sm bg-white hover:shadow-xl transition-all group overflow-hidden relative",
+            !program.is_visible && "opacity-60 bg-slate-50/50"
+          )}>
+            <div className="flex flex-col lg:flex-row gap-10 items-start">
+              <div className={cn(
+                "w-20 h-20 rounded-[1.8rem] flex items-center justify-center shrink-0 shadow-sm transition-colors",
+                program.color_class || 'bg-blue-50',
+                "group-hover:bg-[#FFC107] text-[#0F4C81]"
+              )}>
+                <LayoutGrid size={32} strokeWidth={1.5} />
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase text-slate-400">Visibility</span>
-                  <Switch 
-                    checked={program.is_visible} 
-                    onCheckedChange={(val) => handleUpdate(program.id, 'is_visible', val)} 
-                  />
-                </div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-20">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Program Title</label>
-                  <Input 
-                    value={program.title}
-                    onChange={(e) => handleUpdate(program.id, 'title', e.target.value)}
-                    className="h-12 rounded-xl bg-slate-50 border-none font-black text-[#0F4C81]"
-                  />
+              <div className="flex-grow space-y-4">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tighter">{program.title}</h3>
+                  <span className="px-3 py-1 rounded-full bg-slate-100 text-[#0F4C81] text-[9px] font-black uppercase tracking-widest">
+                    {program.age_range}
+                  </span>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Audience / Age</label>
-                  <Input 
-                    value={program.age_range}
-                    onChange={(e) => handleUpdate(program.id, 'age_range', e.target.value)}
-                    className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description</label>
-                  <Textarea 
-                    value={program.description}
-                    onChange={(e) => handleUpdate(program.id, 'description', e.target.value)}
-                    className="min-h-[120px] rounded-xl bg-slate-50 border-none font-medium p-4 resize-none"
-                  />
+                <p className="text-sm text-slate-500 font-medium leading-relaxed italic max-w-2xl">
+                  "{program.description}"
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  {program.schedule?.map((s, idx) => (
+                    <div key={idx} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+                      <Clock size={12} className="text-[#FFC107]" />
+                      {s.label}: {s.time}
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Batch Timings</label>
-                    <button onClick={() => addScheduleItem(program.id)} className="text-[10px] font-black uppercase text-[#0F4C81] hover:text-[#FFC107]">Add Slot +</button>
-                  </div>
-                  <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
-                    {program.schedule?.map((item, sidx) => (
-                      <div key={sidx} className="flex gap-2 items-center">
-                        <Input 
-                          placeholder="Batch Name" 
-                          value={item.label} 
-                          onChange={(e) => handleUpdateSchedule(program.id, sidx, 'label', e.target.value)}
-                          className="h-10 text-[10px] font-bold rounded-lg bg-slate-50 border-none"
-                        />
-                        <Input 
-                          placeholder="Timing" 
-                          value={item.time} 
-                          onChange={(e) => handleUpdateSchedule(program.id, sidx, 'time', e.target.value)}
-                          className="h-10 text-[10px] font-bold rounded-lg bg-slate-50 border-none"
-                        />
-                        <button onClick={() => removeScheduleItem(program.id, sidx)} className="p-2 text-slate-300 hover:text-red-500"><Trash2 size={14} /></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div className="flex gap-2 self-center lg:self-start">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => toggleVisibility(program)}
+                  className={cn(
+                    "h-12 w-12 rounded-2xl",
+                    program.is_visible ? "text-green-500 hover:bg-green-50" : "text-slate-300 hover:bg-slate-100"
+                  )}
+                >
+                  {program.is_visible ? <Eye size={20} /> : <EyeOff size={20} />}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => handleOpenEdit(program)}
+                  className="h-12 w-12 rounded-2xl text-blue-500 hover:bg-blue-50"
+                >
+                  <Edit3 size={20} />
+                </Button>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" className="h-12 w-12 rounded-2xl text-red-400 hover:bg-red-50">
+                      <Trash2 size={20} />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="rounded-[2.5rem]">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-2xl font-black uppercase text-[#0F4C81]">Remove Program?</AlertDialogTitle>
+                      <AlertDialogDescription className="text-slate-500 font-medium">
+                        This will permanently delete the program "{program.title}" and its settings.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-3">
+                      <AlertDialogCancel className="rounded-2xl h-14 font-bold border-none bg-slate-50">Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => handleDelete(program.id)}
+                        className="rounded-2xl h-14 font-black uppercase bg-red-500 hover:bg-red-600 text-white border-none"
+                      >
+                        Purge Program
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-50 flex justify-end gap-3 relative z-20">
-              <Button 
-                onClick={() => handleSave(program)}
-                className="h-14 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl"
-              >
-                <Save className="mr-2" size={18} /> Sync Program Data
-              </Button>
             </div>
           </Card>
-        ))}
+        )) : (
+          <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+            <LayoutGrid className="mx-auto text-slate-200 mb-4" size={48} />
+            <h3 className="text-2xl font-black text-[#0F4C81] uppercase">No Programs Defined</h3>
+            <p className="text-slate-400 font-medium mt-2">Initialize your academy offerings by creating your first program.</p>
+          </div>
+        )}
       </div>
+
+      <ProgramFormModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSave}
+        program={selectedProgram}
+      />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useSettings } from '@/contexts/SettingsContext';
 
 const registrationSchema = z.object({
   name: z.string().min(2, "Full name is required"),
@@ -32,16 +33,15 @@ const benefits = [
 ];
 
 const Join = () => {
+  const { programs, loading: loadingPrograms } = useSettings();
+  const activePrograms = programs.filter(p => p.is_visible);
+
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<RegistrationValues>({
     resolver: zodResolver(registrationSchema),
-    defaultValues: {
-      program: 'Badminton Foundation'
-    }
   });
 
   const onSubmit = async (values: RegistrationValues) => {
     try {
-      // In this system, new registrations are added as 'Pending' students
       const studentId = `REG-${Date.now().toString().slice(-6)}`;
       
       const { error } = await supabase
@@ -66,7 +66,6 @@ const Join = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <section className="pt-40 pb-20 bg-[#0F4C81] text-white overflow-hidden relative">
         <div className="container mx-auto px-4 text-center">
           <motion.div
@@ -84,11 +83,9 @@ const Join = () => {
         </div>
       </section>
 
-      {/* Main Content */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start">
-            {/* Left: Info */}
             <div className="lg:w-1/2 space-y-12">
               <div className="space-y-6">
                 <h2 className="text-4xl md:text-5xl font-black text-[#0F4C81] tracking-tighter uppercase leading-[0.9]">
@@ -135,7 +132,6 @@ const Join = () => {
               </div>
             </div>
 
-            {/* Right: Registration Form */}
             <div className="lg:w-1/2 w-full">
               <Card className="p-8 md:p-12 rounded-[3.5rem] border-none shadow-[0_40px_80px_-20px_rgba(15,76,129,0.15)] bg-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFC107]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -182,17 +178,22 @@ const Join = () => {
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Program</Label>
                       <select 
                         {...register('program')}
-                        className="w-full h-14 rounded-xl bg-slate-50 border-none px-4 font-bold text-slate-900 focus:ring-2 focus:ring-[#FFC107] outline-none appearance-none"
+                        disabled={loadingPrograms}
+                        className="w-full h-14 rounded-xl bg-slate-50 border-none px-4 font-bold text-slate-900 focus:ring-2 focus:ring-[#FFC107] outline-none appearance-none disabled:opacity-50"
                       >
-                        <option value="Badminton Foundation">Badminton Foundation</option>
-                        <option value="Elite Competitive">Elite Competitive</option>
-                        <option value="Adult Performance">Adult Performance</option>
+                        <option value="">{loadingPrograms ? 'Loading programs...' : 'Choose a program'}</option>
+                        {activePrograms.map(p => (
+                          <option key={p.id} value={p.title}>
+                            {p.title} ({p.age_range})
+                          </option>
+                        ))}
                       </select>
+                      {errors.program && <p className="text-red-500 text-[10px] font-bold">{errors.program.message}</p>}
                     </div>
 
                     <Button 
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || loadingPrograms}
                       className="w-full h-16 rounded-2xl bg-[#0F4C81] text-white font-black uppercase tracking-widest text-lg shadow-xl shadow-[#0F4C81]/20 group hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all"
                     >
                       {isSubmitting ? (

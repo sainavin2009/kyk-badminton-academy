@@ -1,3 +1,5 @@
+"use client";
+
 export interface WorkingHour {
   days: string;
   hours: string;
@@ -54,10 +56,11 @@ export interface Program {
   title: string;
   age_range: string;
   description: string;
-  features: string[];
-  schedule: ProgramSchedule[];
+  features: string[]; // Store as JSON array
+  schedule: ProgramSchedule[]; // Store as JSON array
   icon_name: string;
   color_class: string;
   order_index: number;
   is_visible: boolean;
+  created_at?: string;
 }
