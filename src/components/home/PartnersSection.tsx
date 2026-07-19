@@ -1,28 +1,68 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Handshake, Users } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const partners = [
+interface Partner {
+  name: string;
+  logo: string;
+}
+
+const partners: Partner[] = [
   { 
     name: "DISTRICT", 
-    // You can replace this URL with the actual path once the logo is uploaded to your public folder
-    logo: "https://logos-world.net/wp-content/uploads/2020/11/Zomato-Logo.png", 
-    icon: ShieldCheck,
-    isImage: true
+    logo: "/partners/district.png"
   },
   { 
     name: "TURF TOWN", 
-    icon: Handshake,
-    isImage: false
+    logo: "/partners/turftown.png"
   },
   { 
     name: "LYF SKILLS", 
-    icon: Users,
-    isImage: false
+    logo: "/partners/lyfskills.png"
   }
 ];
+
+const PartnerCard = ({ partner, idx }: { partner: Partner, idx: number }) => {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: idx * 0.1 }}
+      whileHover={{ y: -10 }}
+      className="group relative bg-white p-12 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col items-center text-center h-full"
+    >
+      <div className="w-full h-32 flex items-center justify-center mb-8 px-4">
+        {imgError ? (
+          <div className="flex flex-col items-center justify-center gap-2 text-slate-300">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Logo Coming Soon</span>
+          </div>
+        ) : (
+          <img 
+            src={partner.logo} 
+            alt={`${partner.name} Official Logo`}
+            className="max-h-full max-w-full object-contain transition-all duration-500"
+            onError={() => setImgError(true)}
+          />
+        )}
+      </div>
+      
+      <div className="mt-auto">
+        <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tight">
+          {partner.name}
+        </h3>
+      </div>
+
+      <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="w-2 h-2 rounded-full bg-[#FFC107]" />
+      </div>
+    </motion.div>
+  );
+};
 
 const PartnersSection = () => {
   return (
@@ -49,37 +89,7 @@ const PartnersSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {partners.map((partner, idx) => (
-            <motion.div
-              key={partner.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ y: -10 }}
-              className="group relative bg-white p-12 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col items-center text-center"
-            >
-              <div className="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center overflow-hidden group-hover:bg-[#FFC107]/10 transition-colors mb-8 p-4">
-                {partner.isImage && partner.logo ? (
-                  <img 
-                    src={partner.logo} 
-                    alt={partner.name} 
-                    className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
-                  />
-                ) : (
-                  <partner.icon size={48} strokeWidth={1} className="text-[#0F4C81]/20 group-hover:text-[#FFC107] transition-colors" />
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tight">
-                  {partner.name}
-                </h3>
-              </div>
-
-              <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-2 h-2 rounded-full bg-[#FFC107]" />
-              </div>
-            </motion.div>
+            <PartnerCard key={partner.name} partner={partner} idx={idx} />
           ))}
         </div>
       </div>
