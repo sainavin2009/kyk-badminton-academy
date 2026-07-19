@@ -83,7 +83,9 @@ const FacultyFormModal = ({ isOpen, onClose, onSave, member }: FacultyFormModalP
   const onSubmit = async (data: FacultyFormValues) => {
     setIsSubmitting(true);
     try {
-      await onSave({ ...data, id: member?.id });
+      // Only include id if it's an update (exists on member)
+      const submissionData = member?.id ? { ...data, id: member.id } : data;
+      await onSave(submissionData);
       onClose();
     } finally {
       setIsSubmitting(false);

@@ -58,9 +58,11 @@ const FacultyManager = () => {
         setMembers(prev => prev.map(m => m.id === formData.id ? data[0] : m));
         toast.success('Faculty profile updated');
       } else {
+        // Explicitly remove id to let Postgres handle gen_random_uuid()
+        const { id, ...insertData } = formData;
         const { data, error } = await supabase
           .from('faculty')
-          .insert([formData])
+          .insert([insertData])
           .select();
         
         if (error) throw error;
