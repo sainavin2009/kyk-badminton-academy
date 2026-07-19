@@ -1,11 +1,28 @@
 "use client";
 
-import React, { useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Play, Users, MapPin, GraduationCap, Dumbbell } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Trophy, 
+  ShieldCheck, 
+  Clock, 
+  Zap, 
+  Target, 
+  Star, 
+  Loader2, 
+  ChevronRight, 
+  Play, 
+  Users, 
+  MapPin, 
+  GraduationCap, 
+  Dumbbell,
+  Calendar,
+  ChevronDown
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useSettings } from '@/contexts/SettingsContext';
+import { cn } from '@/lib/utils';
 
 const iconMap: Record<string, any> = {
   Trophy: Trophy,
@@ -16,12 +33,11 @@ const iconMap: Record<string, any> = {
 
 const Programs = () => {
   const { programs, settings, loading } = useSettings();
-  const programsRef = useRef<HTMLElement>(null);
+  const [showTimings, setShowTimings] = useState(false);
+  
   const visiblePrograms = programs.filter(p => p.is_visible);
-
-  const scrollToPrograms = () => {
-    programsRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Only show programs that actually have a schedule defined
+  const programsWithTimings = visiblePrograms.filter(p => p.schedule && p.schedule.length > 0);
 
   if (loading) {
     return (
@@ -86,36 +102,100 @@ const Programs = () => {
               ))}
             </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4"
-            >
-              <Button 
-                asChild 
-                className="h-14 px-10 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 transition-all font-black uppercase tracking-widest text-base shadow-xl group"
+            <div className="space-y-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4"
               >
-                <Link to="/join">
-                  Join Now
-                  <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              
-              <Button 
-                onClick={scrollToPrograms}
-                variant="outline"
-                className="h-14 px-10 rounded-full border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white transition-all font-black uppercase tracking-widest text-base backdrop-blur-md"
-              >
-                View Batch Timings
-                <Play className="ml-2 w-4 h-4 fill-current rotate-90" />
-              </Button>
-            </motion.div>
+                <Button 
+                  asChild 
+                  className="h-14 px-10 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 transition-all font-black uppercase tracking-widest text-base shadow-xl group"
+                >
+                  <Link to="/join">
+                    Join Now
+                    <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+                
+                <Button 
+                  onClick={() => setShowTimings(!showTimings)}
+                  variant="outline"
+                  className={cn(
+                    "h-14 px-10 rounded-full border-2 transition-all font-black uppercase tracking-widest text-base backdrop-blur-md",
+                    showTimings 
+                      ? "bg-[#FFC107] border-[#FFC107] text-[#0F4C81]" 
+                      : "border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white"
+                  )}
+                >
+                  View Batch Timings
+                  <motion.div
+                    animate={{ rotate: showTimings ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="ml-2"
+                  >
+                    <ChevronDown size={20} />
+                  </motion.div>
+                </Button>
+              </motion.div>
+
+              {/* Expandable Batch Timings Section */}
+              <AnimatePresence>
+                {showTimings && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-12 pb-8">
+                      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] p-8 md:p-12 text-left max-w-6xl mx-auto shadow-2xl">
+                        <div className="flex items-center gap-4 mb-10 border-b border-white/10 pb-6">
+                          <div className="p-3 bg-[#FFC107] text-[#0F4C81] rounded-2xl">
+                            <Calendar size={28} strokeWidth={2.5} />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-white leading-none">Complete Batch Schedule</h3>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107] mt-1">Official Academy Timings</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                          {programsWithTimings.map((program) => (
+                            <motion.div 
+                              key={program.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="space-y-4 group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-xl">🏸</span>
+                                <h4 className="font-black uppercase tracking-tight text-white group-hover:text-[#FFC107] transition-colors">{program.title}</h4>
+                              </div>
+                              <div className="bg-white/5 border border-white/5 rounded-2xl p-6 space-y-4">
+                                {program.schedule.map((slot, idx) => (
+                                  <div key={idx} className="space-y-1 border-l-2 border-[#FFC107] pl-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]/60">{slot.label}</p>
+                                    <p className="text-sm font-bold text-white/90">{slot.time}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </section>
 
-      <section ref={programsRef} id="programs-list" className="py-24 md:py-32">
+      <section id="programs-list" className="py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {visiblePrograms.map((program, idx) => {
