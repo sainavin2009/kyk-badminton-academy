@@ -58,50 +58,13 @@ const Index = () => {
     }
   ];
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "KYK Badminton Academy",
-    "image": "https://kykacademy.com/logo.png",
-    "@id": "https://kykacademy.com",
-    "url": "https://kykacademy.com",
-    "telephone": "+919363978810",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "No. 65, Appasamy Street",
-      "addressLocality": "Kolathur, Chennai",
-      "postalCode": "600099",
-      "addressCountry": "IN"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 13.1256,
-      "longitude": 80.2134
-    },
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "opens": "06:00",
-        "closes": "21:00"
-      }
-    ],
-    "sameAs": [
-      "https://www.instagram.com/kyk_badminton_academy/"
-    ]
-  };
-
   return (
     <div className="min-h-screen bg-white selection:bg-[#FFC107] selection:text-[#0F4C81]">
       <SEO 
         title="World Class Badminton Training Center"
         description="Elite badminton coaching in Chennai for all ages. Professional NS-NIS certified trainers, international standard synthetic courts, and CrossFit performance programs."
         path="/"
-      >
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      </SEO>
+      />
 
       <Hero />
       <AboutSection />
