@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Zap, ChevronRight, Target, Clock, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BadmintonGallery from './BadmintonGallery';
 import CrossFitGallery from './CrossFitGallery';
 
@@ -15,24 +15,7 @@ const activities = [
     icon: Target,
     title: 'Court Supremacy',
     description: 'Specialized coaching for all skill levels on international standard courts.',
-    details: [
-      {
-        label: "Beginner Batch",
-        info: "Morning: 6:00 AM – 7:00 AM | Evening: 4:30 – 5:30 PM, 5:00 – 6:00 PM, 6:00 – 7:00 PM"
-      },
-      {
-        label: "Intermediate Batch",
-        info: "Monday – Friday: 6:30 PM – 8:00 PM"
-      },
-      {
-        label: "Adult Batch",
-        info: "Monday – Friday: 7:00 PM – 8:00 PM"
-      },
-      {
-        label: "Weekend Batch",
-        info: "Saturday: 5:00 PM – 7:00 PM | Sunday: 7:00 AM – 9:00 AM"
-      }
-    ],
+    details: [], // Removed detailed schedules as requested
     stats: ["2 Courts", "Elite Coaching", "Junior Programs"]
   },
   {
@@ -61,6 +44,7 @@ const activities = [
 
 const ActivitiesSection = () => {
   const [activeTab, setActiveTab] = useState(activities[0].id);
+  const navigate = useNavigate();
   const currentActivity = activities.find(a => a.id === activeTab)!;
 
   return (
@@ -89,7 +73,7 @@ const ActivitiesSection = () => {
 
         {/* Premium Tab Switcher */}
         <div className="flex justify-center mb-24">
-          <div className="relative flex bg-white p-3 rounded-[2.5rem] shadow-2xl border border-slate-100 min-w-[400px]">
+          <div className="relative flex bg-white p-3 rounded-[2.5rem] shadow-2xl border border-slate-100 min-w-[300px] md:min-w-[400px]">
             {activities.map((activity) => (
               <button
                 key={activity.id}
@@ -123,26 +107,42 @@ const ActivitiesSection = () => {
           >
             <div className="flex flex-col md:flex-row items-start justify-between gap-12 pb-12 border-b border-slate-200">
               <div className="space-y-8 max-w-2xl">
-                <div className="space-y-2">
-                  <h4 className="text-4xl font-black text-[#0F4C81] tracking-tight uppercase">
-                    {currentActivity.title}
-                  </h4>
-                  <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    {currentActivity.description}
-                  </p>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h4 className="text-4xl font-black text-[#0F4C81] tracking-tight uppercase">
+                      {currentActivity.title}
+                    </h4>
+                    <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                      {currentActivity.description}
+                    </p>
+                  </div>
+
+                  {activeTab === 'badminton' && (
+                    <Button 
+                      asChild 
+                      className="h-14 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/20 group"
+                    >
+                      <Link to="/programs">
+                        View Training Programs
+                        <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </Button>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {currentActivity.details.map((detail, idx) => (
-                    <div key={idx} className="flex gap-4">
-                      <div className="mt-1"><Clock size={16} className="text-[#FFC107]" /></div>
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-[#0F4C81]">{detail.label}</p>
-                        <p className="text-xs font-bold text-slate-500">{detail.info}</p>
+                {currentActivity.details && currentActivity.details.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {currentActivity.details.map((detail, idx) => (
+                      <div key={idx} className="flex gap-4">
+                        <div className="mt-1"><Clock size={16} className="text-[#FFC107]" /></div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-[#0F4C81]">{detail.label}</p>
+                          <p className="text-xs font-bold text-slate-500">{detail.info}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 {currentActivity.features && (
                   <div className="grid grid-cols-2 gap-3 pt-4">
@@ -157,10 +157,16 @@ const ActivitiesSection = () => {
               
               <div className="flex flex-wrap gap-4 md:flex-col lg:flex-row">
                 {currentActivity.stats.map((stat, i) => (
-                  <div key={i} className="px-6 py-4 bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col min-w-[140px]">
+                  <motion.div 
+                    key={i} 
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/programs')}
+                    className="px-6 py-4 bg-white rounded-3xl shadow-sm hover:shadow-xl border border-slate-100 flex flex-col min-w-[140px] cursor-pointer transition-all duration-300"
+                  >
                     <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Academy Pro</span>
                     <span className="text-sm font-black text-[#0F4C81]">{stat}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
