@@ -24,7 +24,8 @@ import {
   Clock,
   Quote,
   Award,
-  HelpCircle
+  HelpCircle,
+  ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -102,6 +103,21 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           <span className="font-black tracking-tighter uppercase text-xl leading-none">KYK Admin</span>
           <span className="text-[10px] font-bold text-[#FFC107] tracking-widest uppercase">Elite Portal</span>
         </div>
+      </div>
+
+      <div className="px-6 pt-6">
+        <a 
+          href="/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="w-full flex items-center justify-between gap-4 px-4 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-white/5 border border-white/10 hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all group shadow-xl"
+        >
+          <div className="flex items-center gap-3">
+            <Globe size={16} />
+            View Website
+          </div>
+          <ExternalLink size={12} className="opacity-40 group-hover:opacity-100" />
+        </a>
       </div>
 
       <nav className="flex-grow p-6 space-y-1 overflow-y-auto custom-scrollbar">

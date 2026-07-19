@@ -64,7 +64,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-10">
+        <div className="hidden lg:flex items-center gap-8">
           <div className="flex items-center gap-2">
             {navItems.map((item) => (
               <Link
@@ -79,9 +79,30 @@ const Navbar = () => {
               </Link>
             ))}
           </div>
-          <Button asChild className="rounded-full bg-[#FFC107] text-[#0F4C81] font-black px-8 h-12 shadow-xl">
-            <Link to="/join" className="flex items-center gap-2">Join Elite Squad <ChevronRight size={16} /></Link>
-          </Button>
+
+          <div className="flex items-center gap-4">
+            {session ? (
+              <Link 
+                to="/admin" 
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:border-white transition-all"
+              >
+                <LayoutDashboard size={14} className="text-[#FFC107]" />
+                Admin Portal
+              </Link>
+            ) : (
+              <Link 
+                to="/admin/login" 
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 text-white/50 text-[10px] font-black uppercase tracking-widest hover:text-white hover:bg-white/5 transition-all"
+              >
+                <Lock size={12} />
+                Admin
+              </Link>
+            )}
+
+            <Button asChild className="rounded-full bg-[#FFC107] text-[#0F4C81] font-black px-8 h-12 shadow-xl hover:bg-white hover:text-[#0F4C81]">
+              <Link to="/join" className="flex items-center gap-2">Join Elite Squad <ChevronRight size={16} /></Link>
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Nav Trigger */}
@@ -120,18 +141,26 @@ const Navbar = () => {
             <hr className="border-white/10 my-2" />
             
             <div className="flex flex-col gap-4">
-              <Button asChild className="rounded-full bg-[#FFC107] text-[#0F4C81] font-black w-full h-14 shadow-xl text-lg">
+              <Button asChild className="rounded-full bg-[#FFC107] text-[#0F4C81] font-black w-full h-14 shadow-xl text-lg hover:bg-white">
                 <Link to="/join" onClick={() => setIsOpen(false)}>Join Elite Squad</Link>
               </Button>
               
-              {/* Admin Link at the bottom of mobile menu */}
               <Link 
                 to={session ? "/admin" : "/admin/login"}
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center gap-2 px-4 py-4 rounded-2xl border border-white/20 text-white/60 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-widest"
+                className="flex items-center justify-center gap-3 px-4 py-5 rounded-2xl bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 transition-all text-xs font-black uppercase tracking-[0.2em]"
               >
-                {session ? <LayoutDashboard size={14} /> : <Lock size={14} />}
-                {session ? "Dashboard" : "Admin Login"}
+                {session ? (
+                  <>
+                    <LayoutDashboard size={16} className="text-[#FFC107]" />
+                    Admin Dashboard
+                  </>
+                ) : (
+                  <>
+                    <Lock size={16} />
+                    Administrator Login
+                  </>
+                )}
               </Link>
             </div>
           </motion.div>
