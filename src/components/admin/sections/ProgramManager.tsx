@@ -10,7 +10,6 @@ import {
   Trash2, 
   Eye, 
   EyeOff, 
-  GripVertical, 
   Edit3, 
   RefreshCw,
   Clock,
@@ -116,7 +115,7 @@ const ProgramManager = () => {
         </div>
         
         <div className="flex gap-3">
-          <Button variant="ghost" onClick={refresh} className="h-16 w-16 rounded-2xl text-slate-400">
+          <Button variant="ghost" onClick={refresh} className="h-16 w-16 rounded-2xl text-slate-400 hover:bg-white shadow-sm transition-colors">
             <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
           </Button>
           <Button 

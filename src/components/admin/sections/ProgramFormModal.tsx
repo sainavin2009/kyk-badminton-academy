@@ -76,7 +76,7 @@ const ProgramFormModal = ({ isOpen, onClose, onSave, program }: ProgramFormModal
         is_visible: true,
       });
       setFeatures([]);
-      setSchedule([{ label: 'Monday–Friday', time: '6:00 PM – 8:00 PM' }]);
+      setSchedule([{ label: 'Monday–Saturday', time: '6:00 PM – 8:00 PM' }]);
     }
   }, [program, isOpen, reset]);
 
@@ -127,7 +127,7 @@ const ProgramFormModal = ({ isOpen, onClose, onSave, program }: ProgramFormModal
 
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Age Group *</Label>
-                <Input {...register('age_range')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" placeholder="e.g. 13-18 Years" />
+                <Input {...register('age_range')} className="h-12 rounded-xl bg-slate-50 border-none font-bold" placeholder="e.g. 6–12 Years" />
                 {errors.age_range && <p className="text-red-500 text-[10px] font-bold">{errors.age_range.message}</p>}
               </div>
 
@@ -208,7 +208,7 @@ const ProgramFormModal = ({ isOpen, onClose, onSave, program }: ProgramFormModal
           </div>
 
           <DialogFooter className="sticky bottom-0 bg-white pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
-            <Button type="button" variant="ghost" onClick={onClose} className="rounded-2xl h-14 px-8 font-bold text-slate-400">Cancel</Button>
+            <Button type="button" variant="ghost" onClick={onClose} className="rounded-2xl h-14 px-8 font-bold text-slate-400 hover:text-red-500">Cancel</Button>
             <Button type="submit" className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20">
               <Check className="mr-2" size={20} />
               Save Program

@@ -44,7 +44,6 @@ const Programs = () => {
     <div className="min-h-screen bg-white">
       {/* Informative Hero Section */}
       <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 bg-[#0F4C81] text-white overflow-hidden">
-        {/* Subtle Background Overlay */}
         <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
           <img 
             src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070" 
@@ -66,11 +65,10 @@ const Programs = () => {
                 {settings?.programs_hero_title || 'MASTER THE GAME'}
               </h1>
               <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto font-medium leading-relaxed">
-                {settings?.programs_hero_subtitle || 'From beginners to competitive athletes, KYK Badminton Academy provides structured coaching for Kids, Teens, and Adults with scientific training methods and individual skill development.'}
+                {settings?.programs_hero_subtitle || 'From beginners to competitive athletes, KYK Badminton Academy provides structured coaching for Kids, Teens, and Adults with scientific training methods.'}
               </p>
             </motion.div>
 
-            {/* Info Pills */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -80,7 +78,7 @@ const Programs = () => {
               {infoBadges.map((badge, i) => (
                 <div 
                   key={i} 
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white/90 text-[10px] md:text-xs font-black uppercase tracking-wider whitespace-nowrap group hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all duration-300"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white/90 text-[10px] md:text-xs font-black uppercase tracking-wider group hover:bg-[#FFC107] hover:text-[#0F4C81] transition-all duration-300"
                 >
                   <badge.icon size={14} className="text-[#FFC107] group-hover:text-[#0F4C81] transition-colors" />
                   {badge.text}
@@ -88,7 +86,6 @@ const Programs = () => {
               ))}
             </motion.div>
 
-            {/* CTA Buttons */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -97,7 +94,7 @@ const Programs = () => {
             >
               <Button 
                 asChild 
-                className="h-14 px-10 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 transition-all font-black uppercase tracking-widest text-base shadow-xl shadow-[#FFC107]/20 group"
+                className="h-14 px-10 rounded-full bg-[#FFC107] text-[#0F4C81] hover:bg-white hover:scale-105 transition-all font-black uppercase tracking-widest text-base shadow-xl group"
               >
                 <Link to="/join">
                   Join Now
@@ -118,7 +115,6 @@ const Programs = () => {
         </div>
       </section>
 
-      {/* Programs List Section */}
       <section ref={programsRef} id="programs-list" className="py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
@@ -167,7 +163,7 @@ const Programs = () => {
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {program.features.map((feature, fidx) => (
+                      {program.features?.map((feature, fidx) => (
                         <div key={fidx} className="flex items-center gap-2 text-xs font-bold text-[#0F4C81]/70">
                           <ShieldCheck className="text-[#FFC107] w-4 h-4 flex-shrink-0" />
                           {feature}
@@ -176,7 +172,7 @@ const Programs = () => {
                     </div>
                   </div>
 
-                  <Button asChild className="w-full h-14 mt-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/10">
+                  <Button asChild className="w-full h-14 mt-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0F4C81]/20">
                     <Link to="/join">Enquire Now</Link>
                   </Button>
                 </motion.div>

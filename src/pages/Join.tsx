@@ -112,28 +112,10 @@ const Join = () => {
                   </motion.div>
                 ))}
               </div>
-
-              <div className="pt-8 border-t border-slate-100 space-y-6">
-                <h4 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Need Immediate Help?</h4>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild variant="outline" className="h-16 px-8 rounded-2xl border-2 border-[#0F4C81] text-[#0F4C81] font-black uppercase tracking-widest hover:bg-[#0F4C81] hover:text-white transition-all">
-                    <a href="tel:+1234567890" className="flex items-center gap-2">
-                      <Phone size={18} />
-                      Call Us
-                    </a>
-                  </Button>
-                  <Button asChild className="h-16 px-8 rounded-2xl bg-[#25D366] text-white font-black uppercase tracking-widest shadow-xl shadow-green-500/20">
-                    <a href="https://wa.me/1234567890" target="_blank" rel="noopener" className="flex items-center gap-2">
-                      <MessageSquare size={18} />
-                      WhatsApp
-                    </a>
-                  </Button>
-                </div>
-              </div>
             </div>
 
             <div className="lg:w-1/2 w-full">
-              <Card className="p-8 md:p-12 rounded-[3.5rem] border-none shadow-[0_40px_80px_-20px_rgba(15,76,129,0.15)] bg-white relative overflow-hidden">
+              <Card className="p-8 md:p-12 rounded-[3.5rem] border-none shadow-2xl bg-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFC107]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                 
                 <div className="space-y-8 relative z-10">
@@ -206,10 +188,6 @@ const Join = () => {
                       )}
                     </Button>
                   </form>
-
-                  <p className="text-[10px] text-center text-slate-400 font-medium px-4">
-                    By submitting, you agree to our Terms of Service and Privacy Policy regarding athlete safety and data usage.
-                  </p>
                 </div>
               </Card>
             </div>
