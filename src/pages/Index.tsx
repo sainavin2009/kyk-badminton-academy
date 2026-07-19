@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Hero from '@/components/home/Hero';
 import AboutSection from '@/components/home/AboutSection';
+import PartnersSection from '@/components/home/PartnersSection';
 import ActivitiesSection from '@/components/home/ActivitiesSection';
 import ContactSection from '@/components/home/ContactSection';
 import { motion } from 'framer-motion';
@@ -64,7 +65,10 @@ const Index = () => {
       {/* 2. Philosophy & About */}
       <AboutSection />
 
-      {/* 3. Performance Metrics Mid-Section */}
+      {/* 3. Collaboration Partners */}
+      <PartnersSection />
+
+      {/* 4. Performance Metrics Mid-Section */}
       <section className="py-24 bg-[#0F4C81] relative overflow-hidden">
         {/* Background Accents */}
         <div className="absolute top-0 right-0 w-1/3 h-full bg-[#FFC107]/5 -skew-x-12 translate-x-1/2" />
@@ -98,10 +102,10 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 4. Training Domains & Gallery */}
+      {/* 5. Training Domains & Gallery */}
       <ActivitiesSection />
 
-      {/* 5. Client Testimonial / Trust Section */}
+      {/* 6. Client Testimonial / Trust Section */}
       <section className="py-32 bg-white">
         <div className="container mx-auto px-8 lg:px-12">
           <div className="flex flex-col lg:flex-row items-center gap-20">
@@ -138,7 +142,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 6. Contact & Enrollment */}
+      {/* 7. Contact & Enrollment */}
       <ContactSection />
     </div>
   );
