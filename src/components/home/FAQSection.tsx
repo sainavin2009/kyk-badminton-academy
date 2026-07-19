@@ -11,6 +11,7 @@ import {
 import { HelpCircle, Plus, Minus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { FAQ } from '@/types/faq';
+import { Link } from 'react-router-dom';
 
 const FAQSection = () => {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -103,12 +104,12 @@ const FAQSection = () => {
 
           <div className="text-center pt-8">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Can't find what you're looking for?</p>
-            <a 
-              href="#contact" 
+            <Link 
+              to="/contact" 
               className="text-sm font-black text-[#0F4C81] uppercase tracking-[0.2em] border-b-2 border-[#FFC107] hover:text-[#FFC107] transition-colors"
             >
               Speak with a Consultant
-            </a>
+            </Link>
           </div>
         </div>
       </div>

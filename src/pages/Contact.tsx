@@ -2,6 +2,7 @@
 
 import React from 'react';
 import ContactSection from '@/components/home/ContactSection';
+import FAQSection from '@/components/home/FAQSection';
 import { motion } from 'framer-motion';
 
 const Contact = () => {
@@ -32,6 +33,9 @@ const Contact = () => {
 
       {/* Main Contact Section */}
       <ContactSection />
+      
+      {/* FAQ Section */}
+      <FAQSection />
       
       {/* FAQ Link / Extra Support */}
       <section className="pb-24 bg-white">
