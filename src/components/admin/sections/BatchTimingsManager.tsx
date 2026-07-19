@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Clock, 
@@ -8,302 +8,248 @@ import {
   RefreshCw, 
   Edit3, 
   Trash2, 
-  Eye, 
-  EyeOff, 
   Calendar,
-  ChevronUp,
-  ChevronDown,
-  Loader2
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { BatchTiming } from '@/types/batch';
-import BatchTimingFormModal from './BatchTimingFormModal';
+import BatchForm from './BatchForm';
 import { cn } from '@/lib/utils';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 const BatchTimingsManager = () => {
   const [batches, setBatches] = useState<BatchTiming[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBatch, setEditingBatch] = useState<BatchTiming | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchBatches = useCallback(async () => {
+  const fetchBatches = async () => {
     try {
-      console.log("[BatchTimingsManager] Fetching batches from Supabase...");
       setLoading(true);
       const { data, error } = await supabase
         .from('batch_timings')
         .select('*')
         .order('display_order', { ascending: true });
 
-      if (error) {
-        console.error("[BatchTimingsManager] Fetch Error:", error);
-        throw error;
-      }
-      console.log("[BatchTimingsManager] Batches loaded:", data);
+      if (error) throw error;
       setBatches(data || []);
     } catch (err: any) {
-      toast.error('Failed to load batches: ' + (err.message || 'Unknown error'));
+      console.error("[BatchTimings] Fetch Error:", err);
+      toast.error('Unable to sync batches. Please refresh.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchBatches();
-  }, [fetchBatches]);
+  }, []);
 
-  const handleOpenAdd = () => {
-    console.log("[BatchTimingsManager] Opening Add dialog");
-    setEditingBatch(null);
-    setIsModalOpen(true);
-  };
-
-  const handleOpenEdit = (batch: BatchTiming) => {
-    console.log("[BatchTimingsManager] Opening Edit dialog for batch:", batch.id);
-    setEditingBatch(batch);
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async (formData: any) => {
-    const isUpdate = !!formData.id;
+  const handleCreate = async (formData: any) => {
     try {
-      const payload = {
-        batch_name: formData.batch_name,
-        age_group: formData.age_group,
-        days: formData.days,
-        timings: formData.timings,
-        display_order: formData.display_order,
-        updated_at: new Date().toISOString()
-      };
+      setActionLoading(true);
+      const { error } = await supabase
+        .from('batch_timings')
+        .insert([formData]);
 
-      console.log(`[BatchTimingsManager] Executing ${isUpdate ? "Update" : "Insert"} with payload:`, payload);
-
-      if (isUpdate) {
-        const { error } = await supabase
-          .from('batch_timings')
-          .update(payload)
-          .eq('id', formData.id);
-        
-        if (error) {
-          console.error("[BatchTimingsManager] Supabase Update Error:", error);
-          throw error;
-        }
-        toast.success("Batch updated successfully.");
-      } else {
-        const { error } = await supabase
-          .from('batch_timings')
-          .insert([{ ...payload, is_visible: true }]);
-        
-        if (error) {
-          console.error("[BatchTimingsManager] Supabase Insert Error:", error);
-          throw error;
-        }
-        toast.success("New batch created successfully.");
-      }
+      if (error) throw error;
       
-      setIsModalOpen(false);
+      toast.success('New training batch added');
+      setIsAdding(false);
       await fetchBatches();
     } catch (err: any) {
-      toast.error('Database operation failed. Check console for details.');
+      console.error("[BatchTimings] Create Error:", err);
+      toast.error('Unable to save batch. Please try again.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUpdate = async (id: string, formData: any) => {
+    try {
+      setActionLoading(true);
+      const { error } = await supabase
+        .from('batch_timings')
+        .update({ ...formData, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success('Batch details updated');
+      setEditingId(null);
+      await fetchBatches();
+    } catch (err: any) {
+      console.error("[BatchTimings] Update Error:", err);
+      toast.error('Unable to update batch. Please try again.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    console.log("[BatchTimingsManager] Deleting batch ID:", id);
     try {
+      setActionLoading(true);
       const { error } = await supabase
         .from('batch_timings')
         .delete()
         .eq('id', id);
 
-      if (error) {
-        console.error("[BatchTimingsManager] Supabase Delete Error:", error);
-        throw error;
-      }
+      if (error) throw error;
       
-      toast.success("Batch deleted from database.");
+      toast.success('Batch removed from schedule');
+      setDeletingId(null);
       await fetchBatches();
     } catch (err: any) {
-      toast.error('Delete failed: ' + (err.message || 'Check console'));
-    }
-  };
-
-  const toggleVisibility = async (batch: BatchTiming) => {
-    console.log("[BatchTimingsManager] Toggling visibility for batch:", batch.id);
-    try {
-      const { error } = await supabase
-        .from('batch_timings')
-        .update({ is_visible: !batch.is_visible })
-        .eq('id', batch.id);
-      
-      if (error) {
-        console.error("[BatchTimingsManager] Toggle Error:", error);
-        throw error;
-      }
-      await fetchBatches();
-    } catch (err: any) {
-      toast.error('Update visibility failed.');
-    }
-  };
-
-  const moveOrder = async (index: number, direction: 'up' | 'down') => {
-    const swapIndex = direction === 'up' ? index - 1 : index + 1;
-    if (swapIndex < 0 || swapIndex >= batches.length) return;
-
-    try {
-      const currentBatch = batches[index];
-      const targetBatch = batches[swapIndex];
-
-      const { error: err1 } = await supabase
-        .from('batch_timings')
-        .update({ display_order: targetBatch.display_order })
-        .eq('id', currentBatch.id);
-      
-      if (err1) throw err1;
-
-      const { error: err2 } = await supabase
-        .from('batch_timings')
-        .update({ display_order: currentBatch.display_order })
-        .eq('id', targetBatch.id);
-
-      if (err2) throw err2;
-      
-      await fetchBatches();
-      toast.success("Order synchronized.");
-    } catch (err: any) {
-      toast.error("Failed to update order.");
+      console.error("[BatchTimings] Delete Error:", err);
+      toast.error('Unable to delete batch. Please try again.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+    <div className="space-y-10 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-4xl font-black text-[#0F4C81] tracking-tighter uppercase leading-none">Training Schedules</h2>
-          <p className="text-slate-500 font-medium">Manage batch timings displayed on the public site.</p>
+          <h2 className="text-4xl font-black text-[#0F4C81] tracking-tighter uppercase leading-none">Batch Schedules</h2>
+          <p className="text-slate-500 font-medium">Manage training hours and age groups entirely inline.</p>
         </div>
         
         <div className="flex gap-3">
-          <Button variant="ghost" onClick={fetchBatches} className="h-16 w-16 rounded-2xl text-slate-400 hover:bg-white shadow-sm transition-colors">
+          <Button 
+            variant="ghost" 
+            onClick={fetchBatches} 
+            className="h-16 w-16 rounded-2xl text-slate-400 hover:bg-white shadow-sm"
+          >
             <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
           </Button>
-          <Button 
-            onClick={handleOpenAdd}
-            className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all group"
-          >
-            <Plus className="mr-3 group-hover:rotate-90 transition-transform" />
-            Add Batch
-          </Button>
+          {!isAdding && (
+            <Button 
+              onClick={() => setIsAdding(true)}
+              className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all"
+            >
+              <Plus className="mr-2" />
+              Add Batch
+            </Button>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      {isAdding && (
+        <div className="mb-12">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107] mb-4 ml-4">New Batch Entry</h3>
+          <BatchForm 
+            onSave={handleCreate} 
+            onCancel={() => setIsAdding(false)} 
+            isLoading={actionLoading}
+          />
+        </div>
+      )}
+
+      <div className="space-y-6">
         {loading && batches.length === 0 ? (
           <div className="py-40 flex flex-col items-center justify-center gap-4 text-slate-300">
             <Loader2 className="animate-spin" size={48} />
             <p className="font-black uppercase text-[10px] tracking-widest">Accessing Schedule Registry...</p>
           </div>
-        ) : batches.length > 0 ? batches.map((batch, index) => (
-          <Card key={batch.id} className={cn(
-            "p-8 rounded-[3rem] border-none shadow-sm bg-white hover:shadow-xl transition-all group overflow-hidden relative",
-            !batch.is_visible && "opacity-60 grayscale-[0.4]"
-          )}>
-            <div className="flex flex-col lg:flex-row gap-10 items-start">
-              <div className="flex flex-col gap-2">
-                <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => moveOrder(index, 'up')} className="h-10 w-10 rounded-xl hover:bg-[#FFC107] text-[#0F4C81]"><ChevronUp size={24} /></Button>
-                <div className="w-16 h-16 rounded-[1.8rem] bg-blue-50 flex items-center justify-center group-hover:bg-[#FFC107] text-[#0F4C81] transition-colors shadow-sm"><Clock size={28} strokeWidth={2.5} /></div>
-                <Button variant="ghost" size="icon" disabled={index === batches.length - 1} onClick={() => moveOrder(index, 'down')} className="h-10 w-10 rounded-xl hover:bg-[#FFC107] text-[#0F4C81]"><ChevronDown size={24} /></Button>
+        ) : batches.length > 0 ? batches.map((batch) => (
+          <div key={batch.id} className="relative">
+            {editingId === batch.id ? (
+              <div className="mb-4">
+                <BatchForm 
+                  initialData={batch}
+                  onSave={(data) => handleUpdate(batch.id, data)}
+                  onCancel={() => setEditingId(null)}
+                  isLoading={actionLoading}
+                />
               </div>
+            ) : (
+              <Card className="p-8 rounded-[3rem] border-none shadow-sm bg-white hover:shadow-xl transition-all group overflow-hidden">
+                <div className="flex flex-col lg:flex-row gap-10 items-start">
+                  <div className="w-20 h-20 rounded-[1.8rem] bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-[#FFC107] text-[#0F4C81] transition-colors">
+                    <Clock size={32} strokeWidth={1.5} />
+                  </div>
 
-              <div className="flex-grow space-y-5">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-2xl font-black text-[#0F4C81] uppercase tracking-tighter leading-none">{batch.batch_name}</h3>
-                  <Badge variant="outline" className="rounded-lg text-[9px] font-black uppercase tracking-widest border-slate-200 px-3 py-1">{batch.age_group}</Badge>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <Calendar size={16} className="text-[#FFC107] mt-0.5" />
-                      <div>
-                         <p className="text-[10px] font-black uppercase text-slate-400">Weekly Cycle</p>
-                         <p className="text-sm font-bold text-[#0F4C81]">{batch.days}</p>
-                      </div>
+                  <div className="flex-grow space-y-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-3xl font-black text-[#0F4C81] uppercase tracking-tighter leading-none">{batch.title}</h3>
+                      <Badge variant="outline" className="rounded-lg text-[9px] font-black uppercase tracking-widest border-slate-200 px-3 py-1">{batch.age_group}</Badge>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <Clock size={16} className="text-[#FFC107] mt-0.5" />
-                      <div>
-                         <p className="text-[10px] font-black uppercase text-slate-400">Timings</p>
-                         <p className="text-sm font-bold text-slate-600 whitespace-pre-line leading-relaxed italic">{batch.timings}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="flex items-start gap-3">
+                        <Calendar size={18} className="text-[#FFC107] shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Weekly Cycle</p>
+                          <p className="text-sm font-bold text-[#0F4C81]">{batch.days}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Clock size={18} className="text-[#FFC107] shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Assigned Hours</p>
+                          <p className="text-sm font-bold text-slate-600 whitespace-pre-line leading-relaxed italic">"{batch.timing}"</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="flex lg:flex-col gap-2 self-center lg:self-start lg:pl-10 lg:border-l lg:border-slate-50">
-                <Button variant="ghost" onClick={() => toggleVisibility(batch)} className={cn("h-12 w-12 rounded-2xl transition-all", batch.is_visible ? "bg-green-50 text-green-500" : "bg-slate-50 text-slate-300")}>{batch.is_visible ? <Eye size={20} /> : <EyeOff size={20} />}</Button>
-                <Button variant="ghost" onClick={() => handleOpenEdit(batch)} className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600"><Edit3 size={20} /></Button>
-                
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" onClick={() => console.log("[BatchTimingsManager] Opening Delete dialog for batch:", batch.id)} className="h-12 w-12 rounded-2xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white">
+                  <div className="flex gap-2 self-center lg:self-start pt-4 lg:pt-0 lg:pl-10 lg:border-l lg:border-slate-50">
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setEditingId(batch.id)}
+                      className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 hover:bg-blue-100"
+                    >
+                      <Edit3 size={20} />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setDeletingId(batch.id)}
+                      className="h-12 w-12 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
+                    >
                       <Trash2 size={20} />
                     </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="rounded-[3rem] z-[100] fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-2xl font-black uppercase text-[#0F4C81]">Delete batch timing?</AlertDialogTitle>
-                      <AlertDialogDescription className="text-slate-500 font-medium">
-                        Are you sure you want to remove <span className="font-bold text-[#0F4C81]">"{batch.batch_name}"</span>? This action is irreversible.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="gap-3">
-                      <AlertDialogCancel className="rounded-2xl h-14 font-bold border-none bg-slate-50">Cancel</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={() => handleDelete(batch.id)} 
-                        className="rounded-2xl h-14 font-black uppercase bg-red-500 hover:bg-red-600 text-white border-none"
-                      >
-                        Purge Record
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-          </Card>
+                  </div>
+                </div>
+
+                {deletingId === batch.id && (
+                  <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex items-center justify-center p-8 animate-in fade-in duration-200">
+                    <div className="text-center space-y-6 max-w-sm">
+                      <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto">
+                        <AlertCircle size={32} />
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="text-xl font-black text-[#0F4C81] uppercase">Delete this batch?</h4>
+                        <p className="text-sm font-medium text-slate-500">This will permanently remove the "{batch.title}" schedule from the website.</p>
+                      </div>
+                      <div className="flex gap-3">
+                        <Button variant="ghost" onClick={() => setDeletingId(null)} className="flex-1 h-12 rounded-xl font-bold">Cancel</Button>
+                        <Button 
+                          onClick={() => handleDelete(batch.id)} 
+                          disabled={actionLoading}
+                          className="flex-1 h-12 rounded-xl bg-red-500 text-white hover:bg-red-600 font-black uppercase tracking-widest"
+                        >
+                          {actionLoading ? <Loader2 className="animate-spin" /> : 'Confirm Purge'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            )}
+          </div>
         )) : (
           <div className="py-40 text-center bg-white rounded-[4rem] border-2 border-dashed border-slate-100">
-             <Clock className="mx-auto mb-6 text-slate-200" size={48} />
-             <p className="text-slate-400 font-medium">The training registry is empty.</p>
+             <Clock className="mx-auto mb-6 text-slate-200" size={64} />
+             <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">No training schedules found.</p>
           </div>
         )}
       </div>
-
-      <BatchTimingFormModal 
-        isOpen={isModalOpen} 
-        onClose={() => {
-          console.log("[BatchTimingsManager] Modal onClose triggered");
-          setIsModalOpen(false);
-          setEditingBatch(null);
-        }} 
-        onSave={handleSave} 
-        batch={editingBatch} 
-      />
     </div>
   );
 };

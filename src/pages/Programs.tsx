@@ -33,7 +33,6 @@ const Programs = () => {
         const { data, error } = await supabase
           .from('batch_timings')
           .select('*')
-          .eq('is_visible', true)
           .order('display_order', { ascending: true });
         
         if (error) {
@@ -123,14 +122,14 @@ const Programs = () => {
                           <div className="flex items-center gap-4 mb-6">
                             <div className="p-3 bg-[#FFC107] text-[#0F4C81] rounded-2xl shadow-lg"><Clock size={20} strokeWidth={3} /></div>
                             <div>
-                              <h3 className="text-xl font-black uppercase tracking-tight text-[#FFC107]">{batch.batch_name}</h3>
+                              <h3 className="text-xl font-black uppercase tracking-tight text-[#FFC107]">{batch.title}</h3>
                               <p className="text-[10px] font-black uppercase text-white/50">{batch.age_group}</p>
                             </div>
                           </div>
                           <div className="space-y-4">
                             <div className="flex items-center gap-2 text-white/40"><Calendar size={14} /><span className="text-[10px] font-black uppercase tracking-widest">{batch.days}</span></div>
                             <div className="bg-white/5 p-5 rounded-2xl border border-white/5 group-hover:border-white/10 transition-colors">
-                              <p className="text-sm font-bold text-white leading-relaxed whitespace-pre-line">{batch.timings}</p>
+                              <p className="text-sm font-bold text-white leading-relaxed whitespace-pre-line">{batch.timing}</p>
                             </div>
                           </div>
                         </motion.div>
