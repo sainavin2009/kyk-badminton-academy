@@ -7,15 +7,20 @@ import { ShieldCheck, Handshake, Users } from 'lucide-react';
 const partners = [
   { 
     name: "DISTRICT", 
-    icon: ShieldCheck
+    // You can replace this URL with the actual path once the logo is uploaded to your public folder
+    logo: "https://logos-world.net/wp-content/uploads/2020/11/Zomato-Logo.png", 
+    icon: ShieldCheck,
+    isImage: true
   },
   { 
     name: "TURF TOWN", 
-    icon: Handshake
+    icon: Handshake,
+    isImage: false
   },
   { 
     name: "LYF SKILLS", 
-    icon: Users
+    icon: Users,
+    isImage: false
   }
 ];
 
@@ -53,8 +58,16 @@ const PartnersSection = () => {
               whileHover={{ y: -10 }}
               className="group relative bg-white p-12 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col items-center text-center"
             >
-              <div className="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center text-[#0F4C81]/20 group-hover:bg-[#FFC107]/10 group-hover:text-[#FFC107] transition-colors mb-8">
-                <partner.icon size={48} strokeWidth={1} />
+              <div className="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center overflow-hidden group-hover:bg-[#FFC107]/10 transition-colors mb-8 p-4">
+                {partner.isImage && partner.logo ? (
+                  <img 
+                    src={partner.logo} 
+                    alt={partner.name} 
+                    className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
+                  />
+                ) : (
+                  <partner.icon size={48} strokeWidth={1} className="text-[#0F4C81]/20 group-hover:text-[#FFC107] transition-colors" />
+                )}
               </div>
               
               <div className="space-y-2">
