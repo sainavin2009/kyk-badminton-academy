@@ -75,15 +75,20 @@ const SaleManager = () => {
       const tax_amount = (subtotal - discount_amount) * (tax_rate / 100);
       const total_amount = subtotal - discount_amount + tax_amount;
 
+      // Ensure customer_name is not lost before insertion
+      if (!customer_name) {
+        throw new Error("Customer name is required for generation.");
+      }
+
       // 1. Create Sale Header
       const { data: saleHead, error: saleError } = await supabase
         .from('sales')
         .insert([{
-          customer_name,
-          payment_mode,
-          discount_amount,
-          tax_amount,
-          total_amount
+          customer_name: customer_name,
+          payment_mode: payment_mode,
+          discount_amount: discount_amount,
+          tax_amount: tax_amount,
+          total_amount: total_amount
         }])
         .select()
         .single();

@@ -54,6 +54,8 @@ const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
     name: "items"
   });
 
+  // Explicitly watch customer_name to ensure it is controlled
+  const customerNameValue = watch('customer_name');
   const watchedItems = watch('items');
   const watchedDiscount = watch('discount_amount') || 0;
   const watchedTaxRate = watch('tax_rate') || 0;
@@ -104,7 +106,8 @@ const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                 <Input 
-                  {...register('customer_name')}
+                  value={customerNameValue}
+                  onChange={(e) => setValue('customer_name', e.target.value, { shouldValidate: true })}
                   placeholder="Enter full name..."
                   className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold text-[#0F4C81] focus:ring-2 focus:ring-[#FFC107]"
                 />
