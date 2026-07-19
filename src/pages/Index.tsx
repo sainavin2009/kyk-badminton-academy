@@ -27,12 +27,12 @@ const Index = () => {
           .from('homepage_statistics')
           .select('*')
           .eq('id', 1)
-          .single();
+          .maybeSingle(); // Use maybeSingle to prevent production errors if row is missing
 
         if (error) throw error;
-        setStatsData(data);
+        if (data) setStatsData(data);
       } catch (err) {
-        console.error('Error fetching stats:', err);
+        console.error('Production Audit - Stats Fetch Warning:', err);
       } finally {
         setLoading(false);
       }
@@ -99,11 +99,8 @@ const Index = () => {
       </section>
 
       <ActivitiesSection />
-
       <TestimonialsSection />
-      
       <FAQSection />
-
       <ContactSection />
     </div>
   );

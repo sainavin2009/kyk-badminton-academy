@@ -30,46 +30,62 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setProfile(data);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (data) setProfile(data);
+    } catch (err) {
+      console.error("Auth Audit - Profile Fetch Error:", err);
+    }
   };
 
   const updateLastLogin = async (userId: string) => {
-    await supabase
-      .from('profiles')
-      .update({ last_login: new Date().toISOString() })
-      .eq('id', userId);
+    try {
+      await supabase
+        .from('profiles')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', userId);
+    } catch (err) {
+      // Non-critical audit failure
+    }
   };
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+        if (initialSession?.user) {
+          await fetchProfile(initialSession.user.id);
+        }
+      } catch (err) {
+        console.error("Auth Audit - Init Error:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
       
-      if (event === 'SIGNED_IN' && session?.user) {
-        await fetchProfile(session.user.id);
-        await updateLastLogin(session.user.id);
-        await logAdminAction('LOGIN_SUCCESS', { email: session.user.email });
+      if (event === 'SIGNED_IN' && currentSession?.user) {
+        await fetchProfile(currentSession.user.id);
+        await updateLastLogin(currentSession.user.id);
+        await logAdminAction('LOGIN_SUCCESS', { email: currentSession.user.email });
       } else if (event === 'SIGNED_OUT') {
         setProfile(null);
-      } else if (event === 'USER_UPDATED' && session?.user) {
-        await fetchProfile(session.user.id);
+        setSession(null);
+        setUser(null);
+      } else if ((event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') && currentSession?.user) {
+        await fetchProfile(currentSession.user.id);
       }
       
       setLoading(false);
@@ -79,13 +95,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    if (user) {
-      await logAdminAction('LOGOUT_SUCCESS', { email: user.email });
+    try {
+      if (user) {
+        await logAdminAction('LOGOUT_SUCCESS', { email: user.email });
+      }
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Auth Audit - Logout Error:", err);
+    } finally {
+      setSession(null);
+      setUser(null);
+      setProfile(null);
     }
-    await supabase.auth.signOut();
-    setSession(null);
-    setUser(null);
-    setProfile(null);
   };
 
   const refreshProfile = async () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, SUPABASE_URL } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   ShieldCheck, 
@@ -71,7 +71,8 @@ const AdministrationManager = () => {
 
   const invokeManageAdmins = async (payload: any) => {
     const { data: { session } } = await supabase.auth.getSession();
-    const response = await fetch(`https://hsxelnigsofldxlwufri.supabase.co/functions/v1/manage-admins`, {
+    // Use the dynamic SUPABASE_URL for edge function invocation
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/manage-admins`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ const AdministrationManager = () => {
     });
     
     const result = await response.json();
-    if (!response.ok) throw new Error(result.error);
+    if (!response.ok) throw new Error(result.error || 'Server-side operation failed');
     return result;
   };
 
