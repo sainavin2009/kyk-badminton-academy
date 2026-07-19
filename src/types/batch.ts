@@ -6,7 +6,6 @@ export interface BatchTiming {
   age_group: string;
   days: string;
   timings: string;
-  description?: string;
   display_order: number;
   is_visible: boolean;
   created_at?: string;

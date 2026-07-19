@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Users, MapPin, GraduationCap, Dumbbell, ChevronDown, Calendar, AlertTriangle } from 'lucide-react';
+import { Trophy, ShieldCheck, Clock, Zap, Target, Star, Loader2, ChevronRight, Users, MapPin, GraduationCap, Dumbbell, ChevronDown, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -131,7 +131,6 @@ const Programs = () => {
                             <div className="flex items-center gap-2 text-white/40"><Calendar size={14} /><span className="text-[10px] font-black uppercase tracking-widest">{batch.days}</span></div>
                             <div className="bg-white/5 p-5 rounded-2xl border border-white/5 group-hover:border-white/10 transition-colors">
                               <p className="text-sm font-bold text-white leading-relaxed whitespace-pre-line">{batch.timings}</p>
-                              {batch.description && <p className="mt-3 pt-3 border-t border-white/5 text-xs text-[#FFC107]/60 font-medium italic">* {batch.description}</p>}
                             </div>
                           </div>
                         </motion.div>

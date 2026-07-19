@@ -23,7 +23,6 @@ const batchSchema = z.object({
   age_group: z.string().min(1, "Age group is required"),
   days: z.string().min(1, "Training days are required"),
   timings: z.string().min(1, "Timing details are required"),
-  description: z.string().optional(),
   display_order: z.preprocess((val) => Number(val || 0), z.number().min(0)),
 });
 
@@ -39,17 +38,24 @@ interface BatchTimingFormModalProps {
 const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFormModalProps) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<BatchFormValues>({
     resolver: zodResolver(batchSchema),
+    defaultValues: {
+      batch_name: '',
+      age_group: '',
+      days: 'Monday–Friday',
+      timings: '',
+      display_order: 0
+    }
   });
 
   useEffect(() => {
     if (isOpen) {
+      console.log("[BatchTimingFormModal] Initializing form. Mode:", batch ? "Edit" : "Add", "Data:", batch);
       if (batch) {
         reset({
           batch_name: batch.batch_name || '',
           age_group: batch.age_group || '',
           days: batch.days || '',
           timings: batch.timings || '',
-          description: batch.description || '',
           display_order: batch.display_order || 0
         });
       } else {
@@ -58,7 +64,6 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
           age_group: '',
           days: 'Monday–Friday',
           timings: '',
-          description: '',
           display_order: 0
         });
       }
@@ -66,6 +71,7 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
   }, [batch, isOpen, reset]);
 
   const onSubmit = (data: BatchFormValues) => {
+    console.log("[BatchTimingFormModal] Submitting form data:", data);
     onSave({
       id: batch?.id,
       ...data
@@ -73,8 +79,13 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl rounded-[3rem] p-0 border-none shadow-2xl overflow-hidden z-[100]">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        console.log("[BatchTimingFormModal] Closing modal via onOpenChange");
+        onClose();
+      }
+    }}>
+      <DialogContent className="max-w-xl rounded-[3rem] p-0 border-none shadow-2xl overflow-hidden z-[100] fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
         <div className="bg-[#0F4C81] p-8 text-white">
           <DialogHeader>
             <DialogTitle className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
@@ -134,15 +145,6 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
                 className={`min-h-[100px] rounded-xl bg-slate-50 border-none font-medium p-4 ${errors.timings ? 'ring-2 ring-red-500' : ''}`} 
               />
               {errors.timings && <p className="text-red-500 text-[10px] font-bold flex items-center gap-1"><AlertCircle size={12} /> {errors.timings.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description / Notes</Label>
-              <Input 
-                {...register('description')}
-                placeholder="e.g. Limited slots available" 
-                className="h-12 rounded-xl bg-slate-50 border-none font-medium" 
-              />
             </div>
           </div>
 

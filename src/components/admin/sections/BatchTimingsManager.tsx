@@ -42,6 +42,7 @@ const BatchTimingsManager = () => {
 
   const fetchBatches = useCallback(async () => {
     try {
+      console.log("[BatchTimingsManager] Fetching batches from Supabase...");
       setLoading(true);
       const { data, error } = await supabase
         .from('batch_timings')
@@ -52,6 +53,7 @@ const BatchTimingsManager = () => {
         console.error("[BatchTimingsManager] Fetch Error:", error);
         throw error;
       }
+      console.log("[BatchTimingsManager] Batches loaded:", data);
       setBatches(data || []);
     } catch (err: any) {
       toast.error('Failed to load batches: ' + (err.message || 'Unknown error'));
@@ -64,6 +66,18 @@ const BatchTimingsManager = () => {
     fetchBatches();
   }, [fetchBatches]);
 
+  const handleOpenAdd = () => {
+    console.log("[BatchTimingsManager] Opening Add dialog");
+    setEditingBatch(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (batch: BatchTiming) => {
+    console.log("[BatchTimingsManager] Opening Edit dialog for batch:", batch.id);
+    setEditingBatch(batch);
+    setIsModalOpen(true);
+  };
+
   const handleSave = async (formData: any) => {
     const isUpdate = !!formData.id;
     try {
@@ -72,10 +86,11 @@ const BatchTimingsManager = () => {
         age_group: formData.age_group,
         days: formData.days,
         timings: formData.timings,
-        description: formData.description,
         display_order: formData.display_order,
         updated_at: new Date().toISOString()
       };
+
+      console.log(`[BatchTimingsManager] Executing ${isUpdate ? "Update" : "Insert"} with payload:`, payload);
 
       if (isUpdate) {
         const { error } = await supabase
@@ -84,7 +99,7 @@ const BatchTimingsManager = () => {
           .eq('id', formData.id);
         
         if (error) {
-          console.error("[BatchTimingsManager] Update Error:", error);
+          console.error("[BatchTimingsManager] Supabase Update Error:", error);
           throw error;
         }
         toast.success("Batch updated successfully.");
@@ -94,7 +109,7 @@ const BatchTimingsManager = () => {
           .insert([{ ...payload, is_visible: true }]);
         
         if (error) {
-          console.error("[BatchTimingsManager] Insert Error:", error);
+          console.error("[BatchTimingsManager] Supabase Insert Error:", error);
           throw error;
         }
         toast.success("New batch created successfully.");
@@ -108,6 +123,7 @@ const BatchTimingsManager = () => {
   };
 
   const handleDelete = async (id: string) => {
+    console.log("[BatchTimingsManager] Deleting batch ID:", id);
     try {
       const { error } = await supabase
         .from('batch_timings')
@@ -115,7 +131,7 @@ const BatchTimingsManager = () => {
         .eq('id', id);
 
       if (error) {
-        console.error("[BatchTimingsManager] Delete Error:", error);
+        console.error("[BatchTimingsManager] Supabase Delete Error:", error);
         throw error;
       }
       
@@ -127,6 +143,7 @@ const BatchTimingsManager = () => {
   };
 
   const toggleVisibility = async (batch: BatchTiming) => {
+    console.log("[BatchTimingsManager] Toggling visibility for batch:", batch.id);
     try {
       const { error } = await supabase
         .from('batch_timings')
@@ -156,20 +173,14 @@ const BatchTimingsManager = () => {
         .update({ display_order: targetBatch.display_order })
         .eq('id', currentBatch.id);
       
-      if (err1) {
-        console.error("[BatchTimingsManager] Reorder Error 1:", err1);
-        throw err1;
-      }
+      if (err1) throw err1;
 
       const { error: err2 } = await supabase
         .from('batch_timings')
         .update({ display_order: currentBatch.display_order })
         .eq('id', targetBatch.id);
 
-      if (err2) {
-        console.error("[BatchTimingsManager] Reorder Error 2:", err2);
-        throw err2;
-      }
+      if (err2) throw err2;
       
       await fetchBatches();
       toast.success("Order synchronized.");
@@ -191,7 +202,7 @@ const BatchTimingsManager = () => {
             <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
           </Button>
           <Button 
-            onClick={() => { setEditingBatch(null); setIsModalOpen(true); }}
+            onClick={handleOpenAdd}
             className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl shadow-[#0F4C81]/20 transition-all group"
           >
             <Plus className="mr-3 group-hover:rotate-90 transition-transform" />
@@ -241,25 +252,20 @@ const BatchTimingsManager = () => {
                       </div>
                     </div>
                   </div>
-                  {batch.description && (
-                    <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 h-fit">
-                       <p className="text-xs font-medium text-slate-500 leading-relaxed italic">"{batch.description}"</p>
-                    </div>
-                  )}
                 </div>
               </div>
 
               <div className="flex lg:flex-col gap-2 self-center lg:self-start lg:pl-10 lg:border-l lg:border-slate-50">
                 <Button variant="ghost" onClick={() => toggleVisibility(batch)} className={cn("h-12 w-12 rounded-2xl transition-all", batch.is_visible ? "bg-green-50 text-green-500" : "bg-slate-50 text-slate-300")}>{batch.is_visible ? <Eye size={20} /> : <EyeOff size={20} />}</Button>
-                <Button variant="ghost" onClick={() => { setEditingBatch(batch); setIsModalOpen(true); }} className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600"><Edit3 size={20} /></Button>
+                <Button variant="ghost" onClick={() => handleOpenEdit(batch)} className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600"><Edit3 size={20} /></Button>
                 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="ghost" className="h-12 w-12 rounded-2xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white">
+                    <Button variant="ghost" onClick={() => console.log("[BatchTimingsManager] Opening Delete dialog for batch:", batch.id)} className="h-12 w-12 rounded-2xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white">
                       <Trash2 size={20} />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="rounded-[3rem] z-[100]">
+                  <AlertDialogContent className="rounded-[3rem] z-[100] fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-2xl font-black uppercase text-[#0F4C81]">Delete batch timing?</AlertDialogTitle>
                       <AlertDialogDescription className="text-slate-500 font-medium">
@@ -290,7 +296,11 @@ const BatchTimingsManager = () => {
 
       <BatchTimingFormModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => {
+          console.log("[BatchTimingsManager] Modal onClose triggered");
+          setIsModalOpen(false);
+          setEditingBatch(null);
+        }} 
         onSave={handleSave} 
         batch={editingBatch} 
       />
