@@ -14,10 +14,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShoppingCart, Plus, Trash2, Check, DollarSign } from 'lucide-react';
+import { ShoppingCart, Plus, Trash2, Check, User } from 'lucide-react';
 
 const saleSchema = z.object({
-  customer_id: z.string().min(1, "Customer selection is required"),
+  customer_name: z.string().min(1, "Customer name is required"),
   payment_mode: z.string().min(1, "Payment mode is required"),
   discount_amount: z.string().or(z.number()).transform(v => Number(v)),
   tax_rate: z.string().or(z.number()).transform(v => Number(v)),
@@ -34,18 +34,18 @@ interface SaleFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: any) => void;
-  students: any[];
   products: any[];
 }
 
-const SaleForm = ({ isOpen, onClose, onSave, students, products }: SaleFormProps) => {
+const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
   const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<SaleFormValues>({
     resolver: zodResolver(saleSchema),
     defaultValues: {
       items: [{ product_id: '', quantity: 1, unit_price: 0 }],
       discount_amount: 0,
       tax_rate: 5,
-      payment_mode: 'UPI'
+      payment_mode: 'UPI',
+      customer_name: ''
     }
   });
 
@@ -76,7 +76,13 @@ const SaleForm = ({ isOpen, onClose, onSave, students, products }: SaleFormProps
   };
 
   useEffect(() => {
-    if (isOpen) reset();
+    if (isOpen) reset({
+      items: [{ product_id: '', quantity: 1, unit_price: 0 }],
+      discount_amount: 0,
+      tax_rate: 5,
+      payment_mode: 'UPI',
+      customer_name: ''
+    });
   }, [isOpen, reset]);
 
   return (
@@ -94,26 +100,27 @@ const SaleForm = ({ isOpen, onClose, onSave, students, products }: SaleFormProps
         <form onSubmit={handleSubmit(onSave)} className="p-8 space-y-8 bg-white max-h-[70vh] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Customer (Student) *</Label>
-              <select 
-                {...register('customer_id')}
-                className="w-full h-14 rounded-2xl bg-slate-50 border-none px-5 font-bold text-[#0F4C81] focus:ring-2 focus:ring-[#FFC107]"
-              >
-                <option value="">Choose Customer...</option>
-                {students.map(s => (
-                  <option key={s.id} value={s.id}>{s.name} (#{s.student_id_serial})</option>
-                ))}
-              </select>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Customer Name *</Label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <Input 
+                  {...register('customer_name')}
+                  placeholder="Enter full name..."
+                  className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold text-[#0F4C81] focus:ring-2 focus:ring-[#FFC107]"
+                />
+              </div>
+              {errors.customer_name && <p className="text-red-500 text-[10px] font-bold">{errors.customer_name.message}</p>}
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Payment Mode</Label>
               <select 
                 {...register('payment_mode')}
-                className="w-full h-14 rounded-2xl bg-slate-50 border-none px-5 font-bold text-[#0F4C81]"
+                className="w-full h-14 rounded-2xl bg-slate-50 border-none px-5 font-bold text-[#0F4C81] outline-none"
               >
                 <option value="UPI">UPI / GPay</option>
                 <option value="Cash">Cash</option>
                 <option value="Card">Card</option>
+                <option value="Bank Transfer">Bank Transfer</option>
               </select>
             </div>
           </div>
@@ -133,7 +140,7 @@ const SaleForm = ({ isOpen, onClose, onSave, students, products }: SaleFormProps
                   <select 
                     {...register(`items.${index}.product_id` as const)}
                     onChange={(e) => handleProductChange(index, e.target.value)}
-                    className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-xs"
+                    className="w-full h-12 rounded-xl bg-slate-50 border-none px-4 font-bold text-xs outline-none"
                   >
                     <option value="">Select Product...</option>
                     {products.map(p => (

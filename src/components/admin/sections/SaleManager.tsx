@@ -29,7 +29,6 @@ import SaleInvoiceModal from './SaleInvoiceModal';
 
 const SaleManager = () => {
   const [sales, setSales] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,9 +54,6 @@ const SaleManager = () => {
       if (saleError) throw saleError;
       setSales(saleData || []);
 
-      const { data: stuData } = await supabase.from('students').select('id, full_name, student_id');
-      setStudents(stuData || []);
-
       const { data: invData } = await supabase.from('inventory').select('*').order('name');
       setProducts(invData || []);
     } catch (error: any) {
@@ -73,7 +69,7 @@ const SaleManager = () => {
 
   const handleCreateSale = async (formData: any) => {
     try {
-      const { items, discount_amount, tax_rate, customer_id, payment_mode } = formData;
+      const { items, discount_amount, tax_rate, customer_name, payment_mode } = formData;
       
       const subtotal = items.reduce((acc: number, item: any) => acc + (item.quantity * item.unit_price), 0);
       const tax_amount = (subtotal - discount_amount) * (tax_rate / 100);
@@ -83,7 +79,7 @@ const SaleManager = () => {
       const { data: saleHead, error: saleError } = await supabase
         .from('sales')
         .insert([{
-          customer_id,
+          customer_name,
           payment_mode,
           discount_amount,
           tax_amount,
@@ -106,8 +102,25 @@ const SaleManager = () => {
       const { error: itemsError } = await supabase.from('sale_items').insert(saleItems);
       if (itemsError) throw itemsError;
 
-      toast.success('Sale recorded and inventory updated');
+      toast.success('✅ Sale recorded successfully.');
       setIsSaleModalOpen(false);
+      
+      // Fetch the complete sale object for the invoice modal
+      const { data: fullSale } = await supabase
+        .from('sales')
+        .select(`
+          *,
+          students (id, full_name, student_id),
+          sale_items (
+            *,
+            inventory (id, name)
+          )
+        `)
+        .eq('id', saleHead.id)
+        .single();
+      
+      setSelectedSale(fullSale);
+      setIsInvoiceModalOpen(true);
       fetchData(); 
     } catch (error: any) {
       toast.error('Sale failed: ' + error.message);
@@ -115,7 +128,7 @@ const SaleManager = () => {
   };
 
   const filteredSales = sales.filter(s => 
-    s.students?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (s.customer_name || s.students?.full_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.receipt_no?.toString().includes(searchTerm)
   );
 
@@ -204,7 +217,7 @@ const SaleManager = () => {
                     <TableCell className="pl-8 py-6 font-black text-[#0F4C81]">#SAL-{s.receipt_no}</TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0F4C81]">{s.students?.full_name}</span>
+                        <span className="font-bold text-[#0F4C81]">{s.customer_name || s.students?.full_name || 'Walk-in Customer'}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase">{format(new Date(s.created_at), 'MMM dd, yyyy')}</span>
                       </div>
                     </TableCell>
@@ -237,7 +250,6 @@ const SaleManager = () => {
         isOpen={isSaleModalOpen}
         onClose={() => setIsSaleModalOpen(false)}
         onSave={handleCreateSale}
-        students={students}
         products={products}
       />
 
