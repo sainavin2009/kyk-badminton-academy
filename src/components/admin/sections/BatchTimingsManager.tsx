@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Clock, 
@@ -10,11 +10,10 @@ import {
   Trash2, 
   Eye, 
   EyeOff, 
-  Users,
   Calendar,
   ChevronUp,
   ChevronDown,
-  Info
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -41,7 +40,7 @@ const BatchTimingsManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBatch, setEditingBatch] = useState<BatchTiming | null>(null);
 
-  const fetchBatches = async () => {
+  const fetchBatches = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -49,63 +48,69 @@ const BatchTimingsManager = () => {
         .select('*')
         .order('display_order', { ascending: true });
 
-      if (error) {
-        console.error("Database error in batch_timings query:", error);
-        throw new Error('Failed to synchronize schedule database.');
-      }
+      if (error) throw error;
       setBatches(data || []);
     } catch (err: any) {
-      toast.error(err.message);
+      console.error("[Read Error]", err.message);
+      toast.error('Failed to load batches: ' + err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBatches();
-  }, []);
+  }, [fetchBatches]);
 
   const handleSave = async (formData: any) => {
+    const isUpdate = !!formData.id;
     try {
-      if (formData.id) {
+      const payload = {
+        batch_name: formData.batch_name,
+        age_group: formData.age_group,
+        days: formData.days,
+        timings: formData.timings,
+        description: formData.description,
+        display_order: formData.display_order,
+        updated_at: new Date().toISOString()
+      };
+
+      if (isUpdate) {
         const { error } = await supabase
           .from('batch_timings')
-          .update({
-            batch_name: formData.batch_name,
-            age_group: formData.age_group,
-            days: formData.days,
-            timings: formData.timings,
-            description: formData.description,
-            display_order: formData.display_order,
-            updated_at: new Date().toISOString()
-          })
+          .update(payload)
           .eq('id', formData.id);
         if (error) throw error;
-        toast.success("Schedule updated.");
+        toast.success("Batch updated successfully.");
       } else {
         const { error } = await supabase
           .from('batch_timings')
-          .insert([{
-            ...formData,
-            is_visible: true
-          }]);
+          .insert([{ ...payload, is_visible: true }]);
         if (error) throw error;
-        toast.success("New batch added.");
+        toast.success("New batch created successfully.");
       }
+      
       setIsModalOpen(false);
-      fetchBatches();
+      await fetchBatches(); // Verified: Direct Supabase fetch after save
     } catch (err: any) {
-      toast.error('Save failed: ' + err.message);
+      console.error("[Save Error]", err.message);
+      toast.error('Operation failed: ' + err.message);
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.from('batch_timings').delete().eq('id', id);
+      const { error } = await supabase
+        .from('batch_timings')
+        .delete()
+        .eq('id', id);
+
       if (error) throw error;
-      toast.success("Batch removed.");
-      fetchBatches();
+      
+      toast.success("Batch deleted from database.");
+      await fetchBatches(); // Verified: Direct Supabase fetch after delete
     } catch (err: any) {
+      console.error("[Delete Error]", err.message);
       toast.error('Delete failed: ' + err.message);
     }
   };
@@ -116,37 +121,38 @@ const BatchTimingsManager = () => {
         .from('batch_timings')
         .update({ is_visible: !batch.is_visible })
         .eq('id', batch.id);
+      
       if (error) throw error;
-      fetchBatches();
+      await fetchBatches();
     } catch (err: any) {
-      toast.error('Update failed');
+      toast.error('Update failed: ' + err.message);
     }
   };
 
   const moveOrder = async (index: number, direction: 'up' | 'down') => {
-    const newBatches = [...batches];
     const swapIndex = direction === 'up' ? index - 1 : index + 1;
-    
     if (swapIndex < 0 || swapIndex >= batches.length) return;
 
-    const temp = newBatches[index];
-    newBatches[index] = newBatches[swapIndex];
-    newBatches[swapIndex] = temp;
-
-    setBatches(newBatches);
-
     try {
-      const updates = newBatches.map((b, i) => ({
-        id: b.id,
-        display_order: i
-      }));
+      const currentBatch = batches[index];
+      const targetBatch = batches[swapIndex];
+
+      const { error: err1 } = await supabase
+        .from('batch_timings')
+        .update({ display_order: targetBatch.display_order })
+        .eq('id', currentBatch.id);
       
-      for (const update of updates) {
-        await supabase.from('batch_timings').update({ display_order: update.display_order }).eq('id', update.id);
-      }
-      toast.success("Order updated.");
+      const { error: err2 } = await supabase
+        .from('batch_timings')
+        .update({ display_order: currentBatch.display_order })
+        .eq('id', targetBatch.id);
+
+      if (err1 || err2) throw new Error("Order update failed");
+      
+      await fetchBatches();
+      toast.success("Order synchronized.");
     } catch (err: any) {
-      fetchBatches();
+      toast.error(err.message);
     }
   };
 
@@ -159,7 +165,7 @@ const BatchTimingsManager = () => {
         </div>
         
         <div className="flex gap-3">
-          <Button variant="ghost" onClick={fetchBatches} className="h-16 w-16 rounded-2xl text-slate-400 hover:bg-white shadow-sm">
+          <Button variant="ghost" onClick={fetchBatches} className="h-16 w-16 rounded-2xl text-slate-400 hover:bg-white shadow-sm transition-colors">
             <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
           </Button>
           <Button 
@@ -173,9 +179,10 @@ const BatchTimingsManager = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {loading ? (
+        {loading && batches.length === 0 ? (
           <div className="py-40 flex flex-col items-center justify-center gap-4 text-slate-300">
-            <RefreshCw className="animate-spin" size={48} />
+            <Loader2 className="animate-spin" size={48} />
+            <p className="font-black uppercase text-[10px] tracking-widest">Accessing Schedule Registry...</p>
           </div>
         ) : batches.length > 0 ? batches.map((batch, index) => (
           <Card key={batch.id} className={cn(
@@ -222,17 +229,29 @@ const BatchTimingsManager = () => {
 
               <div className="flex lg:flex-col gap-2 self-center lg:self-start lg:pl-10 lg:border-l lg:border-slate-50">
                 <Button variant="ghost" onClick={() => toggleVisibility(batch)} className={cn("h-12 w-12 rounded-2xl transition-all", batch.is_visible ? "bg-green-50 text-green-500" : "bg-slate-50 text-slate-300")}>{batch.is_visible ? <Eye size={20} /> : <EyeOff size={20} />}</Button>
-                <Button variant="ghost" onClick={() => { setEditingBatch(batch); setIsModalOpen(true); }} className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-50"><Edit3 size={20} className="text-blue-500" /></Button>
+                <Button variant="ghost" onClick={() => { setEditingBatch(batch); setIsModalOpen(true); }} className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600"><Edit3 size={20} /></Button>
+                
                 <AlertDialog>
-                  <AlertDialogTrigger asChild><Button variant="ghost" className="h-12 w-12 rounded-2xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white"><Trash2 size={20} /></Button></AlertDialogTrigger>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" className="h-12 w-12 rounded-2xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white">
+                      <Trash2 size={20} />
+                    </Button>
+                  </AlertDialogTrigger>
                   <AlertDialogContent className="rounded-[3rem]">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-2xl font-black uppercase text-[#0F4C81]">Delete batch timing?</AlertDialogTitle>
-                      <AlertDialogDescription className="text-slate-500 font-medium">Are you sure you want to remove "{batch.batch_name}"?</AlertDialogDescription>
+                      <AlertDialogDescription className="text-slate-500 font-medium">
+                        Are you sure you want to remove <span className="font-bold text-[#0F4C81]">"{batch.batch_name}"</span>? This action is irreversible.
+                      </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-3">
                       <AlertDialogCancel className="rounded-2xl h-14 font-bold border-none bg-slate-50">Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(batch.id)} className="rounded-2xl h-14 font-black uppercase bg-red-500 hover:bg-red-600 text-white border-none">Delete</AlertDialogAction>
+                      <AlertDialogAction 
+                        onClick={() => handleDelete(batch.id)} 
+                        className="rounded-2xl h-14 font-black uppercase bg-red-500 hover:bg-red-600 text-white border-none"
+                      >
+                        Purge Record
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -247,7 +266,12 @@ const BatchTimingsManager = () => {
         )}
       </div>
 
-      <BatchTimingFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} batch={editingBatch} />
+      <BatchTimingFormModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSave={handleSave} 
+        batch={editingBatch} 
+      />
     </div>
   );
 };

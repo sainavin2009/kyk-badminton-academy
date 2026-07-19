@@ -24,7 +24,7 @@ const batchSchema = z.object({
   days: z.string().min(1, "Training days are required"),
   timings: z.string().min(1, "Timing details are required"),
   description: z.string().optional(),
-  display_order: z.preprocess((val) => Number(val), z.number().min(0)),
+  display_order: z.preprocess((val) => Number(val || 0), z.number().min(0)),
 });
 
 type BatchFormValues = z.infer<typeof batchSchema>;
@@ -42,30 +42,32 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
   });
 
   useEffect(() => {
-    if (batch) {
-      reset({
-        batch_name: batch.batch_name,
-        age_group: batch.age_group,
-        days: batch.days,
-        timings: batch.timings,
-        description: batch.description || '',
-        display_order: batch.display_order
-      });
-    } else {
-      reset({
-        batch_name: '',
-        age_group: '',
-        days: 'Monday–Friday',
-        timings: '',
-        description: '',
-        display_order: 0
-      });
+    if (isOpen) {
+      if (batch) {
+        reset({
+          batch_name: batch.batch_name,
+          age_group: batch.age_group,
+          days: batch.days,
+          timings: batch.timings,
+          description: batch.description || '',
+          display_order: batch.display_order
+        });
+      } else {
+        reset({
+          batch_name: '',
+          age_group: '',
+          days: 'Monday–Friday',
+          timings: '',
+          description: '',
+          display_order: 0
+        });
+      }
     }
   }, [batch, isOpen, reset]);
 
   const onSubmit = (data: BatchFormValues) => {
     onSave({
-      id: batch?.id,
+      id: batch?.id, // ID is critical for the UPDATE operation
       ...data
     });
   };
@@ -77,7 +79,7 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
           <DialogHeader>
             <DialogTitle className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
               <Clock className="text-[#FFC107]" size={32} />
-              {batch ? 'Edit Batch Configuration' : 'Create New Batch'}
+              {batch ? 'Edit Schedule' : 'Create New Batch'}
             </DialogTitle>
           </DialogHeader>
         </div>
@@ -135,7 +137,7 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Additional Info (Optional)</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description / Notes</Label>
               <Input 
                 {...register('description')}
                 placeholder="e.g. Limited slots available" 
@@ -146,11 +148,11 @@ const BatchTimingFormModal = ({ isOpen, onClose, onSave, batch }: BatchTimingFor
 
           <DialogFooter className="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
             <Button type="button" variant="ghost" onClick={onClose} className="rounded-2xl h-14 px-8 font-bold text-slate-400 hover:text-red-500">
-              Discard
+              Cancel
             </Button>
             <Button type="submit" className="rounded-2xl h-14 px-12 bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl transition-all">
               <Check className="mr-2" size={20} />
-              {batch ? 'Synchronize Updates' : 'Commit Batch'}
+              {batch ? 'Update Batch' : 'Add to Schedule'}
             </Button>
           </DialogFooter>
         </form>
