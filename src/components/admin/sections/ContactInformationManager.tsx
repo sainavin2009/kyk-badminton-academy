@@ -8,32 +8,51 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Undo2, MapPin, Phone, Clock, MessageSquare, Instagram, Mail } from 'lucide-react';
+import { Save, Undo2, MapPin, Phone, Clock, MessageSquare, Instagram, Mail, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { WorkingHour } from '@/types/settings';
 
 const ContactInformationManager = () => {
-  const { contactInfo, refresh } = useSettings();
-  const [formData, setFormData] = useState<any>(null);
+  const { settings, refresh } = useSettings();
+  const [formData, setFormData] = useState({
+    address: '',
+    phone: '',
+    email: '',
+    whatsapp: '',
+    map_link: '',
+    working_hours: [] as WorkingHour[]
+  });
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    if (contactInfo) {
-      setFormData({ ...contactInfo });
+    if (settings) {
+      setFormData({
+        address: settings.address || '',
+        phone: settings.phone || '',
+        email: settings.email || '',
+        whatsapp: settings.whatsapp || '',
+        map_link: settings.map_link || '',
+        working_hours: settings.working_hours || []
+      });
     }
-  }, [contactInfo]);
+  }, [settings]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };
 
   const handleSave = async () => {
     try {
       const { error } = await supabase
-        .from('contact_information')
+        .from('site_settings')
         .update({
-          ...formData,
+          address: formData.address,
+          phone: formData.phone,
+          email: formData.email,
+          whatsapp: formData.whatsapp,
+          map_link: formData.map_link,
+          working_hours: formData.working_hours,
           updated_at: new Date().toISOString()
         })
         .eq('id', 1);
@@ -47,28 +66,40 @@ const ContactInformationManager = () => {
     }
   };
 
-  const handleReset = () => {
-    if (contactInfo) {
-      setFormData({ ...contactInfo });
-      setIsDirty(false);
-      toast.info('Changes discarded');
-    }
+  const addTiming = () => {
+    setFormData(prev => ({
+      ...prev,
+      working_hours: [...prev.working_hours, { days: '', hours: '' }]
+    }));
+    setIsDirty(true);
   };
 
-  if (!formData) return null;
+  const updateTiming = (index: number, field: keyof WorkingHour, value: string) => {
+    const next = [...formData.working_hours];
+    next[index][field] = value;
+    setFormData(prev => ({ ...prev, working_hours: next }));
+    setIsDirty(true);
+  };
+
+  const removeTiming = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      working_hours: prev.working_hours.filter((_, i) => i !== index)
+    }));
+    setIsDirty(true);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Contact Information</h2>
-          <p className="text-slate-500 font-medium">Manage the academy's official contact details and location.</p>
+          <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Contact & Operations</h2>
+          <p className="text-slate-500 font-medium">Manage how athletes reach the academy and your training hours.</p>
         </div>
         <div className="flex gap-3">
           <Button 
             variant="ghost" 
-            onClick={handleReset}
-            disabled={!isDirty}
+            onClick={() => refresh()}
             className="h-14 px-6 rounded-2xl text-slate-400 font-bold"
           >
             <Undo2 className="mr-2" size={20} /> Reset
@@ -87,21 +118,26 @@ const ContactInformationManager = () => {
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-50 text-[#0F4C81] rounded-2xl"><MapPin size={24} /></div>
-            <h3 className="text-xl font-black text-[#0F4C81] uppercase">Academy Presence</h3>
+            <h3 className="text-xl font-black text-[#0F4C81] uppercase">Location</h3>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Academy Name</Label>
-              <Input name="academy_name" value={formData.academy_name} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
-            </div>
-            <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Physical Address</Label>
-              <Textarea name="address" value={formData.address} onChange={handleInputChange} className="min-h-[120px] rounded-2xl bg-slate-50 border-none font-bold p-5 resize-none" />
+              <Textarea 
+                value={formData.address} 
+                onChange={(e) => handleInputChange('address', e.target.value)} 
+                className="min-h-[120px] rounded-2xl bg-slate-50 border-none font-bold p-5 resize-none" 
+              />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Google Maps Embed URL</Label>
-              <Input name="google_maps_url" value={formData.google_maps_url} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-medium text-xs" />
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Map Link (URL)</Label>
+              <Input 
+                value={formData.map_link} 
+                onChange={(e) => handleInputChange('map_link', e.target.value)} 
+                className="h-14 rounded-2xl bg-slate-50 border-none font-medium text-xs" 
+                placeholder="Google Maps link..."
+              />
             </div>
           </div>
         </Card>
@@ -109,63 +145,64 @@ const ContactInformationManager = () => {
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-green-50 text-green-600 rounded-2xl"><Phone size={24} /></div>
-            <h3 className="text-xl font-black text-[#0F4C81] uppercase">Communication</h3>
+            <h3 className="text-xl font-black text-[#0F4C81] uppercase">Contact Details</h3>
           </div>
 
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Primary Phone</Label>
-                <Input name="primary_phone" value={formData.primary_phone} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
+                <Input value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Secondary Phone</Label>
-                <Input name="secondary_phone" value={formData.secondary_phone} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">WhatsApp</Label>
+                <Input value={formData.whatsapp} onChange={(e) => handleInputChange('whatsapp', e.target.value)} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
               </div>
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Official Email</Label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                <Input name="email" value={formData.email} onChange={handleInputChange} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">WhatsApp Number</Label>
-              <div className="relative">
-                <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                <Input name="whatsapp_number" value={formData.whatsapp_number} onChange={handleInputChange} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Instagram URL</Label>
-              <div className="relative">
-                <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                <Input name="instagram_url" value={formData.instagram_url} onChange={handleInputChange} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
+                <Input value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} className="h-14 pl-12 rounded-2xl bg-slate-50 border-none font-bold" />
               </div>
             </div>
           </div>
         </Card>
 
         <Card className="p-8 rounded-[3rem] border-none shadow-sm space-y-8 bg-white lg:col-span-2">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl"><Clock size={24} /></div>
-            <h3 className="text-xl font-black text-[#0F4C81] uppercase">Operational Hours</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl"><Clock size={24} /></div>
+              <h3 className="text-xl font-black text-[#0F4C81] uppercase">Academy Timings</h3>
+            </div>
+            <Button onClick={addTiming} variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-[#0F4C81]">
+              <Plus className="mr-1" size={14} /> Add Slot
+            </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Monday – Friday</Label>
-              <Input name="monday_friday_hours" value={formData.monday_friday_hours} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Saturday</Label>
-              <Input name="saturday_hours" value={formData.saturday_hours} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sunday</Label>
-              <Input name="sunday_hours" value={formData.sunday_hours} onChange={handleInputChange} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
-            </div>
+          <div className="space-y-4">
+            {formData.working_hours.map((timing, idx) => (
+              <div key={idx} className="flex gap-4 items-center animate-in slide-in-from-left-4 duration-300">
+                <Input 
+                  placeholder="Days (e.g. Mon - Fri)"
+                  value={timing.days}
+                  onChange={(e) => updateTiming(idx, 'days', e.target.value)}
+                  className="h-14 flex-1 rounded-2xl bg-slate-50 border-none font-bold" 
+                />
+                <Input 
+                  placeholder="Hours (e.g. 6:00 AM - 9:00 PM)"
+                  value={timing.hours}
+                  onChange={(e) => updateTiming(idx, 'hours', e.target.value)}
+                  className="h-14 flex-1 rounded-2xl bg-slate-50 border-none font-bold" 
+                />
+                <Button variant="ghost" onClick={() => removeTiming(idx)} className="h-14 w-14 rounded-2xl text-slate-300 hover:text-red-500">
+                  <Trash2 size={20} />
+                </Button>
+              </div>
+            ))}
+            {formData.working_hours.length === 0 && (
+              <div className="py-10 text-center text-slate-300 uppercase text-[10px] font-black">No hours configured.</div>
+            )}
           </div>
         </Card>
       </div>

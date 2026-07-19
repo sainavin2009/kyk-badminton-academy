@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, MessageSquare, Send, Loader2, PhoneCall } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageSquare, Send, Loader2, PhoneCall, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,7 @@ const contactSchema = z.object({
 type ContactValues = z.infer<typeof contactSchema>;
 
 const ContactSection = () => {
-  const { contactInfo } = useSettings();
+  const { settings } = useSettings();
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactValues>({
     resolver: zodResolver(contactSchema)
   });
@@ -41,19 +41,12 @@ const ContactSection = () => {
     }
   };
 
-  if (!contactInfo) return null;
+  if (!settings) return null;
 
   const contactDetails = [
-    { icon: MapPin, title: "Academy Address", content: contactInfo.address },
-    { icon: Phone, title: "Primary Contact", content: contactInfo.primary_phone },
-    { icon: PhoneCall, title: "Secondary Contact", content: contactInfo.secondary_phone },
-    { icon: Mail, title: "Email Address", content: contactInfo.email || 'kykacademy1104@gmail.com' },
-  ];
-
-  const timings = [
-    { days: "Monday – Friday", hours: contactInfo.monday_friday_hours },
-    { days: "Saturday", hours: contactInfo.saturday_hours },
-    { days: "Sunday", hours: contactInfo.sunday_hours },
+    { icon: MapPin, title: "Academy Address", content: settings.address },
+    { icon: Phone, title: "Primary Phone", content: settings.phone },
+    { icon: Mail, title: "Email Address", content: settings.email },
   ];
 
   return (
@@ -63,8 +56,9 @@ const ContactSection = () => {
           <div className="lg:w-1/2 space-y-10">
             <div className="space-y-4">
               <span className="inline-block px-4 py-1.5 rounded-full bg-[#FFC107]/10 text-[#0F4C81] text-xs font-black tracking-widest uppercase">Connect With Us</span>
-              <h2 className="text-4xl md:text-5xl font-black text-[#0F4C81] leading-tight tracking-tighter">Visit our <br /><span className="text-[#FFC107]">Badminton Arena</span></h2>
+              <h2 className="text-4xl md:text-5xl font-black text-[#0F4C81] leading-tight tracking-tighter">Visit our <br /><span className="text-[#FFC107]">Training Arena</span></h2>
             </div>
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {contactDetails.map((item, idx) => (
                 <Card key={idx} className="p-6 rounded-[2rem] border-none bg-slate-50 shadow-sm group">
@@ -77,7 +71,8 @@ const ContactSection = () => {
                   </div>
                 </Card>
               ))}
-              {timings.map((t, idx) => (
+              
+              {settings.working_hours?.slice(0, 1).map((t, idx) => (
                 <Card key={`timing-${idx}`} className="p-6 rounded-[2rem] border-none bg-slate-50 shadow-sm group">
                   <div className="flex flex-col gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-[#FFC107] shadow-sm"><Clock size={24} /></div>
@@ -89,25 +84,29 @@ const ContactSection = () => {
                 </Card>
               ))}
             </div>
+
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
               <Button asChild className="h-16 px-8 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-lg shadow-xl group transition-all">
-                <a href={`https://wa.me/${(contactInfo.whatsapp_number || '919363978810').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                <a href={`https://wa.me/${(settings.whatsapp || '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
                   <MessageSquare className="fill-current" /> WhatsApp
                 </a>
               </Button>
-              {contactInfo.google_maps_url && (
-                <div className="flex-grow rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-lg min-h-[150px]">
-                  <iframe src={contactInfo.google_maps_url} width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy" />
-                </div>
+              {settings.map_link && (
+                <Button variant="outline" asChild className="h-16 px-8 rounded-full border-2 border-slate-100 font-bold text-[#0F4C81]">
+                  <a href={settings.map_link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <MapPin size={18} /> Get Directions <ExternalLink size={14} />
+                  </a>
+                </Button>
               )}
             </div>
           </div>
+
           <div className="lg:w-1/2">
             <Card className="p-8 md:p-12 rounded-[3.5rem] bg-[#0F4C81] text-white border-none shadow-2xl relative overflow-hidden h-full">
               <div className="space-y-8 relative z-10">
                 <div className="space-y-2">
                   <h3 className="text-2xl font-black uppercase tracking-tight">Send a Message</h3>
-                  <p className="text-sm text-white/50 font-medium italic">Have a question? We respond within 24 hours.</p>
+                  <p className="text-sm text-white/50 font-medium italic">Have a question? Our administration responds within 24 hours.</p>
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
