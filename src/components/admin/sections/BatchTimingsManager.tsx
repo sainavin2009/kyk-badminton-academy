@@ -48,11 +48,13 @@ const BatchTimingsManager = () => {
         .select('*')
         .order('display_order', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("[BatchTimingsManager] Fetch Error:", error);
+        throw error;
+      }
       setBatches(data || []);
     } catch (err: any) {
-      console.error("[Read Error]", err.message);
-      toast.error('Failed to load batches: ' + err.message);
+      toast.error('Failed to load batches: ' + (err.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -80,21 +82,28 @@ const BatchTimingsManager = () => {
           .from('batch_timings')
           .update(payload)
           .eq('id', formData.id);
-        if (error) throw error;
+        
+        if (error) {
+          console.error("[BatchTimingsManager] Update Error:", error);
+          throw error;
+        }
         toast.success("Batch updated successfully.");
       } else {
         const { error } = await supabase
           .from('batch_timings')
           .insert([{ ...payload, is_visible: true }]);
-        if (error) throw error;
+        
+        if (error) {
+          console.error("[BatchTimingsManager] Insert Error:", error);
+          throw error;
+        }
         toast.success("New batch created successfully.");
       }
       
       setIsModalOpen(false);
       await fetchBatches();
     } catch (err: any) {
-      console.error("[Save Error]", err.message);
-      toast.error('Operation failed: ' + err.message);
+      toast.error('Database operation failed. Check console for details.');
     }
   };
 
@@ -105,13 +114,15 @@ const BatchTimingsManager = () => {
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("[BatchTimingsManager] Delete Error:", error);
+        throw error;
+      }
       
       toast.success("Batch deleted from database.");
       await fetchBatches();
     } catch (err: any) {
-      console.error("[Delete Error]", err.message);
-      toast.error('Delete failed: ' + err.message);
+      toast.error('Delete failed: ' + (err.message || 'Check console'));
     }
   };
 
@@ -122,10 +133,13 @@ const BatchTimingsManager = () => {
         .update({ is_visible: !batch.is_visible })
         .eq('id', batch.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("[BatchTimingsManager] Toggle Error:", error);
+        throw error;
+      }
       await fetchBatches();
     } catch (err: any) {
-      toast.error('Update failed: ' + err.message);
+      toast.error('Update visibility failed.');
     }
   };
 
@@ -142,17 +156,25 @@ const BatchTimingsManager = () => {
         .update({ display_order: targetBatch.display_order })
         .eq('id', currentBatch.id);
       
+      if (err1) {
+        console.error("[BatchTimingsManager] Reorder Error 1:", err1);
+        throw err1;
+      }
+
       const { error: err2 } = await supabase
         .from('batch_timings')
         .update({ display_order: currentBatch.display_order })
         .eq('id', targetBatch.id);
 
-      if (err1 || err2) throw new Error("Order update failed");
+      if (err2) {
+        console.error("[BatchTimingsManager] Reorder Error 2:", err2);
+        throw err2;
+      }
       
       await fetchBatches();
       toast.success("Order synchronized.");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error("Failed to update order.");
     }
   };
 
