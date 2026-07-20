@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useSettings } from '@/contexts/SettingsContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Layout, Globe } from 'lucide-react';
+import { Save, Layout, Globe, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import ImageUpload from '../shared/ImageUpload';
 
 const HeroManager = () => {
   const { settings, refresh } = useSettings();
@@ -16,7 +17,9 @@ const HeroManager = () => {
     hero_heading: '',
     hero_subheading: '',
     programs_hero_title: '',
-    programs_hero_subtitle: ''
+    programs_hero_subtitle: '',
+    hero_card_image_url: '',
+    hero_card_title: ''
   });
   const [isDirty, setIsDirty] = useState(false);
 
@@ -26,7 +29,9 @@ const HeroManager = () => {
         hero_heading: settings.hero_heading || '',
         hero_subheading: settings.hero_subheading || '',
         programs_hero_title: settings.programs_hero_title || '',
-        programs_hero_subtitle: settings.programs_hero_subtitle || ''
+        programs_hero_subtitle: settings.programs_hero_subtitle || '',
+        hero_card_image_url: settings.hero_card_image_url || '',
+        hero_card_title: settings.hero_card_title || 'Elite Training Session'
       });
     }
   }, [settings]);
@@ -66,22 +71,52 @@ const HeroManager = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Main Heading</label>
-            <Input 
-              value={formData.hero_heading}
-              onChange={(e) => handleInputChange('hero_heading', e.target.value)}
-              className="h-14 rounded-2xl bg-slate-50 border-none font-black text-[#0F4C81]"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Main Heading</label>
+              <Input 
+                value={formData.hero_heading}
+                onChange={(e) => handleInputChange('hero_heading', e.target.value)}
+                className="h-14 rounded-2xl bg-slate-50 border-none font-black text-[#0F4C81]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sub-heading / Tagline</label>
+              <Input 
+                value={formData.hero_subheading}
+                onChange={(e) => handleInputChange('hero_subheading', e.target.value)}
+                className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-slate-600"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sub-heading / Tagline</label>
-            <Input 
-              value={formData.hero_subheading}
-              onChange={(e) => handleInputChange('hero_subheading', e.target.value)}
-              className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-slate-600"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-slate-50">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hero Card Title</label>
+                <Input 
+                  value={formData.hero_card_title}
+                  onChange={(e) => handleInputChange('hero_card_title', e.target.value)}
+                  className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-[#0F4C81]"
+                  placeholder="Elite Training Session"
+                />
+              </div>
+              
+              <div className="p-6 rounded-[2rem] bg-amber-50/50 border border-amber-100/50">
+                <p className="text-xs text-amber-800 font-medium leading-relaxed">
+                  This card floats next to the main image in the About section on the homepage, serving as a highlighted "feature" visual.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <ImageUpload 
+                label="Hero Card Image"
+                value={formData.hero_card_image_url}
+                onChange={(url) => handleInputChange('hero_card_image_url', url)}
+              />
+            </div>
           </div>
         </div>
       </Card>

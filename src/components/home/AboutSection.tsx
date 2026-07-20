@@ -81,14 +81,33 @@ const AboutSection = () => {
             viewport={{ once: true }}
             className="lg:w-1/2 relative w-full"
           >
+            {/* Managed Floating Card */}
             <div className="absolute top-10 -left-10 z-20 hidden xl:block animate-in fade-in slide-in-from-right-10 duration-1000 delay-300">
-              <div className="bg-white p-8 rounded-[3rem] shadow-2xl space-y-3 max-w-[240px] border border-slate-100 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-[#FFC107]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <div className="w-14 h-14 rounded-2xl bg-[#FFC107] flex items-center justify-center text-[#0F4C81] shadow-lg group-hover:rotate-12 transition-transform">
-                   <Trophy size={28} strokeWidth={2.5} />
+              <div className="bg-white rounded-[3rem] shadow-2xl space-y-4 max-w-[260px] border border-slate-100 relative overflow-hidden group pb-8">
+                <div className="aspect-[4/3] w-full overflow-hidden bg-slate-50 relative">
+                  {settings?.hero_card_image_url ? (
+                    <img 
+                      src={settings.hero_card_image_url} 
+                      alt={settings.hero_card_title || 'Feature'} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-200">
+                      <LucideImage size={40} strokeWidth={1} />
+                      <span className="text-[8px] font-black uppercase tracking-widest">Visual Placeholder</span>
+                    </div>
+                  )}
+                  <div className="absolute top-4 left-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#FFC107] flex items-center justify-center text-[#0F4C81] shadow-lg group-hover:rotate-12 transition-transform">
+                       <Trophy size={20} strokeWidth={2.5} />
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h4 className="text-xl font-black text-[#0F4C81] uppercase tracking-tighter leading-tight">Elite Training Session</h4>
+
+                <div className="px-8 space-y-1">
+                  <h4 className="text-xl font-black text-[#0F4C81] uppercase tracking-tighter leading-none pt-1">
+                    {settings?.hero_card_title || 'Elite Training Session'}
+                  </h4>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Master the Court</p>
                 </div>
               </div>

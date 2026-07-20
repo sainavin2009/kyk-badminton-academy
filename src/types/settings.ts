@@ -21,6 +21,8 @@ export interface SiteSettings {
   hero_subheading: string;
   programs_hero_title: string;
   programs_hero_subtitle: string;
+  hero_card_image_url?: string;
+  hero_card_title?: string;
   about_heading: string;
   about_content: string;
   about_image: string;
