@@ -107,14 +107,15 @@ const GalleryManager = ({ category }: GalleryManagerProps) => {
         if (error) throw error;
         setItems(prev => prev.map(item => item.id === savedItem.id ? data[0] : item));
       } else {
-        const { data, error } = await supabase
-          .from('gallery_items')
-          .insert([{ ...savedItem, order_index: items.length }])
-          .select();
-        
-        if (error) throw error;
-        setItems(prev => [...prev, data[0]]);
-      }
+  const { id, ...itemData } = savedItem;
+  const { data, error } = await supabase
+    .from('gallery_items')
+    .insert([{ ...itemData, order_index: items.length }])
+    .select();
+  
+  if (error) throw error;
+  setItems(prev => [...prev, data[0]]);
+}
     } catch (error: any) {
       toast.error('Operation failed: ' + error.message);
     }
