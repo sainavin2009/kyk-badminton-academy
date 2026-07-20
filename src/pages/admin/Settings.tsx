@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'react-hot-toast';
-import { Settings as SettingsIcon, Save, ArrowLeft, Layout } from 'lucide-react';
+import { Settings as SettingsIcon, Save, ArrowLeft, Layout, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AdminSettings = () => {
