@@ -31,7 +31,7 @@ const Index = () => {
         if (error) throw error;
         if (data) setStatsData(data);
       } catch (err) {
-        console.error('Stats Fetch Warning:', err);
+        console.warn('Stats Fetch Warning:', err);
       } finally {
         setLoading(false);
       }

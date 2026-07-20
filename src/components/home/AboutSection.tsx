@@ -2,7 +2,16 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Users, Shield, GraduationCap, Award, Zap, Ruler, Star, Trophy, Image as ImageIcon } from 'lucide-react';
+import { 
+  Target, 
+  Users, 
+  Award, 
+  Zap, 
+  Ruler, 
+  Star, 
+  Trophy, 
+  Image as LucideImage 
+} from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 
 const highlights = [
@@ -72,7 +81,6 @@ const AboutSection = () => {
             viewport={{ once: true }}
             className="lg:w-1/2 relative w-full"
           >
-            {/* Floating Info Card */}
             <div className="absolute top-10 -left-10 z-20 hidden xl:block animate-in fade-in slide-in-from-right-10 duration-1000 delay-300">
               <div className="bg-white p-8 rounded-[3rem] shadow-2xl space-y-3 max-w-[240px] border border-slate-100 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-[#FFC107]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -96,20 +104,18 @@ const AboutSection = () => {
                 />
               ) : (
                 <div className="flex flex-col items-center gap-4 text-slate-200">
-                  <ImageIcon size={64} strokeWidth={1} />
+                  <LucideImage size={64} strokeWidth={1} />
                   <p className="text-[10px] font-black uppercase tracking-[0.4em]">Academy Visual</p>
                 </div>
               )}
               
-              {/* Decorative Corner */}
               <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#FFC107] rounded-tl-[4rem] flex items-center justify-center shadow-2xl">
                  <div className="text-white text-4xl font-black italic -rotate-12">#1</div>
               </div>
             </div>
 
-            {/* Background Decorative Element */}
             <div className="absolute -bottom-10 -right-10 w-full h-full bg-[#0F4C81]/5 rounded-[4rem] -z-10 translate-x-4 translate-y-4" />
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
