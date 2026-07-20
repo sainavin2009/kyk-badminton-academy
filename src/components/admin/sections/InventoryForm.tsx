@@ -121,12 +121,12 @@ const InventoryForm = ({ isOpen, onClose, onSave, product }: InventoryFormProps)
 
             {/* Pricing */}
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Purchase Price ($)</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Purchase Price (₹)</Label>
               <Input type="number" step="0.01" {...register('purchase_price')} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selling Price ($)</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selling Price (₹)</Label>
               <Input type="number" step="0.01" {...register('selling_price')} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
             </div>
 

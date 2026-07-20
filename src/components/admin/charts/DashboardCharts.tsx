@@ -14,6 +14,7 @@ import {
   Cell
 } from 'recharts';
 import { Card } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
 
 interface IncomeExpenseChartProps {
   data: any[];
@@ -44,8 +45,10 @@ export const IncomeExpenseChart = ({ data }: IncomeExpenseChartProps) => (
           axisLine={false} 
           tickLine={false} 
           tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+          tickFormatter={(val) => `₹${val}`}
         />
         <Tooltip 
+          formatter={(value: number) => formatCurrency(value)}
           contentStyle={{ 
             borderRadius: '1rem', 
             border: 'none', 

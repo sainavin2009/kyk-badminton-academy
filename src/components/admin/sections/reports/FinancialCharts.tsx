@@ -6,6 +6,7 @@ import {
   PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { Card } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
 
 interface FinancialChartsProps {
   trendData: any[];
@@ -29,8 +30,9 @@ const FinancialCharts = ({ trendData, categoryData }: FinancialChartsProps) => {
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} tickFormatter={(val) => `₹${val}`} />
             <Tooltip 
+              formatter={(value: number) => formatCurrency(value)}
               contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }} 
             />
             <Area type="monotone" dataKey="income" stroke="#0F4C81" strokeWidth={3} fillOpacity={1} fill="url(#colorInc)" />
@@ -56,7 +58,7 @@ const FinancialCharts = ({ trendData, categoryData }: FinancialChartsProps) => {
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip formatter={(value: number) => formatCurrency(value)} />
             <Legend verticalAlign="bottom" align="center" iconType="circle" />
           </PieChart>
         </ResponsiveContainer>

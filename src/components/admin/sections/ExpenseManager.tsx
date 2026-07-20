@@ -23,7 +23,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from 'sonner';
 import { AcademyExpense } from '@/types/expense';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import ExpenseForm from './expenses/ExpenseForm';
 import {
   AlertDialog,
@@ -141,7 +141,7 @@ const ExpenseManager = () => {
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107]">Total Expenses</p>
-            <h3 className="text-3xl font-black">${totalExpenseVal.toLocaleString()}</h3>
+            <h3 className="text-3xl font-black">{formatCurrency(totalExpenseVal)}</h3>
           </div>
         </Card>
       </div>
@@ -204,7 +204,7 @@ const ExpenseManager = () => {
                     <TableCell>
                       <span className="text-xs font-bold text-slate-500">{format(new Date(e.date), 'MMM dd, yyyy')}</span>
                     </TableCell>
-                    <TableCell className="text-lg font-black text-red-500">${e.amount}</TableCell>
+                    <TableCell className="text-lg font-black text-red-500">{formatCurrency(e.amount)}</TableCell>
                     <TableCell className="text-right pr-8">
                       <div className="flex justify-end gap-2">
                         <Button 

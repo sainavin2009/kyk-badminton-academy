@@ -40,7 +40,7 @@ import {
   History
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface InventoryTableProps {
   items: any[];
@@ -144,8 +144,8 @@ const InventoryTable = ({ items, onEdit, onDelete }: InventoryTableProps) => {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold text-slate-400">Cost: ${item.purchase_price}</span>
-                          <span className="text-sm font-black text-[#0F4C81]">Sell: ${item.selling_price}</span>
+                          <span className="text-xs font-bold text-slate-400">Cost: {formatCurrency(item.purchase_price)}</span>
+                          <span className="text-sm font-black text-[#0F4C81]">Sell: {formatCurrency(item.selling_price)}</span>
                         </div>
                       </TableCell>
                       <TableCell>

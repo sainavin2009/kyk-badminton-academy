@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import CollectFeeModal from './CollectFeeModal';
 import ReceiptModal from './ReceiptModal';
+import { formatCurrency } from '@/lib/utils';
 
 const FeeManager = () => {
   const [payments, setPayments] = useState<any[]>([]);
@@ -84,7 +85,7 @@ const FeeManager = () => {
         <div className="flex gap-3">
           <Button variant="ghost" onClick={fetchData} className="h-16 w-16 rounded-2xl text-slate-400"><RefreshCw className={loading ? "animate-spin" : ""} size={20} /></Button>
           <Button onClick={() => setIsCollectModalOpen(true)} className="h-16 px-10 rounded-2xl bg-[#0F4C81] text-white hover:bg-[#FFC107] hover:text-[#0F4C81] font-black uppercase tracking-widest shadow-xl group">
-            <DollarSign className="mr-3 group-hover:scale-110 transition-transform" /> Collect Fee
+            <span className="mr-3 text-xl font-black group-hover:scale-110 transition-transform">₹</span> Collect Fee
           </Button>
         </div>
       </div>
@@ -92,7 +93,7 @@ const FeeManager = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-8 rounded-[2.5rem] bg-[#0F4C81] text-white border-none shadow-xl">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107]">Total Collection</p>
-          <h3 className="text-4xl font-black tracking-tighter">${payments.reduce((acc, p) => acc + Number(p.amount), 0).toLocaleString()}</h3>
+          <h3 className="text-4xl font-black tracking-tighter">{formatCurrency(payments.reduce((acc, p) => acc + Number(p.amount), 0))}</h3>
         </Card>
       </div>
 
@@ -126,7 +127,7 @@ const FeeManager = () => {
                       </div>
                     </TableCell>
                     <TableCell><span className="text-xs font-bold text-slate-600 uppercase">{p.payment_type}</span></TableCell>
-                    <TableCell><span className="text-lg font-black text-[#0F4C81]">${p.amount}</span></TableCell>
+                    <TableCell><span className="text-lg font-black text-[#0F4C81]">{formatCurrency(p.amount)}</span></TableCell>
                     <TableCell className="text-right pr-8">
                       <Button onClick={() => { setSelectedPayment(p); setIsReceiptModalOpen(true); }} variant="ghost" className="h-12 w-12 rounded-xl hover:bg-[#FFC107]/10"><FileText size={18} /></Button>
                     </TableCell>

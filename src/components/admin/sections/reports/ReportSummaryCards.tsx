@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Users, Package, AlertTriangle, DollarSign } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface SummaryProps {
   data: {
@@ -18,12 +18,12 @@ interface SummaryProps {
 
 const ReportSummaryCards = ({ data }: SummaryProps) => {
   const cards = [
-    { label: "Total Revenue", value: `$${data.totalIncome.toLocaleString()}`, icon: TrendingUp, color: "text-green-600", bg: "bg-green-50" },
-    { label: "Total Expenses", value: `$${data.totalExpenses.toLocaleString()}`, icon: TrendingDown, color: "text-red-600", bg: "bg-red-50" },
-    { label: "Net Profit", value: `$${data.netProfit.toLocaleString()}`, icon: DollarSign, color: "text-[#0F4C81]", bg: "bg-blue-50" },
-    { label: "Total Athletes", value: data.totalStudents, icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
-    { label: "Pending Dues", value: `$${data.pendingFees.toLocaleString()}`, icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Low Stock Items", value: data.lowStock, icon: Package, color: "text-slate-600", bg: "bg-slate-50" },
+    { label: "Total Revenue", value: formatCurrency(data.totalIncome), icon: TrendingUp, color: "text-green-600", bg: "bg-green-50" },
+    { label: "Total Expenses", value: formatCurrency(data.totalExpenses), icon: TrendingDown, color: "text-red-600", bg: "bg-red-50" },
+    { label: "Net Profit", value: formatCurrency(data.netProfit), icon: DollarSign, color: "text-[#0F4C81]", bg: "bg-blue-50" },
+    { label: "Total Athletes", value: data.totalStudents.toString(), icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+    { label: "Pending Dues", value: formatCurrency(data.pendingFees), icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-50" },
+    { label: "Low Stock Items", value: data.lowStock.toString(), icon: Package, color: "text-slate-600", bg: "bg-slate-50" },
   ];
 
   return (

@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import SaleForm from './SaleForm';
 import SaleInvoiceModal from './SaleInvoiceModal';
+import { formatCurrency } from '@/lib/utils';
 
 const SaleManager = () => {
   const [sales, setSales] = useState<any[]>([]);
@@ -75,12 +76,10 @@ const SaleManager = () => {
       const tax_amount = (subtotal - discount_amount) * (tax_rate / 100);
       const total_amount = subtotal - discount_amount + tax_amount;
 
-      // Ensure customer_name is not lost before insertion
       if (!customer_name) {
         throw new Error("Customer name is required for generation.");
       }
 
-      // 1. Create Sale Header
       const { data: saleHead, error: saleError } = await supabase
         .from('sales')
         .insert([{
@@ -95,7 +94,6 @@ const SaleManager = () => {
 
       if (saleError) throw saleError;
 
-      // 2. Create Sale Items
       const saleItems = items.map((item: any) => ({
         sale_id: saleHead.id,
         product_id: item.product_id,
@@ -110,7 +108,6 @@ const SaleManager = () => {
       toast.success('✅ Sale recorded successfully.');
       setIsSaleModalOpen(false);
       
-      // Fetch the complete sale object for the invoice modal
       const { data: fullSale } = await supabase
         .from('sales')
         .select(`
@@ -165,9 +162,9 @@ const SaleManager = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FFC107]">Total Revenue</p>
-              <h3 className="text-4xl font-black tracking-tighter">${totalSalesVal.toLocaleString()}</h3>
+              <h3 className="text-4xl font-black tracking-tighter">{formatCurrency(totalSalesVal)}</h3>
             </div>
-            <DollarSign className="text-white/20" size={48} />
+            <span className="text-white/20 text-5xl font-black">₹</span>
           </div>
         </Card>
         <Card className="p-8 rounded-[2.5rem] bg-white border-none shadow-sm flex items-center gap-6">
@@ -232,7 +229,7 @@ const SaleManager = () => {
                     <TableCell>
                       <span className="text-[9px] font-black uppercase tracking-widest bg-slate-100 px-2 py-1 rounded text-slate-500">{s.payment_mode}</span>
                     </TableCell>
-                    <TableCell className="text-lg font-black text-[#0F4C81]">${s.total_amount}</TableCell>
+                    <TableCell className="text-lg font-black text-[#0F4C81]">{formatCurrency(s.total_amount)}</TableCell>
                     <TableCell className="text-right pr-8">
                       <Button 
                         onClick={() => { setSelectedSale(s); setIsInvoiceModalOpen(true); }}

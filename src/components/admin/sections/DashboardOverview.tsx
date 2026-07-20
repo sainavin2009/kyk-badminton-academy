@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format, startOfDay, endOfDay, subMonths, startOfMonth, eachMonthOfInterval } from 'date-fns';
+import { formatCurrency } from '@/lib/utils';
 
 const DashboardOverview = () => {
   const { profile } = useAuth();
@@ -132,7 +133,7 @@ const DashboardOverview = () => {
       setProgramData(progChartData);
       setRecentPayments(fees.slice(0, 3).map(f => ({
         name: (f.students as any)?.full_name || 'System',
-        amount: `$${f.amount}`,
+        amount: formatCurrency(f.amount),
         date: format(new Date(f.created_at), 'p'),
         method: 'Payment'
       })));
@@ -178,13 +179,13 @@ const DashboardOverview = () => {
         <DashboardCard label="Total Students" value={stats.totalStudents} icon={Users} trend="Live" />
         <DashboardCard label="Active Accounts" value={stats.activeStudents} icon={UserPlus} trendType="up" />
         <DashboardCard label="Unpaid Dues" value={stats.pendingFees} icon={AlertTriangle} color="bg-amber-50 text-amber-600" />
-        <DashboardCard label="Today's Collection" value={`$${stats.todayCollection.toLocaleString()}`} icon={DollarSign} color="bg-green-50 text-green-600" />
+        <DashboardCard label="Today's Collection" value={formatCurrency(stats.todayCollection)} icon={DollarSign} color="bg-green-50 text-green-600" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard label="Monthly Income" value={`$${stats.monthlyIncome.toLocaleString()}`} icon={TrendingUp} />
-        <DashboardCard label="Total Expenses" value={`$${stats.monthlyExpenses.toLocaleString()}`} icon={Briefcase} color="bg-red-50 text-red-600" />
-        <DashboardCard label="Inventory Value" value={`$${stats.inventoryValue.toLocaleString()}`} icon={Package} />
+        <DashboardCard label="Monthly Income" value={formatCurrency(stats.monthlyIncome)} icon={TrendingUp} />
+        <DashboardCard label="Total Expenses" value={formatCurrency(stats.monthlyExpenses)} icon={Briefcase} color="bg-red-50 text-red-600" />
+        <DashboardCard label="Inventory Value" value={formatCurrency(stats.inventoryValue)} icon={Package} />
         {profile?.role === 'Super Admin' ? (
            <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-[#0F4C81] text-white flex items-center gap-4 group">
               <div className="p-3 bg-white/10 rounded-xl group-hover:bg-[#FFC107] group-hover:text-[#0F4C81] transition-all">
@@ -216,7 +217,7 @@ const DashboardOverview = () => {
               <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold text-xs">
-                    <DollarSign size={16} />
+                    <span className="text-xs">₹</span>
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#0F4C81]">{payment.name}</p>

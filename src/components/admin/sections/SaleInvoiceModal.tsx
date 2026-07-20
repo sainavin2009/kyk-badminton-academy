@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { useSettings } from '@/contexts/SettingsContext';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { formatCurrency } from '@/lib/utils';
 
 interface SaleInvoiceModalProps {
   isOpen: boolean;
@@ -141,8 +142,8 @@ const SaleInvoiceModal = ({ isOpen, onClose, sale }: SaleInvoiceModalProps) => {
                   <div key={i} className="grid grid-cols-12 gap-4 text-sm font-bold text-slate-600">
                     <div className="col-span-6 font-black text-[#0F4C81]">{item.inventory?.name}</div>
                     <div className="col-span-2 text-center">{item.quantity}</div>
-                    <div className="col-span-2 text-right">${item.unit_price}</div>
-                    <div className="col-span-2 text-right text-[#0F4C81]">${item.subtotal}</div>
+                    <div className="col-span-2 text-right">{formatCurrency(item.unit_price)}</div>
+                    <div className="col-span-2 text-right text-[#0F4C81]">{formatCurrency(item.subtotal)}</div>
                   </div>
                 ))}
               </div>
@@ -153,15 +154,15 @@ const SaleInvoiceModal = ({ isOpen, onClose, sale }: SaleInvoiceModalProps) => {
               <div className="w-full md:w-72 space-y-4">
                 <div className="flex justify-between text-xs font-bold text-slate-400 uppercase">
                   <span>Tax Total</span>
-                  <span>${sale.tax_amount}</span>
+                  <span>{formatCurrency(sale.tax_amount)}</span>
                 </div>
                 <div className="flex justify-between text-xs font-bold text-red-400 uppercase">
                   <span>Discount Applied</span>
-                  <span>-${sale.discount_amount}</span>
+                  <span>-{formatCurrency(sale.discount_amount)}</span>
                 </div>
                 <div className="bg-[#0F4C81] text-white p-6 rounded-[1.5rem] shadow-xl shadow-[#0F4C81]/20 flex justify-between items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest">Grand Total</span>
-                  <span className="text-3xl font-black">${sale.total_amount}</span>
+                  <span className="text-3xl font-black">{formatCurrency(sale.total_amount)}</span>
                 </div>
               </div>
             </div>

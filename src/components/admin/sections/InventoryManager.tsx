@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { PackagePlus, RefreshCw, AlertCircle, Archive, ShoppingCart, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
 
 const InventoryManager = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -147,7 +148,7 @@ const InventoryManager = () => {
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-[#FFC107]">Inventory Value</p>
-            <h3 className="text-3xl font-black">${totalValue.toLocaleString()}</h3>
+            <h3 className="text-3xl font-black">{formatCurrency(totalValue)}</h3>
           </div>
         </Card>
       </div>

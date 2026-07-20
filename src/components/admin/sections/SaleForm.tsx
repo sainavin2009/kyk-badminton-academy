@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ShoppingCart, Plus, Trash2, Check, User } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 const saleSchema = z.object({
   customer_name: z.string().min(1, "Customer name is required"),
@@ -54,7 +55,6 @@ const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
     name: "items"
   });
 
-  // Explicitly watch customer_name to ensure it is controlled
   const customerNameValue = watch('customer_name');
   const watchedItems = watch('items');
   const watchedDiscount = watch('discount_amount') || 0;
@@ -162,7 +162,7 @@ const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
                   />
                 </div>
                 <div className="col-span-2 space-y-2">
-                  <Label className="text-[8px] font-black uppercase text-slate-400">Price</Label>
+                  <Label className="text-[8px] font-black uppercase text-slate-400">Price (₹)</Label>
                   <Input 
                     type="number" 
                     readOnly 
@@ -173,7 +173,7 @@ const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
                 <div className="col-span-2 space-y-2">
                   <Label className="text-[8px] font-black uppercase text-slate-400">Subtotal</Label>
                   <div className="h-12 flex items-center px-2 font-black text-[#0F4C81]">
-                    ${(Number(watchedItems[index]?.quantity || 0) * (watchedItems[index]?.unit_price || 0)).toFixed(2)}
+                    {formatCurrency(Number(watchedItems[index]?.quantity || 0) * (watchedItems[index]?.unit_price || 0))}
                   </div>
                 </div>
                 <div className="col-span-1 pb-1">
@@ -188,7 +188,7 @@ const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t border-slate-100">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Discount Amount ($)</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Discount Amount (₹)</Label>
                 <Input type="number" {...register('discount_amount')} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
               </div>
               <div className="space-y-2">
@@ -200,19 +200,19 @@ const SaleForm = ({ isOpen, onClose, onSave, products }: SaleFormProps) => {
             <div className="bg-[#0F4C81]/5 rounded-[2rem] p-8 space-y-4">
               <div className="flex justify-between text-sm font-bold text-slate-500">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm font-bold text-red-500">
                 <span>Discount</span>
-                <span>-${Number(watchedDiscount).toFixed(2)}</span>
+                <span>-{formatCurrency(watchedDiscount)}</span>
               </div>
               <div className="flex justify-between text-sm font-bold text-[#0F4C81]">
                 <span>Tax ({watchedTaxRate}%)</span>
-                <span>${((subtotal - watchedDiscount) * (watchedTaxRate / 100)).toFixed(2)}</span>
+                <span>{formatCurrency((subtotal - watchedDiscount) * (watchedTaxRate / 100))}</span>
               </div>
               <div className="pt-4 border-t border-[#0F4C81]/10 flex justify-between items-center">
                 <span className="text-xl font-black text-[#0F4C81] uppercase tracking-tighter">Grand Total</span>
-                <span className="text-3xl font-black text-[#0F4C81]">${total.toFixed(2)}</span>
+                <span className="text-3xl font-black text-[#0F4C81]">{formatCurrency(total)}</span>
               </div>
             </div>
           </div>

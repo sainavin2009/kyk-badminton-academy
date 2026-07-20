@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import ReportSummaryCards from './reports/ReportSummaryCards';
 import FinancialCharts from './reports/FinancialCharts';
 import { exportToCSV, exportToPDF } from '../../../utils/reportExport';
+import { formatCurrency } from '@/lib/utils';
 
 const ReportsManager = () => {
   const [loading, setLoading] = useState(true);
@@ -95,7 +96,7 @@ const ReportsManager = () => {
       format(new Date(p.created_at), 'dd MMM yyyy'),
       p.students?.name || 'N/A',
       p.payment_type || 'Sale',
-      `$${p.amount || p.total_amount}`
+      formatCurrency(p.amount || p.total_amount)
     ]);
     exportToPDF('Income Report', headers, rows, 'Academy_Income_Report');
     toast.success('PDF Export Initialized');
@@ -114,9 +115,9 @@ const ReportsManager = () => {
   ];
 
   const categoryData = [
-    { name: 'Monthly Fees', value: reportData.income.filter(i => i.payment_type === 'Monthly').length },
-    { name: 'Sales', value: reportData.sales.length },
-    { name: 'Admissions', value: reportData.income.filter(i => i.payment_type === 'Admission').length },
+    { name: 'Monthly Fees', value: reportData.income.filter(i => i.payment_type === 'Monthly').reduce((acc, curr) => acc + Number(curr.amount), 0) },
+    { name: 'Sales', value: reportData.sales.reduce((acc, curr) => acc + Number(curr.total_amount), 0) },
+    { name: 'Admissions', value: reportData.income.filter(i => i.payment_type === 'Admission').reduce((acc, curr) => acc + Number(curr.amount), 0) },
   ];
 
   return (
@@ -180,7 +181,7 @@ const ReportsManager = () => {
                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{item.payment_type || 'Sale'} • {format(new Date(item.created_at), 'PPP')}</p>
                   </div>
                 </div>
-                <span className="text-lg font-black text-[#0F4C81]">+${item.amount || item.total_amount}</span>
+                <span className="text-lg font-black text-[#0F4C81]">+{formatCurrency(item.amount || item.total_amount)}</span>
               </div>
             ))}
           </div>

@@ -62,7 +62,7 @@ const CollectFeeModal = ({ isOpen, onClose, onSave, students, selectedStudentId 
         <div className="bg-[#0F4C81] p-8 text-white">
           <DialogHeader>
             <DialogTitle className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
-              <DollarSign className="text-[#FFC107]" size={32} />
+              <span className="text-[#FFC107] text-2xl font-black">₹</span>
               Collect Fee
             </DialogTitle>
           </DialogHeader>
@@ -86,7 +86,7 @@ const CollectFeeModal = ({ isOpen, onClose, onSave, students, selectedStudentId 
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amount ($) *</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amount (₹) *</Label>
                 <Input {...register('amount')} type="number" placeholder="0.00" className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
                 {errors.amount && <p className="text-red-500 text-[10px] font-bold">{errors.amount.message}</p>}
               </div>

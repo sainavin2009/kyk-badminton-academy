@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Trophy, Printer, X } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatCurrency } from '@/lib/utils';
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -93,7 +94,7 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
                     <p className="text-xs font-bold text-slate-400">Month: {format(new Date(payment.billing_month), 'MMMM yyyy')}</p>
                   )}
                 </div>
-                <p className="text-xl font-black text-[#0F4C81]">${payment.amount}</p>
+                <p className="text-xl font-black text-[#0F4C81]">{formatCurrency(payment.amount)}</p>
               </div>
             </div>
 
@@ -105,7 +106,7 @@ const ReceiptModal = ({ isOpen, onClose, payment }: ReceiptModalProps) => {
               <div className="text-right">
                 <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Total Amount Paid</p>
                 <div className="bg-[#0F4C81] text-white px-8 py-3 rounded-2xl">
-                  <span className="text-2xl font-black">${payment.amount}</span>
+                  <span className="text-2xl font-black">{formatCurrency(payment.amount)}</span>
                 </div>
               </div>
             </div>

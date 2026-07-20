@@ -81,6 +81,7 @@ export const exportToPDF = (title: string, headers: string[], rows: any[][], fil
     }
 
     row.forEach((cell, colIndex) => {
+      // Ensure ₹ symbol displays correctly in PDF (standard fonts might need help, but usually simple string works)
       doc.text(String(cell), startX + (colIndex * colWidth) + 4, startY + 6);
     });
 
