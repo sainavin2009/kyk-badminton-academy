@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Users, Shield, GraduationCap, Award, Zap, Ruler, Star } from 'lucide-react';
+import { Target, Users, Shield, GraduationCap, Award, Zap, Ruler, Star, Trophy, Image as ImageIcon } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 
 const highlights = [
@@ -72,14 +72,44 @@ const AboutSection = () => {
             viewport={{ once: true }}
             className="lg:w-1/2 relative w-full"
           >
-            <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white">
-              <img 
-                src={settings?.about_image || 'https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=1200'} 
-                alt="Elite Training Session"
-                className="w-full h-full object-cover aspect-[4/5]"
-              />
+            {/* Floating Info Card */}
+            <div className="absolute top-10 -left-10 z-20 hidden xl:block animate-in fade-in slide-in-from-right-10 duration-1000 delay-300">
+              <div className="bg-white p-8 rounded-[3rem] shadow-2xl space-y-3 max-w-[240px] border border-slate-100 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-[#FFC107]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="w-14 h-14 rounded-2xl bg-[#FFC107] flex items-center justify-center text-[#0F4C81] shadow-lg group-hover:rotate-12 transition-transform">
+                   <Trophy size={28} strokeWidth={2.5} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-xl font-black text-[#0F4C81] uppercase tracking-tighter leading-tight">Elite Training Session</h4>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Master the Court</p>
+                </div>
+              </div>
             </div>
-          </motion.div>
+
+            <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white bg-slate-50 aspect-[4/5] flex items-center justify-center">
+              {settings?.about_image ? (
+                <img 
+                  src={settings.about_image} 
+                  alt="Elite Training Session"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-4 text-slate-200">
+                  <ImageIcon size={64} strokeWidth={1} />
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em]">Academy Visual</p>
+                </div>
+              )}
+              
+              {/* Decorative Corner */}
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#FFC107] rounded-tl-[4rem] flex items-center justify-center shadow-2xl">
+                 <div className="text-white text-4xl font-black italic -rotate-12">#1</div>
+              </div>
+            </div>
+
+            {/* Background Decorative Element */}
+            <div className="absolute -bottom-10 -right-10 w-full h-full bg-[#0F4C81]/5 rounded-[4rem] -z-10 translate-x-4 translate-y-4" />
+          </div>
         </div>
       </div>
     </section>

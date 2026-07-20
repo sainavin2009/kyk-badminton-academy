@@ -10,13 +10,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { 
   Save, 
   X, 
-  Upload, 
   Eye, 
   AlertCircle, 
-  CheckCircle2
+  Image as ImageIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import ImageUpload from '../shared/ImageUpload';
 
 const TITLE_LIMIT = 60;
 const CONTENT_LIMIT = 1000;
@@ -32,9 +32,9 @@ const AboutManager = () => {
 
   useEffect(() => {
     if (settings) {
-      setTitle(settings.about_heading);
-      setContent(settings.about_content);
-      setImage(settings.about_image);
+      setTitle(settings.about_heading || "");
+      setContent(settings.about_content || "");
+      setImage(settings.about_image || "");
     }
   }, [settings]);
 
@@ -62,7 +62,7 @@ const AboutManager = () => {
         .eq('id', 1);
 
       if (error) throw error;
-      toast.success("About Us content updated successfully!");
+      toast.success("Academy identity updated successfully!");
       setIsDirty(false);
       await refresh();
     } catch (err: any) {
@@ -84,8 +84,8 @@ const AboutManager = () => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">About Us Management</h2>
-          <p className="text-slate-500 font-medium">Customize the core identity of the academy.</p>
+          <h2 className="text-3xl font-black text-[#0F4C81] tracking-tighter uppercase">Academy Identity</h2>
+          <p className="text-slate-500 font-medium">Customize the core branding and about section content.</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -108,7 +108,7 @@ const AboutManager = () => {
           <Card className="p-8 md:p-10 rounded-[3rem] border-none shadow-sm space-y-8 bg-white">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Academy Heading</label>
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Main Heading</label>
                 <span className={cn(
                   "text-[10px] font-bold",
                   title.length > TITLE_LIMIT ? "text-red-500" : "text-slate-400"
@@ -128,6 +128,15 @@ const AboutManager = () => {
             </div>
 
             <div className="space-y-3">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Featured Image</label>
+              <ImageUpload 
+                value={image}
+                onChange={(url) => { setImage(url); setIsDirty(true); }}
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Mission Statement</label>
                 <span className={cn(
@@ -141,20 +150,11 @@ const AboutManager = () => {
                 value={content}
                 onChange={(e) => { setContent(e.target.value); setIsDirty(true); }}
                 className={cn(
-                  "min-h-[250px] rounded-[2.5rem] bg-slate-50 border-none font-medium text-slate-600 leading-relaxed p-8 focus-visible:ring-2 focus-visible:ring-[#FFC107] transition-all",
+                  "min-h-[200px] rounded-[2rem] bg-slate-50 border-none font-medium text-slate-600 leading-relaxed p-8 focus-visible:ring-2 focus-visible:ring-[#FFC107] transition-all resize-none",
                   errors.content && "ring-2 ring-red-500/20"
                 )}
               />
               {errors.content && <p className="flex items-center gap-1.5 text-xs font-bold text-red-500 mt-2"><AlertCircle size={14} /> {errors.content}</p>}
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Cover Image URL</label>
-              <Input 
-                value={image}
-                onChange={(e) => { setImage(e.target.value); setIsDirty(true); }}
-                className="h-12 rounded-xl bg-slate-50 border-none font-bold"
-              />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100">
@@ -173,6 +173,20 @@ const AboutManager = () => {
             </div>
           </Card>
         </div>
+
+        {!previewMode && (
+          <div className="lg:col-span-4 space-y-6">
+             <Card className="p-8 rounded-[3rem] bg-[#0F4C81] text-white border-none shadow-xl space-y-6">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-[#FFC107]">
+                   <ImageIcon size={24} />
+                </div>
+                <div className="space-y-2">
+                   <h3 className="text-xl font-black uppercase tracking-tighter">Hero Card Visual</h3>
+                   <p className="text-xs text-white/60 font-medium leading-relaxed">The image you upload here will be displayed as the main feature on your homepage with the "Elite Training Session" floating badge.</p>
+                </div>
+             </Card>
+          </div>
+        )}
       </div>
     </div>
   );
