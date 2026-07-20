@@ -1,68 +1,66 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { SiteSettings, Program } from '@/types/settings';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 
-interface SettingsContextType {
-  settings: SiteSettings | null;
-  programs: Program[];
-  loading: boolean;
-  refresh: () => Promise<void>;
+interface Settings {
+  id: number;
+  hero_heading?: string;
+  hero_subheading?: string;
+  about_heading?: string;
+  about_content?: string;
+  about_image?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  whatsapp?: string;
+  map_link?: string;
+  logo_url?: string;
 }
 
-const SettingsContext = createContext<SettingsContextType>({
-  settings: null,
-  programs: [],
-  loading: true,
-  refresh: async () => {},
-});
+interface SettingsContextType {
+  settings: Settings | null;
+  loading: boolean;
+  refreshSettings: () => Promise<void>;
+}
 
-export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [programs, setPrograms] = useState<Program[]>([]);
+const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+
+export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
+  const fetchSettings = async () => {
     try {
-      const [settingsRes, programsRes] = await Promise.all([
-        supabase.from('site_settings').select('*').eq('id', 1).maybeSingle(),
-        supabase.from('programs').select('*').order('order_index', { ascending: true })
-      ]);
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('*')
+        .single();
 
-      if (settingsRes.data) setSettings(settingsRes.data);
-      if (programsRes.data) setPrograms(programsRes.data);
+      if (error) throw error;
+      setSettings(data);
     } catch (error) {
-      console.error('Error fetching CMS data:', error);
+      console.error('Error fetching settings:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-
-    const settingsSub = supabase
-      .channel('settings-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, fetchData)
-      .subscribe();
-
-    const programsSub = supabase
-      .channel('programs-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'programs' }, fetchData)
-      .subscribe();
-
-    return () => {
-      settingsSub.unsubscribe();
-      programsSub.unsubscribe();
-    };
+    fetchSettings();
   }, []);
 
   return (
-    <SettingsContext.Provider value={{ settings, programs, loading, refresh: fetchData }}>
+    <SettingsContext.Provider value={{ settings, loading, refreshSettings: fetchSettings }}>
       {children}
     </SettingsContext.Provider>
   );
 };
 
-export const useSettings = () => useContext(SettingsContext);
+export const useSettings = () => {
+  const context = useContext(SettingsContext);
+  if (context === undefined) {
+    throw new Error('useSettings must be used within a SettingsProvider');
+  }
+  return context;
+};

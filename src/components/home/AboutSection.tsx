@@ -2,14 +2,15 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Users, Shield, GraduationCap, Award, Zap, Ruler, Star } from 'lucide-react';
+import { Target, Users, Shield, GraduationCap, Award, Zap, Ruler, Star, Edit3 } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
+import { Link } from 'react-router-dom';
 
 const highlights = [
   { icon: Award, title: "NS-NIS Certified", description: "Learn from expert coaches certified by the premier national sports institute." },
   { icon: Target, title: "Scientific Methods", description: "Data-driven training focusing on biomechanics and performance optimization." },
   { icon: Zap, title: "Agility Focus", description: "Specialized physical fitness and agility development for all age groups." },
-  { icon: Ruler, title: "Pro Infrastructure", description: "International standard synthetic courts for an elite training experience." },
+  {{ icon: Ruler, title: "Pro Infrastructure", description: "International standard synthetic courts for an elite training experience." },
   { icon: Users, title: "All Ages Welcome", description: "Structured progression programs designed for both kids and adults." },
   { icon: Star, title: "Technique Mastery", description: "Deep-dive focus on footwork, technique, and tactical court awareness." }
 ];
@@ -18,11 +19,19 @@ const AboutSection = () => {
   const { settings } = useSettings();
 
   return (
-    <section className="py-32 md:py-48 bg-white overflow-hidden" id="about">
+    <section className="py-32 md:py-48 bg-white overflow-hidden relative" id="about">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="flex flex-col lg:flex-row items-center gap-24 lg:gap-32">
           <div className="lg:w-1/2 space-y-12">
-            <div className="space-y-6">
+            <div className="space-y-6 relative group/header">
+              <Link 
+                to="/admin/settings" 
+                className="absolute -top-12 right-0 p-3 bg-slate-50 text-slate-300 hover:bg-[#FFC107] hover:text-[#0F4C81] rounded-xl transition-all opacity-0 group-hover/header:opacity-100 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-slate-100"
+              >
+                <Edit3 size={14} />
+                Edit Content
+              </Link>
+              
               <motion.span 
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -70,8 +79,16 @@ const AboutSection = () => {
             initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="lg:w-1/2 relative w-full"
+            className="lg:w-1/2 relative w-full group/image"
           >
+            <Link 
+              to="/admin/settings" 
+              className="absolute top-8 right-8 z-20 p-4 bg-white/90 backdrop-blur text-[#0F4C81] hover:bg-[#FFC107] rounded-3xl transition-all opacity-0 group-hover/image:opacity-100 shadow-2xl flex items-center gap-3 text-xs font-black uppercase tracking-widest border-4 border-white"
+            >
+              <Edit3 size={18} />
+              Change Photo
+            </Link>
+            
             <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white">
               <img 
                 src={settings?.about_image || 'https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=1200'} 
