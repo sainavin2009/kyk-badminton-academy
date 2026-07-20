@@ -79,59 +79,42 @@ const AboutSection = () => {
             initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="lg:w-1/2 relative w-full"
+            className="lg:w-1/2 relative w-full flex items-center justify-center py-20"
           >
-            {/* Redesigned Floating Feature Card */}
-            <div className="absolute top-10 -left-12 z-20 hidden xl:block animate-in fade-in slide-in-from-right-10 duration-1000 delay-300">
-              <div className="relative group">
-                <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-[280px] relative overflow-hidden border-4 border-white aspect-[4/5]">
-                  {settings?.hero_card_image_url ? (
-                    <img 
-                      src={settings.hero_card_image_url} 
-                      alt={settings.hero_card_title || 'Feature'} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-200 bg-white">
-                      <LucideImage size={40} strokeWidth={1} />
-                    </div>
-                  )}
-                  
-                  {/* Overlay Gradient and Text */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F4C81]/90 via-[#0F4C81]/20 to-transparent flex flex-col justify-end p-8">
-                    <h4 className="text-white font-black uppercase tracking-tight text-xl leading-tight">
-                      {settings?.hero_card_title || 'Elite Training Session'}
-                    </h4>
-                    <p className="text-[#FFC107] font-black uppercase text-[9px] tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Master the Court
-                    </p>
+            {/* Redesigned Floating Feature Card - Now the primary visual on this side */}
+            <div className="relative group animate-in fade-in zoom-in duration-1000 delay-300">
+              <div className="bg-white rounded-[3rem] shadow-2xl max-w-[340px] relative overflow-hidden border-8 border-white aspect-[4/5]">
+                {settings?.hero_card_image_url ? (
+                  <img 
+                    src={settings.hero_card_image_url} 
+                    alt={settings.hero_card_title || 'Feature'} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-200 bg-white">
+                    <LucideImage size={60} strokeWidth={1} />
                   </div>
+                )}
+                
+                {/* Overlay Gradient and Text */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0F4C81]/90 via-[#0F4C81]/20 to-transparent flex flex-col justify-end p-10">
+                  <h4 className="text-white font-black uppercase tracking-tight text-2xl leading-tight">
+                    {settings?.hero_card_title || 'Elite Training Session'}
+                  </h4>
+                  <p className="text-[#FFC107] font-black uppercase text-[10px] tracking-[0.2em] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Master the Court
+                  </p>
                 </div>
+              </div>
 
-                {/* Relocated gold #1 badge to overlap the floating card corner */}
-                <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#FFC107] rounded-3xl flex items-center justify-center shadow-2xl rotate-12 z-30 group-hover:rotate-0 transition-transform duration-500 border-4 border-white">
-                  <div className="text-[#0F4C81] text-4xl font-black italic">#1</div>
-                </div>
+              {/* Gold #1 badge */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#FFC107] rounded-[2.5rem] flex items-center justify-center shadow-2xl rotate-12 z-30 group-hover:rotate-0 transition-transform duration-500 border-8 border-white">
+                <div className="text-[#0F4C81] text-5xl font-black italic">#1</div>
               </div>
             </div>
 
-            <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white bg-white aspect-[4/5] flex items-center justify-center">
-              {settings?.about_image ? (
-                <img 
-                  src={settings.about_image} 
-                  alt="Elite Training Session"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-4 text-slate-200">
-                  <LucideImage size={64} strokeWidth={1} />
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em]">Academy Visual</p>
-                </div>
-              )}
-            </div>
-
-            <div className="absolute -bottom-10 -right-10 w-full h-full bg-[#0F4C81]/5 rounded-[4rem] -z-10 translate-x-4 translate-y-4" />
+            {/* Decorative background accent */}
+            <div className="absolute inset-0 m-auto w-full h-full max-w-md max-h-[500px] bg-[#0F4C81]/5 rounded-[4rem] -z-10 rotate-3" />
           </motion.div>
         </div>
       </div>
