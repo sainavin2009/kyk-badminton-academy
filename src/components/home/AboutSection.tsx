@@ -10,7 +10,7 @@ const highlights = [
   { icon: Award, title: "NS-NIS Certified", description: "Learn from expert coaches certified by the premier national sports institute." },
   { icon: Target, title: "Scientific Methods", description: "Data-driven training focusing on biomechanics and performance optimization." },
   { icon: Zap, title: "Agility Focus", description: "Specialized physical fitness and agility development for all age groups." },
-  {{ icon: Ruler, title: "Pro Infrastructure", description: "International standard synthetic courts for an elite training experience." },
+  { icon: Ruler, title: "Pro Infrastructure", description: "International standard synthetic courts for an elite training experience." },
   { icon: Users, title: "All Ages Welcome", description: "Structured progression programs designed for both kids and adults." },
   { icon: Star, title: "Technique Mastery", description: "Deep-dive focus on footwork, technique, and tactical court awareness." }
 ];
