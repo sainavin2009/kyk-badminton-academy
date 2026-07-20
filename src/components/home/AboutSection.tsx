@@ -81,34 +81,36 @@ const AboutSection = () => {
             viewport={{ once: true }}
             className="lg:w-1/2 relative w-full"
           >
-            {/* Managed Floating Card */}
-            <div className="absolute top-10 -left-10 z-20 hidden xl:block animate-in fade-in slide-in-from-right-10 duration-1000 delay-300">
-              <div className="bg-white rounded-[3rem] shadow-2xl space-y-4 max-w-[260px] border border-slate-100 relative overflow-hidden group pb-8">
-                <div className="aspect-[4/3] w-full overflow-hidden bg-slate-50 relative">
+            {/* Redesigned Floating Feature Card */}
+            <div className="absolute top-10 -left-12 z-20 hidden xl:block animate-in fade-in slide-in-from-right-10 duration-1000 delay-300">
+              <div className="relative group">
+                <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-[280px] relative overflow-hidden border-4 border-white aspect-[4/5]">
                   {settings?.hero_card_image_url ? (
                     <img 
                       src={settings.hero_card_image_url} 
                       alt={settings.hero_card_title || 'Feature'} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-200">
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-200 bg-slate-50">
                       <LucideImage size={40} strokeWidth={1} />
-                      <span className="text-[8px] font-black uppercase tracking-widest">Visual Placeholder</span>
                     </div>
                   )}
-                  <div className="absolute top-4 left-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#FFC107] flex items-center justify-center text-[#0F4C81] shadow-lg group-hover:rotate-12 transition-transform">
-                       <Trophy size={20} strokeWidth={2.5} />
-                    </div>
+                  
+                  {/* Overlay Gradient and Text */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F4C81]/90 via-[#0F4C81]/20 to-transparent flex flex-col justify-end p-8">
+                    <h4 className="text-white font-black uppercase tracking-tight text-xl leading-tight">
+                      {settings?.hero_card_title || 'Elite Training Session'}
+                    </h4>
+                    <p className="text-[#FFC107] font-black uppercase text-[9px] tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Master the Court
+                    </p>
                   </div>
                 </div>
 
-                <div className="px-8 space-y-1">
-                  <h4 className="text-xl font-black text-[#0F4C81] uppercase tracking-tighter leading-none pt-1">
-                    {settings?.hero_card_title || 'Elite Training Session'}
-                  </h4>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Master the Court</p>
+                {/* Relocated gold #1 badge to overlap the floating card corner */}
+                <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#FFC107] rounded-3xl flex items-center justify-center shadow-2xl rotate-12 z-30 group-hover:rotate-0 transition-transform duration-500 border-4 border-white">
+                  <div className="text-[#0F4C81] text-4xl font-black italic">#1</div>
                 </div>
               </div>
             </div>
@@ -127,10 +129,6 @@ const AboutSection = () => {
                   <p className="text-[10px] font-black uppercase tracking-[0.4em]">Academy Visual</p>
                 </div>
               )}
-              
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#FFC107] rounded-tl-[4rem] flex items-center justify-center shadow-2xl">
-                 <div className="text-white text-4xl font-black italic -rotate-12">#1</div>
-              </div>
             </div>
 
             <div className="absolute -bottom-10 -right-10 w-full h-full bg-[#0F4C81]/5 rounded-[4rem] -z-10 translate-x-4 translate-y-4" />
