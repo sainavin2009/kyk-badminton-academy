@@ -92,7 +92,7 @@ const AboutSection = () => {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-200 bg-slate-50">
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-200 bg-white">
                       <LucideImage size={40} strokeWidth={1} />
                     </div>
                   )}
@@ -115,7 +115,7 @@ const AboutSection = () => {
               </div>
             </div>
 
-            <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white bg-slate-50 aspect-[4/5] flex items-center justify-center">
+            <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white bg-white aspect-[4/5] flex items-center justify-center">
               {settings?.about_image ? (
                 <img 
                   src={settings.about_image} 
